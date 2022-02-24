@@ -1,7 +1,15 @@
+//=========================================
+// 
+// イージング関数計算処理
+// Author : Isoe Jukia
+// Author : Hamano Ryuuga
+// 
+//=========================================
 #include "main.h"
 #include "Calculation.h"
 
-float easeInOutBack(float x)		//イージングカーブ
+//イージングカーブ
+float easeInOutBack(float x)
 {
 	float c1 = 1.70158f;
 	float c2 = c1 * 1.525f;
@@ -12,6 +20,7 @@ float easeInOutBack(float x)		//イージングカーブ
 	return x < 0.5f ? Answer1 : Answer2;
 }
 
+//イージングカーブ
 float easeInElastic(float x)
 {
 	float c4 = (2 * D3DX_PI) / 3;
@@ -21,6 +30,7 @@ float easeInElastic(float x)
 	return x == 0.0f ? 0.0f : x == 1.0f ? 1.0f : Answer1;
 }
 
+//イージングカーブ
 float easeOutBounce(float x)
 {
 	float n1 = 7.5625f;
@@ -44,6 +54,7 @@ float easeOutBounce(float x)
 	}
 }
 
+//イージングカーブ
 float easeInBounce(float x)
 {
 	return 1.0f - easeOutBounce(1.0f - x);

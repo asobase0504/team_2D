@@ -2,6 +2,7 @@
 //
 // 弾の設定処理
 // Auther：唐﨑結斗
+// Author : 髙野馨將
 //
 //**************************************************************************************************
 #include"main.h"
@@ -14,6 +15,7 @@
 //*******************************************************************************
 #define BULLET_SPEED_SKY	(15.0f);	// 空中の弾速度
 #define BULLET_SPEED_GROUND	(10.0f);	// 地上の弾速度
+#define SIZE_BULLET			(15.0f)		//弾の大きさ
 
 //*******************************************************************************
 // グローバル変数
@@ -145,6 +147,12 @@ void UpdateBullet(void)
 
 		//頂点バッファをアンロック
 		s_pVtxBuff->Unlock();
+
+		if (pBullet->pos.x <= -SIZE_BULLET || pBullet->pos.x >= SCREEN_WIDTH + SIZE_BULLET || pBullet->pos.y <= -SIZE_BULLET || pBullet->pos.y >= SCREEN_HEIGHT + SIZE_BULLET)
+		{//弾が画面外に出た
+			pBullet->bUse = false;	//使用していない状態にする
+		}
+
 	}
 }
 
@@ -215,19 +223,24 @@ void SetBullet(D3DXVECTOR3	pos, D3DXVECTOR3 rot, int nType)
 
 		switch (pBullet->BulletType)
 		{
-		case BULLETTYPE_SKY:
+		case BULLETTYPE_PLAYER_SKY:
 			pBullet->size = D3DXVECTOR3(20.0f, 20.0f, 0.0f);		// 大きさ
 			pBullet->col = D3DXCOLOR(0.0f, 1.0f, 1.0f, 1.0f);		// カラー
 			pBullet->fSpeed = BULLET_SPEED_SKY;						// 速度
 			pBullet->nLife = 180;									// 寿命
 			break;
 
-		case BULLETTYPE_GROUND:
+		case BULLETTYPE_PLAYER_GROUND:
 			pBullet->size = D3DXVECTOR3(20.0f, 20.0f, 0.0f);		// 大きさ
 			pBullet->col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);		// カラー
 			pBullet->fSpeed = BULLET_SPEED_GROUND;					// 速度
 			pBullet->nLife = 180;									// 寿命
 			break;
+		case BULLETTYPE_ENEMY:
+			pBullet->size = D3DXVECTOR3(20.0f, 20.0f, 0.0f);		// 大きさ
+			pBullet->col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);		// カラー
+			pBullet->fSpeed = 3.0f;					// 速度
+			pBullet->nLife = 180;										// 寿命
 		}
 
 		// 移動ベクトルの算出

@@ -1,11 +1,18 @@
+//=========================================
+// 
+// 敵処理
+// Author : Isoe Jukia
+// Author : 髙野馨將
+// 
+//=========================================
 #include "main.h"
 #include "enemy.h"
 #include "Calculation.h"
-#include "enemybullet.h"
 #include "player.h"
 
 //----------------------------
 //マクロ
+//----------------------------
 #define COLLISION	(25)
 #define JUDGEMENT	(100)	//避ける敵の判定サイズ
 #define UP_ESCAPE	(200)	//上に逃げる敵の判定サイズ
@@ -13,6 +20,7 @@
 
 //----------------------------
 //static 変数
+//----------------------------
 static LPDIRECT3DTEXTURE9 s_pTex[TYPEENEMY_MAX] = {};	//テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;			//頂点バッファへのポインタ
 static enemy s_aEnemy[MAX_ENEMY];
@@ -100,8 +108,6 @@ void InitEnemy(void)
 
 	// 頂点をアンロックする
 	s_pVtxBuff->Unlock();
-
-	InitEnemyBullet();
 }
 
 // 終了
@@ -122,8 +128,6 @@ void UninitEnemy(void)
 		s_pVtxBuff->Release();
 		s_pVtxBuff = NULL;
 	}
-
-	UninitEnemyBullet();
 }
 
 void UpdateEnemy(void)
@@ -137,6 +141,7 @@ void UpdateEnemy(void)
 			continue;	//処理を１回飛ばす　[1]
 		}
 
+		// プレイヤー情報ｎ取得
 		Player* pPlayer = GetPlayer();
 
 		if (pEnemy->flg)	//追尾
@@ -223,7 +228,15 @@ void UpdateEnemy(void)
 				pEnemy->nCntBullet++;
 				if (pEnemy->nCntBullet >= 120)
 				{
-					SetEnemyBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->SizeY, 0.0f));
+					// エネミーからプレイヤーまでの距離の算出
+					D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
+
+					//対角線の角度を算出
+					Direction.z = atan2f(Direction.x, Direction.y);
+					Direction.x = 0.0f;		// 使わない情報なので初期化
+					Direction.y = 0.0f;		// 使わない情報なので初期化
+
+					SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->SizeY, 0.0f), Direction, BULLETTYPE_ENEMY);
 					pEnemy->nCntBullet = 0;
 				}
 			}
@@ -297,8 +310,6 @@ void UpdateEnemy(void)
 		// 頂点をアンロックする
 		s_pVtxBuff->Unlock();
 	}
-
-	UpdateEnemyBullet();
 }
 
 // 描画
@@ -328,7 +339,6 @@ void DrawEnemy(void)
 			nCntEnemy * 4,
 			2);
 	}
-	DrawEnemyBullet();
 }
 
 void SetEnemy(D3DXVECTOR3 pos, TYPEENEMY nType)

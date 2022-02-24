@@ -128,6 +128,11 @@ void UpdateGame(void)
 	{
 		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), TYPEENEMY_SKY_3);
 	}
+	//確認用(消してok)
+	if (GetKeyboardTrigger(DIK_P))
+	{
+		AddScore(123);
+	}
 
 	UpdateBG();		// 背景
 	UpdateMap();	// マップデータ

@@ -19,8 +19,9 @@
 //*************************************************************
 typedef enum
 {
-	BULLETTYPE_SKY = 0,
-	BULLETTYPE_GROUND,
+	BULLETTYPE_PLAYER_SKY = 0,
+	BULLETTYPE_PLAYER_GROUND,
+	BULLETTYPE_ENEMY,
 	MAX_BULLETTYPE,
 }BulletType;
 

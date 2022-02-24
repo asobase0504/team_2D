@@ -38,7 +38,7 @@ LPDIRECT3D9	g_pD3D = NULL;
 LPDIRECT3DDEVICE9 g_pD3DDevice = NULL;
 LPD3DXFONT g_pFont = NULL;	// フォントへのポインタ
 int g_nCountFPS = 0;		// FPSカウンタ
-static MODE s_mode = MODE_GAME;
+static MODE s_mode = MODE_TITLE;
 
 //=========================================
 // メイン関数
@@ -284,7 +284,7 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 
 	InitSound(hWnd);
 
-	SetMode(s_mode);	// モードの設定
+	SetMode(MODE_GAME);	// モードの設定
 
 	return S_OK;
 }
