@@ -110,12 +110,6 @@ void UpdatePlayer(void)
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	// 対角線の長さを算出する
-	s_Player.fLength = sqrtf(((s_Player.size.x * s_Player.size.x) + (s_Player.size.y * s_Player.size.y)) * 0.5f);
-
-	// 対角線の角度を算出
-	s_Player.fAngele = atan2f(s_Player.size.x, s_Player.size.y);
-
 	// 頂点座標の設定
 	SetPlayerVtx(pVtx, s_Player.pos, s_Player.rot, s_Player.col, s_Player.fLength, s_Player.fAngele);
 
@@ -175,7 +169,7 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 		s_Player.bUse = true;								// 使用してる
 
 		//対角線の長さを算出する
-		s_Player.fLength = sqrtf(((s_Player.size.x * s_Player.size.x) + (s_Player.size.y * s_Player.size.y)) / 2.0f);
+		s_Player.fLength = sqrtf((s_Player.size.x * s_Player.size.x) + (s_Player.size.y * s_Player.size.y))* 0.5f;
 
 		//対角線の角度を算出
 		s_Player.fAngele = atan2f(s_Player.size.x, s_Player.size.y);
@@ -237,30 +231,28 @@ D3DXVECTOR3 MovePlayer(void)
 	// 変数宣言
 	D3DXVECTOR3 move = s_Player.move;
 
-	if (GetKeyboardPress(DIK_W)
-		|| GetKeyboardPress(DIK_A)
-		|| GetKeyboardPress(DIK_D)
-		|| GetKeyboardPress(DIK_S))
-	{// 移動キーが押された
-		// 変数宣言
-		D3DXVECTOR3 moveDir = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 移動方向
+	// 変数宣言
+	D3DXVECTOR3 moveDir = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 移動方向
 
-		if (GetKeyboardPress(DIK_W))
-		{// [W]キーが押された時
-			moveDir.y += -1.0f;
-		}
-		if (GetKeyboardPress(DIK_A))
-		{// [A]キーが押された時
-			moveDir.x += -1.0f;
-		}
-		if (GetKeyboardPress(DIK_D))
-		{// [D]キーが押された時
-			moveDir.x += 1.0f;
-		}
-		if (GetKeyboardPress(DIK_S))
-		{// [S]キーが押された時
-			moveDir.y += 1.0f;
-		}
+	if (GetKeyboardPress(DIK_W))
+	{// [W]キーが押された時
+		moveDir.y += -1.0f;
+	}
+	if (GetKeyboardPress(DIK_A))
+	{// [A]キーが押された時
+		moveDir.x += -1.0f;
+	}
+	if (GetKeyboardPress(DIK_D))
+	{// [D]キーが押された時
+		moveDir.x += 1.0f;
+	}
+	if (GetKeyboardPress(DIK_S))
+	{// [S]キーが押された時
+		moveDir.y += 1.0f;
+	}
+
+	if (moveDir.x != 0.0f || moveDir.y != 0.0f)
+	{
 		// 移動方向ベクトルの大きさを1.0fにする
 		D3DXVec3Normalize(&moveDir, &moveDir);
 
@@ -274,6 +266,7 @@ D3DXVECTOR3 MovePlayer(void)
 			move = move / speed * MAX_SPEED;
 		}
 	}
+
 
 	// 動摩擦係数を加える
 	move *= (1.0f - MOVE_FRICTION);
