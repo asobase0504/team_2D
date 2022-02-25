@@ -4,9 +4,11 @@
 #include "main.h"
 
 // マクロ定義
-#define MAX_Boss	256			// 敵の最大数
-#define ENEMY_WIDTH  (25.0f)	// X	敵サイズ
-#define ENEMY_HEIGHT (25.0f)	// Y	敵サイズ
+#define MAX_Boss			(256)	// 敵の最大数
+#define ENEMY_WIDTH			(25.0f)	// X	敵サイズ
+#define ENEMY_HEIGHT		(25.0f)	// Y	敵サイズ
+#define MAX_ENEMY			(255)
+#define NUM_ENEMY			(2)		// 敵の種類
 
 typedef enum
 {
@@ -17,44 +19,53 @@ typedef enum
 
 typedef enum
 {
-	TYPEENEMY_SKY_1,		// 空の敵１
-	TYPEENEMY_SKY_2,		// 空の敵２
-	TYPEENEMY_SKY_3,		// 空の敵３
-	TYPEENEMY_GROUND_1,		// 地上の敵1
-	TYPEENEMY_GROUND_2,		// 地上の敵2
-	TYPEENEMY_MAX
-} TYPEENEMY;
+	ENEMYTYPE_SKY_1,		// 空の敵1
+	ENEMYTYPE_SKY_2,		// 空の敵2
+	ENEMYTYPE_SKY_3,		// 引き換える敵
+	ENEMYTYPE_SHEONITE,		// 空の敵
+	ENEMYTYPE_BAKYURA,		// 無敵壁
+	ENEMYTYPE_GROUND_1,		// 地上の敵1
+	ENEMYTYPE_GROUND_2,		// 地上の敵2
+	BOSS_PARTS_1,
+	BOSS_PARTS_2,
+	BOSS_PARTS_3,
+	BOSS_PARTS_4,
+	BOSS_PARTS_5,
+	ENEMYTYPE_MAX
+} ENEMYTYPE;
+
 
 // 敵の構造体定義
 typedef struct
 {
-	D3DXVECTOR3 move;		// 移動量
 	D3DXVECTOR3 pos;		// 位置
+	D3DXVECTOR3 move;		// 移動量
 	ENEMYSTATE state;		// 状態
-	int nCounerState;		// 状態管理カウンター
+	ENEMYTYPE nType;		// 種類
+	bool bUse;				// 使用してるかどうか	
+	int nCounterState;		// 状態管理カウンター
 	int nLife;				// 体力
 	int nCntBullet;			// 弾の出る時間
-	TYPEENEMY nType;		// 種類
-	bool bUse;				// 使用してるかどうか	
 	int	nCounter;			// カウントダウン
-	int SizeX;				// X軸の大きさ		
-	int SizeY;				// Y軸の大きさ
+	float SizeX;				// X軸の大きさ		
+	float SizeY;				// Y軸の大きさ
+	int nCounterAnim;		// モーションのカウント
+	int nPatternAnim;		// モーションのカウント
 
 	//---------------
 	//ENEMY　MOVE
 	bool Buk;		//戻るシステム
 	bool flg;		//追尾使用
 
-}enemy;
+}Enemy;
 
 // プロトタイプ宣言
 void InitEnemy(void);
 void UninitEnemy(void);
 void UpdateEnemy(void);
 void DrawEnemy(void);
-void SetEnemy(D3DXVECTOR3 pos, TYPEENEMY nType );
+Enemy* SetEnemy(D3DXVECTOR3 pos, ENEMYTYPE nType );
 void HitEnemy(int nCntBoss, int nDamage);
-enemy* GetEnemy(void);
-
+Enemy* GetEnemy(void);
 
 #endif

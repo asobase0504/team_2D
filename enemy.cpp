@@ -7,50 +7,55 @@
 //=========================================
 #include "main.h"
 #include "enemy.h"
+#include "bullet.h"
 #include "Calculation.h"
 #include "player.h"
 
 //----------------------------
-//マクロ
+// マクロ
 //----------------------------
 #define COLLISION	(25)
 #define JUDGEMENT	(100)	//避ける敵の判定サイズ
 #define UP_ESCAPE	(200)	//上に逃げる敵の判定サイズ
-#define MAX_ENEMY	(255)
 
 //----------------------------
-//static 変数
+// static 変数
 //----------------------------
-static LPDIRECT3DTEXTURE9 s_pTex[TYPEENEMY_MAX] = {};	//テクスチャへのポインタ
+static LPDIRECT3DTEXTURE9 s_pTex[ENEMYTYPE_MAX] = {};	//テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;			//頂点バッファへのポインタ
-static enemy s_aEnemy[MAX_ENEMY];
+static Enemy s_aEnemy[MAX_ENEMY];
 static int s_nCounterAnim;
 static int s_nPatternAnim;
 
-static D3DXCOLOR g_col;
+//----------------------------
+// プロトタイプ宣言
+//----------------------------
+static void UpdateSky1(Enemy* pEnemy);
+static void UpdateSky2(Enemy* pEnemy);
+static void UpdateBuckSky(Enemy* pEnemy);
 
-//初期化
+//--------------------------------------------------
+// 初期化
+//--------------------------------------------------
 void InitEnemy(void)
 {
 	//デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	g_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
 	// テクスチャ読み込み	敵テクスチャ
 	D3DXCreateTextureFromFile(pDevice,
 		"date/image/enemy/enemy 1.png",				// 目玉
-		&s_pTex[TYPEENEMY_SKY_1]);
+		&s_pTex[ENEMYTYPE_SKY_1]);
 
 	// テクスチャ読み込み	敵テクスチャ
 	D3DXCreateTextureFromFile(pDevice,
 		"date/image/enemy/enemy 1.png",				// 車
-		&s_pTex[TYPEENEMY_SKY_2]);
+		&s_pTex[ENEMYTYPE_SKY_2]);
 
 	// テクスチャ読み込み	敵テクスチャ
 	D3DXCreateTextureFromFile(pDevice,
 		"date/image/enemy/enemy 1.png",				// 
-		&s_pTex[TYPEENEMY_SKY_3]);
+		&s_pTex[ENEMYTYPE_SKY_3]);
 
 	ZeroMemory(s_aEnemy, sizeof(s_aEnemy[0]));
 
@@ -77,7 +82,7 @@ void InitEnemy(void)
 
 	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
 	{
-		enemy* pEnemy = &s_aEnemy[nCntEnemy];
+		Enemy* pEnemy = &s_aEnemy[nCntEnemy];
 
 		// 頂点座標の設定
 		pVtx[0].pos = D3DXVECTOR3(pEnemy->pos.x - ENEMY_WIDTH, pEnemy->pos.y - ENEMY_HEIGHT, 0.0f);
@@ -110,10 +115,12 @@ void InitEnemy(void)
 	s_pVtxBuff->Unlock();
 }
 
+//--------------------------------------------------
 // 終了
+//--------------------------------------------------
 void UninitEnemy(void)
 {
-	for (int Count = 0; Count < TYPEENEMY_MAX; Count++)
+	for (int Count = 0; Count < ENEMYTYPE_MAX; Count++)
 	{
 		if (s_pTex[Count] != NULL)
 		{
@@ -130,18 +137,21 @@ void UninitEnemy(void)
 	}
 }
 
+//--------------------------------------------------
+// 更新
+//--------------------------------------------------
 void UpdateEnemy(void)
 {
 	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
 	{
-		enemy* pEnemy = &s_aEnemy[nCntEnemy];
+		Enemy* pEnemy = &s_aEnemy[nCntEnemy];
 
 		if (!pEnemy->bUse)
 		{
 			continue;	//処理を１回飛ばす　[1]
 		}
 
-		// プレイヤー情報ｎ取得
+		// プレイヤー情報の取得
 		Player* pPlayer = GetPlayer();
 
 		if (pEnemy->flg)	//追尾
@@ -153,78 +163,38 @@ void UpdateEnemy(void)
 			pEnemy->move.y = (moveEnemyY / moveEnemyR) * 3.0f;
 		}
 
-		if (pEnemy->pos.x + COLLISION >= pPlayer->pos.x - COLLISION
-			&& pEnemy->pos.x - COLLISION <= pPlayer->pos.x + COLLISION
-			&& pEnemy->pos.y + COLLISION >= pPlayer->pos.y - COLLISION
-			&& pEnemy->pos.y - COLLISION <= pPlayer->pos.y + COLLISION)
-		{//弾座標重なり
-
-		 //HitPlayer(2);			//ダメージを受ける
-
-		}
-
 		if (pEnemy->nLife > 0)
 		{
-			//-------------------------------------------------------------
-			//		試作
-
 			switch (pEnemy->nType)
 			{
-			case TYPEENEMY_SKY_1:
-				if (pEnemy->pos.x + JUDGEMENT >= pPlayer->pos.x - JUDGEMENT
-					&& pEnemy->pos.x - JUDGEMENT <= pPlayer->pos.x + JUDGEMENT
-					&& pEnemy->pos.y + JUDGEMENT >= pPlayer->pos.y - JUDGEMENT
-					&& pEnemy->pos.y - JUDGEMENT <= pPlayer->pos.y + JUDGEMENT)
-				{//敵が逃げる処理
-
-					pEnemy->flg = false;
-					//s_aEnemy[nCntEnemy].move.y = 0;		//コメントアウトを消すと直角に曲がる
-					pEnemy->move.x = 3;
-
-				}
+			case ENEMYTYPE_SKY_1:
+				UpdateSky1(pEnemy);
 				break;
-			case TYPEENEMY_SKY_2:
-
-				if (pEnemy->pos.x + JUDGEMENT >= pPlayer->pos.x - JUDGEMENT
-					&& pEnemy->pos.x - JUDGEMENT <= pPlayer->pos.x + JUDGEMENT
-					&& pEnemy->pos.y + JUDGEMENT >= pPlayer->pos.y - JUDGEMENT
-					&& pEnemy->pos.y - JUDGEMENT <= pPlayer->pos.y + JUDGEMENT)
-				{// 敵が逃げる処理
-					pEnemy->flg = false;
-					pEnemy->move.y = 0;		// コメントアウトを消すと直角に曲がる
-					pEnemy->move.x = 3;
-				}
+			case ENEMYTYPE_SKY_2:
+				UpdateSky2(pEnemy);
 				break;
-			case TYPEENEMY_SKY_3:		//引き返し敵
-
-				if (pEnemy->Buk)		//戻る処理
-				{//true の時
-					pEnemy->move.y += easeInOutBack(-0.25f);
-				}
-
-				if (pEnemy->pos.x + UP_ESCAPE >= pPlayer->pos.x - UP_ESCAPE
-					&& pEnemy->pos.x - UP_ESCAPE <= pPlayer->pos.x + UP_ESCAPE
-					&& pEnemy->pos.y + UP_ESCAPE >= pPlayer->pos.y - UP_ESCAPE
-					&& pEnemy->pos.y - UP_ESCAPE <= pPlayer->pos.y + UP_ESCAPE)
-				{// 敵が逃げる処理
-					pEnemy->flg = false;		//追尾
-					s_aEnemy[nCntEnemy].Buk = true;		//戻る処理
-				}
+			case ENEMYTYPE_SKY_3:		// 引き返し敵
+				UpdateBuckSky(pEnemy);
 				break;
-			case TYPEENEMY_GROUND_1:		//直進敵
+			case ENEMYTYPE_GROUND_1:	// 直進敵
 
 				break;
-
-			case TYPEENEMY_GROUND_2:		//動かない敵
+			case ENEMYTYPE_GROUND_2:	// 動かない敵
 
 				pEnemy->move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 				break;
+			case ENEMYTYPE_BAKYURA:		// 無敵壁
+				break;
+			case ENEMYTYPE_SHEONITE:	// 空の敵
+				break;
 			default:
 				break;
 			}
-			if (pEnemy->pos.y > 0)
-			{
+
+			// 弾を出す処理
+			if (pEnemy->pos.y > 0.0f)
+			{	// 画面内に収まっている場合
 				pEnemy->nCntBullet++;
 				if (pEnemy->nCntBullet >= 120)
 				{
@@ -250,7 +220,7 @@ void UpdateEnemy(void)
 		// 位置を更新
 		pEnemy->pos += pEnemy->move;
 
-		// 画面端設定			左壁									右壁						下壁						上壁
+		// 画面端設定
 		if (pEnemy->pos.x <= -100.0f || pEnemy->pos.x >= SCREEN_WIDTH + 100.0f || pEnemy->pos.y >= SCREEN_HEIGHT + 100.0f || pEnemy->pos.y <= -100.0f)
 		{
 			pEnemy->bUse = false;
@@ -258,7 +228,6 @@ void UpdateEnemy(void)
 		}
 
 		VERTEX_2D* pVtx;
-
 		// 頂点バッファをロックし、頂点データへのポインタを取得
 		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
@@ -269,7 +238,7 @@ void UpdateEnemy(void)
 		pVtx[2].pos = D3DXVECTOR3(pEnemy->pos.x - ENEMY_WIDTH, pEnemy->pos.y + ENEMY_HEIGHT, 0.0f);
 		pVtx[3].pos = D3DXVECTOR3(pEnemy->pos.x + ENEMY_WIDTH, pEnemy->pos.y + ENEMY_HEIGHT, 0.0f);
 
-		s_nCounterAnim++;								// アニメーション
+		s_nCounterAnim++;	// アニメーション
 		if (s_nCounterAnim >= 10)
 		{
 			s_nCounterAnim = 0;
@@ -291,12 +260,11 @@ void UpdateEnemy(void)
 		{
 		case  ENEMYSTATE_NORMAL:
 			break;
-
 		case  ENEMYSTATE_DAMAGE:
-			pEnemy->nCounerState--;
-			if (pEnemy->nCounerState <= 0)
+			pEnemy->nCounterState--;
+			if (pEnemy->nCounterState <= 0)
 			{
-				pEnemy->nCounerState = ENEMYSTATE_NORMAL;
+				pEnemy->nCounterState = ENEMYSTATE_NORMAL;
 
 				// 頂点カラーの設定
 				pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -312,7 +280,9 @@ void UpdateEnemy(void)
 	}
 }
 
+//--------------------------------------------------
 // 描画
+//--------------------------------------------------
 void DrawEnemy(void)
 {
 	// デバイスの取得
@@ -341,12 +311,14 @@ void DrawEnemy(void)
 	}
 }
 
-void SetEnemy(D3DXVECTOR3 pos, TYPEENEMY nType)
+//--------------------------------------------------
+// 設定
+//--------------------------------------------------
+Enemy* SetEnemy(D3DXVECTOR3 pos, ENEMYTYPE nType)
 {
-	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
+	Enemy* pEnemy = s_aEnemy;
+	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++,pEnemy++)
 	{
-		enemy* pEnemy = &s_aEnemy[nCntEnemy];
-
 		if (pEnemy->bUse)
 		{// 敵が使用されている場合
 			continue;
@@ -356,10 +328,10 @@ void SetEnemy(D3DXVECTOR3 pos, TYPEENEMY nType)
 		pEnemy->nLife = 1;
 		pEnemy->bUse = true;	// 使用している状態
 		pEnemy->flg = true;
-		//pEnemy->nCounter = 0;	// インクリメント
 		pEnemy->nType = nType;
 
 		VERTEX_2D*pVtx;
+
 		// 頂点バッファをロックし、頂点データへのポインタを取得
 		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
@@ -386,12 +358,15 @@ void SetEnemy(D3DXVECTOR3 pos, TYPEENEMY nType)
 		s_pVtxBuff->Unlock();
 		break;
 	}
+	return pEnemy;
 }
 
+//--------------------------------------------------
 // 当たり処理
+//--------------------------------------------------
 void HitEnemy(int nCntEnemy, int nDamage)
 {
-	enemy* pEnemy = &s_aEnemy[nCntEnemy];
+	Enemy* pEnemy = &s_aEnemy[nCntEnemy];
 
 	pEnemy->nLife -= nDamage;
 
@@ -424,15 +399,15 @@ void HitEnemy(int nCntEnemy, int nDamage)
 		//
 
 		// 頂点カラーの設定
-		pVtx[0].col = g_col;
-		pVtx[1].col = g_col;
-		pVtx[2].col = g_col;
-		pVtx[3].col = g_col;
+		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	else
 	{
 		pEnemy->state = ENEMYSTATE_DAMAGE;
-		pEnemy->nCounerState = 10;
+		pEnemy->nCounterState = 10;
 		pVtx[0].col = D3DXCOLOR(1.0f, 0, 0, 1.0f);
 		pVtx[1].col = D3DXCOLOR(1.0f, 0, 0, 1.0f);
 		pVtx[2].col = D3DXCOLOR(1.0f, 0, 0, 1.0f);
@@ -443,8 +418,73 @@ void HitEnemy(int nCntEnemy, int nDamage)
 	s_pVtxBuff->Unlock();
 }
 
+//--------------------------------------------------
 // 取得処理
-enemy *GetEnemy(void)
+//--------------------------------------------------
+Enemy *GetEnemy(void)
 {
 	return s_aEnemy;
+}
+
+//--------------------------------------------------
+// スカイ1の敵の更新処理
+//--------------------------------------------------
+void UpdateSky1(Enemy* pEnemy)
+{
+	// プレイヤー情報の取得
+	Player* pPlayer = GetPlayer();
+
+	if (pEnemy->pos.x + JUDGEMENT >= pPlayer->pos.x - JUDGEMENT
+		&& pEnemy->pos.x - JUDGEMENT <= pPlayer->pos.x + JUDGEMENT
+		&& pEnemy->pos.y + JUDGEMENT >= pPlayer->pos.y - JUDGEMENT
+		&& pEnemy->pos.y - JUDGEMENT <= pPlayer->pos.y + JUDGEMENT)
+	{//敵が逃げる処理
+
+		pEnemy->flg = false;
+		//s_aEnemy[nCntEnemy].move.y = 0;		//コメントアウトを消すと直角に曲がる
+		pEnemy->move.x = 3;
+
+	}
+}
+
+//--------------------------------------------------
+// スカイ2の敵の更新処理
+//--------------------------------------------------
+void UpdateSky2(Enemy* pEnemy)
+{
+	// プレイヤー情報の取得
+	Player* pPlayer = GetPlayer();
+
+	if (pEnemy->pos.x + JUDGEMENT >= pPlayer->pos.x - JUDGEMENT
+		&& pEnemy->pos.x - JUDGEMENT <= pPlayer->pos.x + JUDGEMENT
+		&& pEnemy->pos.y + JUDGEMENT >= pPlayer->pos.y - JUDGEMENT
+		&& pEnemy->pos.y - JUDGEMENT <= pPlayer->pos.y + JUDGEMENT)
+	{// 敵が逃げる処理
+		pEnemy->flg = false;
+		pEnemy->move.y = 0;		// コメントアウトを消すと直角に曲がる
+		pEnemy->move.x = 3;
+	}
+}
+
+//--------------------------------------------------
+// スカイ3の敵の更新処理
+//--------------------------------------------------
+void UpdateBuckSky(Enemy* pEnemy)
+{
+	if (pEnemy->Buk)	//戻る処理
+	{//true の時
+		pEnemy->move.y += easeInOutBack(-0.25f);
+	}
+
+	// プレイヤー情報の取得
+	Player* pPlayer = GetPlayer();
+
+	if (pEnemy->pos.x + UP_ESCAPE >= pPlayer->pos.x - UP_ESCAPE
+		&& pEnemy->pos.x - UP_ESCAPE <= pPlayer->pos.x + UP_ESCAPE
+		&& pEnemy->pos.y + UP_ESCAPE >= pPlayer->pos.y - UP_ESCAPE
+		&& pEnemy->pos.y - UP_ESCAPE <= pPlayer->pos.y + UP_ESCAPE)
+	{// 敵が逃げる処理
+		pEnemy->flg = false;		//追尾
+		pEnemy->Buk = true;		//戻る処理
+	}
 }
