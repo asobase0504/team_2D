@@ -1,7 +1,7 @@
 //**************************************************************************************************
 //
 // 弾の設定処理
-// Auther：唐﨑結斗
+// Author：唐﨑結斗
 //
 //**************************************************************************************************
 #ifndef _BULLET_H_		//このマクロ定義がされてなかったら
@@ -61,6 +61,7 @@ void UpdateBullet(void);
 void DrawBullet(void);
 void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType);
 void SetBulletVtx(VERTEX_2D *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR col, float fLength, float fAngele);
+Bullet* GetBullet(void);
 
 #endif
 

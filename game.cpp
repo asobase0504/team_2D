@@ -118,17 +118,17 @@ void UpdateGame(void)
 
 	if (GetKeyboardTrigger(DIK_1))
 	{
-		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), TYPEENEMY_SKY_1);
+		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), ENEMYTYPE_WARP_1);
 	}
 	else if (GetKeyboardTrigger(DIK_2))
 	{
-		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), TYPEENEMY_SKY_2);
+		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), ENEMYTYPE_WARP_2);
 	}
 	else if (GetKeyboardTrigger(DIK_3))
 	{
-		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), TYPEENEMY_SKY_3);
+		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), ENEMYTYPE_WARP_3);
 	}
-	//ämîFóp(è¡ÇµÇƒok)
+
 	if (GetKeyboardTrigger(DIK_P))
 	{
 		AddScore(123);

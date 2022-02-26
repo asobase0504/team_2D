@@ -1,13 +1,13 @@
 //**************************************************************************************************
 //
 // プレイヤーの設定処理
-// Auther：唐﨑結斗
+// Author：唐﨑結斗
 //
 //**************************************************************************************************
-#include"main.h"
-#include"input.h"
-
-#include"player.h"
+#include "main.h"
+#include "input.h"
+#include "common.h"
+#include "player.h"
 
 //*******************************************************************************
 // 定数
@@ -155,7 +155,7 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 	//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	if (s_Player.bUse == false)
+	if (!s_Player.bUse)
 	{//使用されてない場合
 		// プレイヤー情報の設定
 		s_Player.pos = pos;									// 中心点
@@ -211,10 +211,7 @@ void SetPlayerVtx(VERTEX_2D *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR c
 	pVtx[3].rhw = 1.0f;
 
 	//頂点カラーの設定
-	pVtx[0].col = col;
-	pVtx[1].col = col;
-	pVtx[2].col = col;
-	pVtx[3].col = col;
+	SetVtxColor(pVtx,&col);
 
 	//テクスチャ座標
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);

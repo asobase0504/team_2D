@@ -26,11 +26,15 @@ typedef enum
 	ENEMYTYPE_BAKYURA,		// 無敵壁
 	ENEMYTYPE_GROUND_1,		// 地上の敵1
 	ENEMYTYPE_GROUND_2,		// 地上の敵2
-	BOSS_PARTS_1,
-	BOSS_PARTS_2,
-	BOSS_PARTS_3,
-	BOSS_PARTS_4,
-	BOSS_PARTS_5,
+	ENEMYTYPE_WARP_1,		// ワープする敵1
+	ENEMYTYPE_WARP_2,		// ワープする敵2
+	ENEMYTYPE_WARP_3,		// ワープする敵3
+	ENEMYTYPE_WARP_4,		// ワープする敵4
+	BOSS_PARTS_1,			// BOSS_PARTS1
+	BOSS_PARTS_2,			// BOSS_PARTS2
+	BOSS_PARTS_3,			// BOSS_PARTS3
+	BOSS_PARTS_4,			// BOSS_PARTS4
+	BOSS_PARTS_5,			// BOSS_PARTS5
 	ENEMYTYPE_MAX
 } ENEMYTYPE;
 
@@ -47,16 +51,15 @@ typedef struct
 	int nLife;				// 体力
 	int nCntBullet;			// 弾の出る時間
 	int	nCounter;			// カウントダウン
-	float SizeX;				// X軸の大きさ		
-	float SizeY;				// Y軸の大きさ
+	float SizeX;			// X軸の大きさ		
+	float SizeY;			// Y軸の大きさ
 	int nCounterAnim;		// モーションのカウント
 	int nPatternAnim;		// モーションのカウント
 
-	//---------------
-	//ENEMY　MOVE
-	bool Buk;		//戻るシステム
-	bool flg;		//追尾使用
-
+	// エネミーの属性
+	bool Buk;		// 戻るシステム
+	bool flg;		// 追尾使用
+	bool bTP;		// TP機能
 }Enemy;
 
 // プロトタイプ宣言
@@ -65,7 +68,7 @@ void UninitEnemy(void);
 void UpdateEnemy(void);
 void DrawEnemy(void);
 Enemy* SetEnemy(D3DXVECTOR3 pos, ENEMYTYPE nType );
-void HitEnemy(int nCntBoss, int nDamage);
+void HitEnemy(Enemy* pEnemy, int nDamage);
 Enemy* GetEnemy(void);
 
 #endif

@@ -1,7 +1,7 @@
 //**************************************************************************************************
 //
 // ’e‚ÌÝ’èˆ—
-// AutherF“‚ú±Œ‹“l
+// AuthorF“‚ú±Œ‹“l
 // Author : ûü–ìŠ]›’
 //
 //**************************************************************************************************
@@ -311,4 +311,9 @@ void SetBulletVtx(VERTEX_2D *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR c
 	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
 	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+}
+
+Bullet * GetBullet(void)
+{
+	return s_aBullet;
 }
