@@ -11,6 +11,7 @@
 #include "main.h"
 #include "fade.h"
 #include "title.h"
+#include "result.h"
 #include "game.h"
 #include "input.h"
 #include "sound.h"
@@ -300,7 +301,9 @@ void Uninit(void)
 	UninitSound();	// 音楽
 	UninitInput();	// 入力
 	UninitFade();	// フェード
+	UninitTitle();	// タイトル
 	UninitGame();	// ゲーム
+	UninitResult();	// リザルト
 
 	// デバッグ表示用フォントの破棄
 	if (g_pFont != NULL)
@@ -338,6 +341,9 @@ void Update(void)
 	case MODE_GAME:
 		UpdateGame();
 		break;
+	case MODE_RESULT:
+		UpdateResult();
+		break;
 	default:
 		break;
 	}
@@ -371,6 +377,9 @@ void Draw(void)
 			break;
 		case MODE_GAME:
 			DrawGame();
+			break;
+		case MODE_RESULT:
+			DrawResult();
 			break;
 		default:
 			break;
@@ -412,9 +421,11 @@ void SetMode(MODE mode)
 	case MODE_TITLE:	// タイトル画面
 		UninitTitle();
 		break;
-
 	case MODE_GAME:		// ゲーム画面
 		UninitGame();
+		break;
+	case MODE_RESULT:
+		UninitResult();
 		break;
 	}
 
@@ -424,9 +435,11 @@ void SetMode(MODE mode)
 	case MODE_TITLE:	// タイトル画面
 		InitTitle();
 		break;
-
 	case MODE_GAME:		// ゲーム画面
 		InitGame();
+		break;
+	case MODE_RESULT:
+		InitResult();
 		break;
 	}
 

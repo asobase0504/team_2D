@@ -18,6 +18,7 @@
 #include "bg.h"
 #include "target.h"
 #include "sound.h"
+#include "fade.h"
 #include <stdio.h>
 
 //------------------------------------
@@ -134,6 +135,11 @@ void UpdateGame(void)
 	if (GetKeyboardTrigger(DIK_P))
 	{
 		AddScore(123);
+	}
+
+	if (GetKeyboardTrigger(DIK_T))	// リザルトに移行デバッグ
+	{
+		SetFade(MODE_RESULT);
 	}
 
 	UpdateBG();		// 背景
