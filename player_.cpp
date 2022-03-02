@@ -1,12 +1,12 @@
 //**************************************************************************************************
 //
 // プレイヤーの設定処理
-// Author：唐﨑結斗
+// Auther：唐﨑結斗
 //
 //**************************************************************************************************
 #include "main.h"
 #include "input.h"
-#include "common.h"
+		 
 #include "player.h"
 #include "target.h"
 
@@ -14,9 +14,9 @@
 // 定数
 //*******************************************************************************
 #define MAX_SPEED				(10.0f)			// 移動速度の最大値
-#define MIN_SPEED				(0.5f)			// 移動速度の最小値
-#define MOVE_FRICTION			(0.05f)			// 動摩擦係数
-#define MAX_CNT_SHOT			(0.25f * 60)	// 弾発射間隔(秒数 * フレーム数)
+#define MIN_SPEED				(0.0f)			// 移動速度の最小値
+#define MOVE_FRICTION			(0.5f)			// 動摩擦係数
+#define MAX_CNT_SHOT			(0.5f * 60)		// 弾発射間隔(秒数 * フレーム数)
 #define TARGET_DISTANCE			(300.0f)		// ターゲットの間隔
 
 //*******************************************************************************
@@ -57,7 +57,7 @@ void InitPlayer(void)
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 対角線の長さを算出する
-	s_Player.fLength = sqrtf(((s_Player.size.x * s_Player.size.x) + (s_Player.size.y * s_Player.size.y)) * 0.5f);
+	s_Player.fLength = sqrtf((s_Player.size.x * s_Player.size.x) + (s_Player.size.y * s_Player.size.y))* 0.5f;
 
 	// 対角線の角度を算出
 	s_Player.fAngele = atan2f(s_Player.size.x, s_Player.size.y);
@@ -163,7 +163,7 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 	//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	if (!s_Player.bUse)
+	if (s_Player.bUse == false)
 	{//使用されてない場合
 		// プレイヤー情報の設定
 		s_Player.pos = pos;									// 中心点
@@ -173,7 +173,7 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 		s_Player.BulletType = (BulletType)(0);				// 弾の種類
 		s_Player.nLife = 150;								// 体力
 		s_Player.nCntShot = 1;								// 弾発射までのカウント
-		s_Player.fSpeed = 1.0f;								// 速度
+		s_Player.fSpeed = 5.0f;								// 速度
 		s_Player.nIdxTarge = -1;							// ターゲット
 		s_Player.bFriction = false;							// 慣性の有無
 		s_Player.bUse = true;								// 使用してる
@@ -224,7 +224,10 @@ void SetPlayerVtx(VERTEX_2D *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR c
 	pVtx[3].rhw = 1.0f;
 
 	//頂点カラーの設定
-	SetVtxColor(pVtx,&col);
+	pVtx[0].col = col;
+	pVtx[1].col = col;
+	pVtx[2].col = col;
+	pVtx[3].col = col;
 
 	//テクスチャ座標
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);

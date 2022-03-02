@@ -1,94 +1,90 @@
-//=========================================
-// 背景設定
-// author hamada ryuuga
-// Author 冨所知生
-//=========================================
-#include"map.h"
+//============================
+//
+// マップチップ設定
+// Author:hamada ryuuga
+//
+//============================
+#include "map.h"
+#include "input.h"
+#include "enemy.h"
 #include <stdio.h>
+#include "common.h"
 
-#define NUM_MAP	    (12800)						// 背景枚数
-#define X_MAP		(4)							// マップチップサイズX
-#define Y_MAP		(2)							// マップチップサイズY
-#define MAPSIZX		(10)						// マップサイズX
-#define MAPSIZY		(50)						// マップサイズY
-#define MAPYLENGTH  (10)						// マップの長さ
-#define BLOCKSIZX   ((SCREEN_WIDTH / MAPSIZX))
-#define BLOCKSIZY	((SCREEN_HEIGHT * MAPYLENGTH / MAPSIZY))
+// マクロ定義
+#define NUM_MAP	    (1024)		//背景枚数
+#define X_MAP		(4)			//マップチップサイズX
+#define Y_MAP		(2)			//マップチップサイズY
+#define MAP_SIZEX	(10)		//マップサイズX
+#define MAP_SIZEY	(100)		//マップサイズY
+#define MAPYLENGTH	(10)		//マップの長さ
+#define BLOCKSIZEX	(((float)SCREEN_WIDTH /MAP_SIZEX))
+#define BLOCKSIZEY	(((float)SCREEN_HEIGHT*MAPYLENGTH / MAP_SIZEY))
 
-// スタティック変数
-static LPDIRECT3DTEXTURE9 s_pTextureMap = {};			// テクスチャのポインタ
-static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuffMap = NULL;	// 頂点バッファの設定
+//スタティック変数
+static LPDIRECT3DTEXTURE9 s_pTextureMap = NULL; //テクスチャのポインタ
+static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuffMap = NULL; //頂点バッファの設定
 static Map s_aMap[NUM_MAP];
-static float s_fMapSizX, s_fMapSizY;
+static char s_aMapFile[10][255];
+static D3DXVECTOR3 s_Move(0.0f, 5.0f, 0.0f);
+static D3DXVECTOR3 s_PosOffset;
+static float s_fMapScale;
+static int stage = 0;
 
-//=========================================
-// マップチップの初期化処理
-//=========================================
+//================
+//初期化処理
+//================
 void InitMap(void)
 {
-	LPDIRECT3DDEVICE9  pDevice;
+	//デバイスの取得
+	LPDIRECT3DDEVICE9  pDevice = GetDevice();
 
-	// デバイスの取得
-	pDevice = GetDevice();
-
-	// テクスチャの読み込み
+	//テクスチャの読み込み
 	D3DXCreateTextureFromFile(pDevice,
-		"Data/TEXTURE/mapchip_field2.jpg",
+		"data/TEXTURE/mapchip_field2.jpg",
 		&s_pTextureMap);
 
-	// 頂点バッファ
+	//頂点バッファ
 	pDevice->CreateVertexBuffer(
 		sizeof(VERTEX_2D) * 4 * NUM_MAP,
 		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_2D,
+		FVF_VERTEX_2D, //ここ頂点フォーマット
 		D3DPOOL_MANAGED,
 		&s_pVtxBuffMap,
 		NULL);
 
-	VERTEX_2D*pVtx; // 頂点へのポインタ
-	
-	// 頂点バッファをアンロック
-	s_pVtxBuffMap->Lock(0, 0, (void**)&pVtx, 0);
+	VERTEX_2D*pVtx; //頂点へのポインタ
 
-	for (int i = 0; i < NUM_MAP; i++)
+	//頂点バッファをアンロック
+	s_pVtxBuffMap->Lock(0, 0, (void**)&pVtx, 0);
+	for (int i = 0; i < NUM_MAP; i++, pVtx += 4)
 	{
 		s_aMap[i].bUse = false;
-		s_aMap[i].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		s_aMap[i].move = D3DXVECTOR3(0.0f, 5.0f, 0.0f);
-		
-		// 座標の設定
-		SetNorotpos2d(pVtx,
-			0.0f,
-			BLOCKSIZX,
-			0.0f,
-			BLOCKSIZY);
 
-		// rhwの設定
+		s_aMap[i].tex = 0;
+
 		pVtx[0].rhw = 1.0f;
 		pVtx[1].rhw = 1.0f;
 		pVtx[2].rhw = 1.0f;
 		pVtx[3].rhw = 1.0f;
 
-		// 頂点カラーの設定
+		//頂点カラーの設定
 		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-		// テクスチャの座標設定
-		Settex2d(pVtx, (1.0f / X_MAP) * 0, (1.0f / X_MAP) * 0 + 1, (1.0f / Y_MAP) * 0, (1.0f / Y_MAP) * 0 + 1);
-
-		pVtx += 4;
 	}
-	// 頂点バッファをアンロック
+	//頂点バッファをアンロック
 	s_pVtxBuffMap->Unlock();
+
+	PasSetMap("data\\hoge4.txt");
+	s_PosOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_fMapScale = 1.0f;
 }
 
-//=========================================
-// マップの破棄する処理
-//=========================================
+//破棄
 void UninitMap(void)
 {
+	stage = 0;
 	//テクスチャの破棄
 	if (s_pTextureMap != NULL)
 	{
@@ -103,189 +99,306 @@ void UninitMap(void)
 		s_pVtxBuffMap = NULL;
 	}
 }
-//=========================================
-// マップの更新処理
-//=========================================
+
+//==================
+//更新処理
+//==================
 void UpdateMap(void)
 {
-	for (int i = 0; i < NUM_MAP; i++)
-	{
-		Map* pMap = &s_aMap[i];
+	s_PosOffset += s_Move;
 
-		if (!pMap->bUse)
-		{// 対応した箇所が使用されている時
+	if (s_PosOffset.y >= (BLOCKSIZEY * MAP_SIZEY) - SCREEN_HEIGHT - BLOCKSIZEY)
+	{//無限ループ処理
+		s_PosOffset.y = 0.0f;
+		stage++;
+		stage %= 5;
+		// マップの設定。
+		InitMapSet(&s_aMapFile[stage][0]);
+		SetEnemyLynk(stage);
+	}
+
+	//頂点へのポインタ
+	VERTEX_2D*pVtx;
+	//頂点バッファをロック
+	s_pVtxBuffMap->Lock(0, 0, (void**)&pVtx, 0);
+
+	D3DXVECTOR3 pos;
+
+	for (int i = 0; i < NUM_MAP; i++, pVtx += 4)
+	{
+		if (!s_aMap[i].bUse)
+		{
 			continue;
 		}
 
-		pMap->pos += pMap->move;
+		pos = (s_aMap[i].pos + s_PosOffset)* s_fMapScale;
 
-		VERTEX_2D*pVtx; // 頂点へのポインタ
+		SetNorotpos2d(pVtx, pos.x, pos.x + BLOCKSIZEX * s_fMapScale, pos.y, pos.y + BLOCKSIZEY * s_fMapScale);
 
-		// 頂点バッファをアンロック
-		s_pVtxBuffMap->Lock(0, 0, (void**)&pVtx, 0);
-
-		pVtx += i * 4;
-
-		// 座標を設定する
-		SetNorotpos2d(pVtx,
-			pMap->pos.x,
-			pMap->pos.x + BLOCKSIZX,
-			pMap->pos.y,
-			pMap->pos.y + BLOCKSIZY);
-
-		// 頂点バッファをアンロック
-		s_pVtxBuffMap->Unlock();
+		if (pos.y >= SCREEN_HEIGHT)
+		{
+			s_aMap[i].bUse = false;
+		}
 	}
+
+	//頂点バッファをアンロック
+	s_pVtxBuffMap->Unlock();
 }
 
-//=========================================
-// マップの描画処理
-//=========================================
+//==================
+//描画処理
+//==================
 void DrawMap(void)
 {
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();	// デバイスのポインタ
-
 	for (int i = 0; i < NUM_MAP; i++)
 	{
-		Map* pMap = &s_aMap[i];
-
-		if (!pMap->bUse)
+		if (!s_aMap[i].bUse)
 		{
 			continue;
 		}
 
-		// 頂点バッファをデータストリームに設定
+		//デバイスのポインタ
+		LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+		//頂点バッファをデータストリームに設定
 		pDevice->SetStreamSource(0, s_pVtxBuffMap, 0, sizeof(VERTEX_2D));
-
-		// 頂点フォーマットの設定
+		
+		//頂点フォーマットの設定
 		pDevice->SetFVF(FVF_VERTEX_2D);
-
-		// テクスチャの設定
+		
+		//テクスチャの設定
 		pDevice->SetTexture(0, s_pTextureMap);
 
-		pDevice->DrawPrimitive(
-			D3DPT_TRIANGLESTRIP,
-			4 * i,
-			2);
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 4 * i, 2);
 	}
 }
 
-//=========================================
-// マップデータの設定
-//=========================================
+//==================
+//マップデータの設定
+//==================
 void SetMap(D3DXVECTOR3 pos, int nType, int tex)
 {
-	for (int nCntMap = 0; nCntMap < NUM_MAP; nCntMap++)
-	{
-		Map* pMap = &s_aMap[nCntMap];
+	VERTEX_2D *pVtx; //頂点へのポインタ
+	s_pVtxBuffMap->Lock(0, 0, (void**)&pVtx, 0);
 
+	Map* pMap = s_aMap;
+
+	for (int i = 0; i < NUM_MAP; i++, pVtx += 4, pMap++)
+	{
 		if (pMap->bUse)
-		{// 敵が使用されてない場合
+		{
 			continue;
 		}
 
-		pMap->pos = pos;
-
-		pMap->nType = nType;
 		pMap->bUse = true;
 
-		VERTEX_2D*pVtx; // 頂点へのポインタ
+		//マップが使用されてない場合
+		pMap->pos = pos;
+		pMap->nType = nType;
+		pMap->tex = tex;
 
-		s_pVtxBuffMap->Lock(0, 0, (void**)&pVtx, 0);
-		pVtx += nCntMap * 4;
+		int X = (pMap->tex % X_MAP);
+		int Y = (pMap->tex / X_MAP);
 
-		// 座標を設定する
-		SetNorotpos2d(pVtx,
-			pMap->pos.x,
-			pMap->pos.x + BLOCKSIZX,
-			pMap->pos.y,
-			pMap->pos.y + BLOCKSIZY);
+		//テクスチャの座標設定
+		SetTex2d(pVtx, (1.0f / X_MAP) * X, (1.0f / X_MAP) * (X + 1.0f), (1.0f / Y_MAP) * Y, (1.0f / Y_MAP) * (Y + 1.0f));
 
-		// 頂点カラーの設定
-		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-		float X = (float)(tex % 100 / 10);
-		float Y = (float)(tex % 10 / 1);
-
-		// テクスチャの座標設定
-		Settex2d(pVtx, (1.0f / X_MAP) * X, (1.0f / X_MAP) * X + 1.0f / X_MAP, (1.0f / Y_MAP) * Y, ((1.0f / Y_MAP) * Y) + (1.0f / Y_MAP));
-
-		//頂点バッファをアンロック
-		s_pVtxBuffMap->Unlock();
 		break;
 	}
+	//頂点バッファをアンロック
+	s_pVtxBuffMap->Unlock();
 }
 
-//=========================================
-// マップチップの読み込み
-//=========================================
+//==================
+//ファイルの入力処理
+//==================
 void InitMapSet(char *Filename)
 {
-	int s_aMap[MAPSIZY][MAPSIZX];
-	s_fMapSizX = (SCREEN_WIDTH) / MAPSIZX;
-	s_fMapSizY = (SCREEN_HEIGHT * 3.0f) / MAPSIZY;
-	FILE *pFile = NULL;	// ファイルポインタを宣言
+	int aMap[MAP_SIZEY][MAP_SIZEX];
 
-	int nCntX, nCntY;
+	for (int nCntY = 0; nCntY < MAP_SIZEY; nCntY++)
+	{
+		for (int nCntX = 0; nCntX < MAP_SIZEX; nCntX++)
+		{//Mapの書き込み
+			aMap[nCntY][nCntX] = 0;
+		}
+	}
 
-	// ファイルを開く
-	pFile = fopen(&Filename[0], "r");
+	//ファイルを開く
+	FILE *pFile = fopen(&Filename[0], "r");
 
 	if (pFile != NULL)
-	{// ファイルが開いた場合
-		for (nCntY = 0; nCntY < MAPSIZY; nCntY++)
+	{//ファイルが開いた場合
+		for (int nCntY = 0; nCntY < MAP_SIZEY; nCntY++)
 		{
-			for (nCntX = 0; nCntX < MAPSIZX; nCntX++)
-			{// Mapの書き込み
-				fscanf(pFile, "%d", &s_aMap[nCntY][nCntX]);
+			for (int nCntX = 0; nCntX < MAP_SIZEX; nCntX++)
+			{//Mapの書き込み
+				fscanf(pFile, "%d", &aMap[nCntY][nCntX]);
 			}
 		}
 
-		// ファイルを閉じる
+		//ファイルを閉じる
 		fclose(pFile);
 	}
-	else
-	{
-	}
 
-	// ブロック設定
-	for (nCntY = 0; nCntY < MAPSIZY; nCntY++)
+	//ブロック設定
+	for (int nCntY = 0; nCntY < MAP_SIZEY; nCntY++)
 	{
-		for (nCntX = 0; nCntX < MAPSIZX; nCntX++)
-		{// Mapの書き込み
-			SetMap(D3DXVECTOR3(s_fMapSizX * nCntX, -(s_fMapSizY * nCntY) + SCREEN_HEIGHT, 0.0f), 1, s_aMap[nCntY][nCntX]);
-		}
-	}
-	for (nCntY = 0; nCntY < MAPSIZY; nCntY++)
-	{
-		for (nCntX = 0; nCntX < MAPSIZX; nCntX++)
-		{// Mapの書き込み
-			s_aMap[nCntY][nCntX] = 0;
+		for (int nCntX = 0; nCntX < MAP_SIZEX; nCntX++)
+		{//Mapの書き込み
+			SetMap(D3DXVECTOR3(BLOCKSIZEX*nCntX, (-(BLOCKSIZEY*nCntY) + SCREEN_HEIGHT), 0.0f), 1, aMap[nCntY][nCntX]);
 		}
 	}
 }
 
-//=========================================
-// 座標設定
-//=========================================
-void SetNorotpos2d(VERTEX_2D *pVtx, float XUP, float XDW, float YUP, float YDW)
+//==================
+//ファイルの出力処理
+//==================
+void OutputMap(char *Filename)
 {
-	pVtx[0].pos = D3DXVECTOR3(XUP, YUP, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(XDW, YUP, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(XUP, YDW, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(XDW, YDW, 0.0f);
+	//ファイル開け
+	FILE *pFile = fopen(Filename, "w");
+	int nCnt = 0;
+	//ブロック設定
+	for (int nCntY = 0; nCntY < MAP_SIZEY; nCntY++)
+	{
+		for (int nCntX = 0; nCntX < MAP_SIZEX; nCntX++)
+		{//Mapの書き込み
+			fprintf(pFile, "%d\t", s_aMap[nCnt].tex);
+			nCnt++;
+		}
+		fprintf(pFile, "\n");
+	}
+
+	fclose(pFile);
 }
-//=========================================
-// テクスチャの座標設定
-//=========================================
-void Settex2d(VERTEX_2D *pVtx, float left, float right, float top, float down)
+
+//==================
+//マップチップ変更処理
+//==================
+void ConversionMap(D3DXVECTOR3 pos, int tex)
 {
-	// テクスチャの座標設定
-	pVtx[0].tex = D3DXVECTOR2(left, top);
-	pVtx[1].tex = D3DXVECTOR2(right, top);
-	pVtx[2].tex = D3DXVECTOR2(left, down);
-	pVtx[3].tex = D3DXVECTOR2(right, down);
+	D3DXVECTOR3 mapPos;
+
+	VERTEX_2D*pVtx; //頂点へのポインタ
+	s_pVtxBuffMap->Lock(0, 0, (void**)&pVtx, 0);
+
+	for (int i = 0; i < NUM_MAP; i++, pVtx += 4)
+	{
+		if (!s_aMap[i].bUse)
+		{
+			continue;
+		}
+
+		mapPos = (s_aMap[i].pos + s_PosOffset)* s_fMapScale;
+
+		if (((mapPos.x < pos.x) && (mapPos.x + BLOCKSIZEX * s_fMapScale > pos.x)) &&
+			((mapPos.y < pos.y) && (mapPos.y + BLOCKSIZEY * s_fMapScale > pos.y)))
+		{
+			s_aMap[i].tex = tex;
+
+			int X = (s_aMap[i].tex % X_MAP);
+			int Y = (s_aMap[i].tex / X_MAP);
+
+			//テクスチャの座標設定
+			SetTex2d(pVtx, (1.0f / X_MAP) * X, (1.0f / X_MAP) * (X + 1.0f), (1.0f / Y_MAP) * Y, (1.0f / Y_MAP) * (Y + 1.0f));
+		}
+	}
+
+	//頂点バッファをアンロック
+	s_pVtxBuffMap->Unlock();
+}
+//==================
+//マップの当たり判定
+//==================
+bool CollisionMap(D3DXVECTOR3 pos)
+{
+	bool Hit = false;//チップとマウスの当たり判定が当たってる時
+	D3DXVECTOR3 mapPos;
+
+	for (int i = 0; i < NUM_MAP; i++)
+	{
+		if (!s_aMap[i].bUse)
+		{
+			continue;
+		}
+
+		mapPos = (s_aMap[i].pos + s_PosOffset)* s_fMapScale;
+
+		if (((mapPos.x < pos.x) && (mapPos.x + BLOCKSIZEX * s_fMapScale > pos.x)) &&
+			((mapPos.y < pos.y) && (mapPos.y + BLOCKSIZEY * s_fMapScale > pos.y)))
+		{
+
+			Hit = true;
+		}
+	}
+	return Hit;
+}
+//==================
+//サイズ変更
+//==================
+void SizeMap(float SIZ)
+{
+	s_fMapScale = 1.0f / SIZ;
+}
+
+//==================
+//マップの取得
+//==================
+Map *GetMap(void)
+{
+	return s_aMap;
+}
+
+//==================
+//コンテ処理
+//==================
+void ConteSet(void)
+{
+	Enemy *Enemy = GetEnemy();
+	Enemy += stage;
+	s_PosOffset.y = 0.0f;
+	InitMapSet(&s_aMap[stage].filename[0]);
+	LoadSetFile("data\\txt\\enemy.txt");
+}
+
+//==================
+//fileパス読み込み
+//==================
+void PasSetMap(char *Filename)
+{
+	//ファイルを開く
+	Enemy *Enemy = GetEnemy();
+	FILE *pFile = fopen(&Filename[0], "r");
+	char	s_aString[256];//ファイルの文字入れる
+	if (pFile != NULL)
+	{//ファイルが開いた場合
+		fscanf(pFile, "%s", &s_aString);
+
+		while (strncmp(&s_aString[0], "SCRIPT", 6) != 0)
+		{//スタート来るまで空白読み込む
+			s_aString[0] = {};
+			fscanf(pFile, "%s", &s_aString[0]);
+		}
+		int number = 0;
+		while (strncmp(&s_aString[0], "END_SCRIPT", 10) != 0)
+		{// 文字列の初期化と読み込み// 文字列の初期化と読み込み
+			fscanf(pFile, "%s", &s_aString[0]);
+
+			if (strcmp(&s_aString[0], "MAPLYNK") == 0)
+			{
+				fscanf(pFile, "%s", &s_aString[0]);//＝読み込むやつ
+				fscanf(pFile, "%s", &s_aMapFile[number][0]);
+				number++;
+			}
+			if (strcmp(&s_aString[0], "ENEMYLYNK") == 0)
+			{
+				fscanf(pFile, "%s", &s_aString[0]);//＝読み込むやつ
+				fscanf(pFile, "%s", &s_aString[0]);
+				EnemyLynk(&s_aString[0]);
+			}
+		}
+	}
+	//ファイルを閉じる
+	fclose(pFile);
 }

@@ -1,30 +1,30 @@
 //**************************************************************************************************
 //
 // 弾の設定処理
-// Author：唐﨑結斗
+// Auther：唐﨑結斗
 // Author : 髙野馨將
 //
 //**************************************************************************************************
-#include"main.h"
-#include"input.h"
+#include "main.h"
+#include "input.h"
+		 
 #include "bullet.h"
 #include "target.h"
 
 //*******************************************************************************
 // マクロ定義
 //*******************************************************************************
-
-#define BULLET_SPEED_SKY	(15.0f)		// 空中の弾速度
-#define BULLET_SPEED_GROUND	(10.0f)		// 地上の弾速度
-#define SIZE_BULLET			(15.0f)		// 弾の大きさ
+#define BULLET_SPEED_SKY		(15.0f)		// 空中の弾速度
+#define BULLET_SPEED_GROUND		(8.0f)		// 地上の弾速度
+#define SIZE_BULLET				(15.0f)		// 弾の大きさ
 
 //*******************************************************************************
 // グローバル変数
 //*******************************************************************************
-static LPDIRECT3DTEXTURE9 s_pTexture[MAX_BULLET] = {};	// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
-static Bullet s_aBullet[MAX_BULLET];					// 弾数
-static char s_texName[MAX_BULLET][128];					// 弾テクスチャの名前情報を取得
+static LPDIRECT3DTEXTURE9 s_pTexture[MAX_BULLET_TYPE] = {};		// テクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;				// 頂点バッファへのポインタ
+static Bullet s_aBullet[MAX_BULLET];							// 弾数
+static char s_texName[MAX_BULLET_TYPE][128];					// 弾テクスチャの名前情報を取得
 
 //---------------------------------------------------------------------------
 // 弾初期化
@@ -37,6 +37,7 @@ void InitBullet(void)
 	// 弾テクスチャの名前情報の初期化
 	memset(&s_texName[0], 0, sizeof(s_texName));
 
+	/*strcpy(&s_texName[0][0], "data/")*/
 
 	for (int i = 0; i < MAX_BULLET_TYPE; i++)
 	{// 弾に張り付けるテクスチャの読み込み

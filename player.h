@@ -8,7 +8,6 @@
 #define _PLAYER_H_		//二重インク―ルード防止のマクロ定義
 
 #include"main.h"
-
 #include"bullet.h"
 
 //************************************************************
@@ -27,6 +26,8 @@ typedef struct
 	float				fSpeed;				// 速度
 	int					nLife;				// 体力
 	int					nCntShot;			// 弾の発射までのカウント
+	int					nIdxTarge;			// ターゲットナンバー
+	bool				bFriction;			// 慣性を使用するか
 	bool				bUse;				// 使用してるかどうか
 }Player;
 

@@ -28,8 +28,8 @@
 #pragma comment(lib,"dinput8.lib")	// 入力処理に必要
 #pragma comment(lib,"xinput.lib")	// ジョイパット処理に必要
 
-#define SCREEN_WIDTH	(800)			// ウィンドウの幅
-#define SCREEN_HEIGHT	(960)			// ウインドウの高さ
+#define SCREEN_WIDTH	(1280)			// ウィンドウの幅
+#define SCREEN_HEIGHT	(720)			// ウインドウの高さ
 #define FVF_VERTEX_2D	(D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
 //------------------------------------

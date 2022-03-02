@@ -10,7 +10,9 @@
 #include "Boss.h"
 #include "player.h"
 
-#define MAX_BOSS	(255)	//敵の数
+#define MAX_BOSS		(255)	//敵の数
+#define ENEMY_WIDTH		(25.0)	//敵の数
+#define ENEMY_HEIGHT	(25.0)	//敵の数
 
 static LPDIRECT3DTEXTURE9 s_TextureBOSS[ENEMYTYPE_MAX] = {};	//テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9 s_PvtxBuffBOSS = NULL;			//頂点バッファへのポインタ
@@ -258,14 +260,15 @@ void DrawBoss(void)
 
 	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
 	{
-		// テクスチャの設定
-		pDevice->SetTexture(0, s_TextureBOSS[s_aBoss[nCntEnemy].nType]);
 
 		if (!s_aBoss[nCntEnemy].bUse)
 		{
 			continue;
 		}
 
+		// テクスチャの設定
+		pDevice->SetTexture(0, s_TextureBOSS[s_aBoss[nCntEnemy].nType]);
+		
 		// ポリゴンの描画
 		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP,
 			nCntEnemy * 4,
@@ -281,11 +284,11 @@ void SetBoss(D3DXVECTOR3 pos/*, TYPEENEMY nType*/)
 			continue;
 		}
 
-		SetEnemy(D3DXVECTOR3(pos.x-50.0f, pos.y+50.0f,0.0f), BOSS_PARTS_1);
-		SetEnemy(D3DXVECTOR3(pos.x+50.0f, pos.y + 50.0f, 0.0f), BOSS_PARTS_2);
-		SetEnemy(D3DXVECTOR3(pos.x -50.0f, pos.y-50.0f, 0.0f), BOSS_PARTS_3);
-		SetEnemy(D3DXVECTOR3(pos.x+50.0f, pos.y -50.0f, 0.0f), BOSS_PARTS_4);
-		SetEnemy(D3DXVECTOR3(pos.x+0.0f, pos.y + 0.0f, 0.0f), BOSS_PARTS_5);
+		SetEnemy(D3DXVECTOR3(pos.x-50.0f, pos.y+50.0f,0.0f),25.0f, BOSS_PARTS_1);
+		SetEnemy(D3DXVECTOR3(pos.x+50.0f, pos.y + 50.0f, 0.0f), 25.0f, BOSS_PARTS_2);
+		SetEnemy(D3DXVECTOR3(pos.x -50.0f, pos.y-50.0f, 0.0f), 25.0f, BOSS_PARTS_3);
+		SetEnemy(D3DXVECTOR3(pos.x+50.0f, pos.y -50.0f, 0.0f), 25.0f, BOSS_PARTS_4);
+		SetEnemy(D3DXVECTOR3(pos.x+0.0f, pos.y + 0.0f, 0.0f), 25.0f, BOSS_PARTS_5);
 
 		s_aBoss->pos = pos;
 		//s_aBoss->nLife = 1;

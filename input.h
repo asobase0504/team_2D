@@ -75,20 +75,20 @@ HRESULT InitInput(HINSTANCE hInstance, HWND hWnd);		//入力処理全部の初期化
 void UninitInput(void);									//入力処理全部の終了処理
 void UpdateInput(void);									//入力処理全部の更新処理
 
-														//プロトタイプ宣言キーボード
+//プロトタイプ宣言キーボード
 bool GetKeyboardPress(int nKey);			//キーボードプレス処理
 bool GetKeyboardTrigger(int nKey);			//キーボードトリガー処理
 bool GetKeyboardAllPress(void);				//キーボード全キープレス処理
 bool GetKeyboardAllTrigger(void);			//キーボード全キートリガー処理
 
-											//プロトタイプ宣言ジョイパット
+//プロトタイプ宣言ジョイパット
 bool GetJoypadPress(JOYKEY Key, int nPlayer);					//ジョイパッドプレス処理
 bool GetJoypadTrigger(JOYKEY Key, int nPlayer);					//ジョイパッドトリガー処理
 D3DXVECTOR3 GetJoypadStick(JOYKEY Key, int nPlayer);			//ジョイパッドスティック処理
 int GetJoypadTriggerPedal(JOYKEY Key, int nPlayer);				//ジョイパッドトリガーペダル処理
 void JoypadVibration(int nTime, WORD nStrength, int nPlayer);	//ジョイパッド振動制御
 
-																//プロトタイプ宣言マウス
+//プロトタイプ宣言マウス
 bool GetMousePress(MOUSE mouse);			//マウスのプレス処理
 bool GetMouseTrigger(MOUSE mouse);			//マウスのトリガー処理
 D3DXVECTOR3 GetMouse(void);					//マウスの画面内の位置

@@ -38,7 +38,7 @@ void InitBG(void)
 	//テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"Data\\TEXTURE\\bg000.png",
+		"data\\TEXTURE\\bg000.png",
 		&g_pTextureBG[0]);
 
 	//頂点バッファの生成

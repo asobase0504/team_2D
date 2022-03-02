@@ -2,13 +2,10 @@
 #define _enemy_H_
 
 #include "main.h"
+#include "common.h"
 
 // マクロ定義
-#define MAX_Boss			(256)	// 敵の最大数
-#define ENEMY_WIDTH			(25.0f)	// X	敵サイズ
-#define ENEMY_HEIGHT		(25.0f)	// Y	敵サイズ
 #define MAX_ENEMY			(255)
-#define NUM_ENEMY			(2)		// 敵の種類
 
 typedef enum
 {
@@ -26,10 +23,10 @@ typedef enum
 	ENEMYTYPE_BAKYURA,		// 無敵壁
 	ENEMYTYPE_GROUND_1,		// 地上の敵1
 	ENEMYTYPE_GROUND_2,		// 地上の敵2
-	ENEMYTYPE_WARP_1,		// ワープする敵1
-	ENEMYTYPE_WARP_2,		// ワープする敵2
-	ENEMYTYPE_WARP_3,		// ワープする敵3
-	ENEMYTYPE_WARP_4,		// ワープする敵4
+	ENEMYTYPE_WARP_1,		// ワープする敵1	(挙動不審)
+	ENEMYTYPE_WARP_2,		// ワープする敵2	(挙動不審)
+	ENEMYTYPE_WARP_3,		// ワープする敵3	(挙動不審)
+	ENEMYTYPE_WARP_4,		// ワープする敵4	(挙動不審)
 	BOSS_PARTS_1,			// BOSS_PARTS1
 	BOSS_PARTS_2,			// BOSS_PARTS2
 	BOSS_PARTS_3,			// BOSS_PARTS3
@@ -38,7 +35,6 @@ typedef enum
 	ENEMYTYPE_MAX
 } ENEMYTYPE;
 
-
 // 敵の構造体定義
 typedef struct
 {
@@ -46,20 +42,20 @@ typedef struct
 	D3DXVECTOR3 move;		// 移動量
 	ENEMYSTATE state;		// 状態
 	ENEMYTYPE nType;		// 種類
+	ANIM_TEX AnimTex;		// アニメーションカウント
+	float fSpeed;			// 移動量
+	float fSize;			// 大きさ		
 	bool bUse;				// 使用してるかどうか	
-	int nCounterState;		// 状態管理カウンター
 	int nLife;				// 体力
+	int nCntState;			// 状態管理カウント
 	int nCntBullet;			// 弾の出る時間
-	int	nCounter;			// カウントダウン
-	float SizeX;			// X軸の大きさ		
-	float SizeY;			// Y軸の大きさ
-	int nCounterAnim;		// モーションのカウント
-	int nPatternAnim;		// モーションのカウント
-
-	// エネミーの属性
-	bool Buk;		// 戻るシステム
-	bool flg;		// 追尾使用
-	bool bTP;		// TP機能
+	// 挙動管理
+	bool bBack;				// 戻るシステム
+	bool bTracking;			// 追尾使用
+	bool bTP;
+	// シオナイト用
+	float fSheoRot;			// シオナイト専用角度
+	int nSheoCnt;
 }Enemy;
 
 // プロトタイプ宣言
@@ -67,8 +63,11 @@ void InitEnemy(void);
 void UninitEnemy(void);
 void UpdateEnemy(void);
 void DrawEnemy(void);
-Enemy* SetEnemy(D3DXVECTOR3 pos, ENEMYTYPE nType );
+Enemy* SetEnemy(D3DXVECTOR3 pos, float Size, ENEMYTYPE nType);
 void HitEnemy(Enemy* pEnemy, int nDamage);
+void LoadSetFile(char *Filename);
+void EnemyLynk(char *Filename);		// 
+void SetEnemyLynk(int number);		// 
 Enemy* GetEnemy(void);
 
 #endif

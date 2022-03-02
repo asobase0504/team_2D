@@ -9,6 +9,8 @@
 // include
 //-----------------------------------------
 #include "main.h"
+#include "fade.h"
+#include "title.h"
 #include "game.h"
 #include "input.h"
 #include "sound.h"
@@ -284,7 +286,8 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 
 	InitSound(hWnd);
 
-	SetMode(MODE_GAME);	// モードの設定
+	// モードの設定
+	InitFade(s_mode);
 
 	return S_OK;
 }
@@ -296,6 +299,7 @@ void Uninit(void)
 {
 	UninitSound();	// 音楽
 	UninitInput();	// 入力
+	UninitFade();	// フェード
 	UninitGame();	// ゲーム
 
 	// デバッグ表示用フォントの破棄
@@ -329,6 +333,7 @@ void Update(void)
 	switch (s_mode)
 	{
 	case MODE_TITLE:
+		UpdateTitle();
 		break;
 	case MODE_GAME:
 		UpdateGame();
@@ -336,6 +341,8 @@ void Update(void)
 	default:
 		break;
 	}
+
+	UpdateFade();	// フェード
 }
 
 //=========================================
@@ -360,6 +367,7 @@ void Draw(void)
 		switch (s_mode)
 		{
 		case MODE_TITLE:
+			DrawTitle();
 			break;
 		case MODE_GAME:
 			DrawGame();
@@ -367,6 +375,8 @@ void Draw(void)
 		default:
 			break;
 		}
+
+		DrawFade();		// フェード処理
 
 		// 描画終了
 		g_pD3DDevice->EndScene();
@@ -400,7 +410,7 @@ void SetMode(MODE mode)
 	switch (s_mode)
 	{
 	case MODE_TITLE:	// タイトル画面
-		//UninitTitle();
+		UninitTitle();
 		break;
 
 	case MODE_GAME:		// ゲーム画面
@@ -412,7 +422,7 @@ void SetMode(MODE mode)
 	switch (mode)
 	{
 	case MODE_TITLE:	// タイトル画面
-		//InitTitle();
+		InitTitle();
 		break;
 
 	case MODE_GAME:		// ゲーム画面

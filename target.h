@@ -1,70 +1,69 @@
 //**************************************************************************************************
 //
-// 弾の設定処理
-// Author：唐﨑結斗
+// ターゲットの設定処理
+// Auther：唐﨑結斗
 //
 //**************************************************************************************************
-#ifndef _BULLET_H_		//このマクロ定義がされてなかったら
-#define _BULLET_H_		//二重インク―ルード防止のマクロ定義
+#ifndef _TARGET_H_		//このマクロ定義がされてなかったら
+#define _TARGET_H_		//二重インク―ルード防止のマクロ定義
 
-#include"main.h"
+#include "main.h"
+#include "enemy.h"
 
 //*************************************************************
 // マクロ定義
 //*************************************************************
-#define	MAX_BULLET			(1280)
-#define MAX_BULLET_TYPE		(128)
+#define	MAX_TARGET			(1280)
 
 //*************************************************************
-// 弾の種類の列挙型
+// ターゲットの種類の列挙型
 //*************************************************************
 typedef enum
 {
-	BULLETTYPE_PLAYER_SKY = 0,
-	BULLETTYPE_PLAYER_GROUND,
-	BULLETTYPE_ENEMY,
-	MAX_BULLETTYPE,
-}BulletType;
+	TARGETSTATE_LOCK_OFF = 0,
+	TARGETSTATE_LOCK_ON,
+	MAX_TARGETTYPE,
+}TargetState;
 
 //************************************************************
-// ポリゴンテクスチャの名前を定義
+// ターゲットテクスチャの名前を定義
 //************************************************************
 typedef struct
 {
 	char	aName[128];
-}BulletTextureName;
+}TargetTextureName;
 
 //************************************************************
-// ポリゴンの構造体を定義
+// ターゲットの構造体を定義
 //************************************************************
 typedef struct
 {
 	D3DXVECTOR3			pos;				// 中心点
 	D3DXVECTOR3			rot;				// 向き
 	D3DXVECTOR3			size;				// 大きさ
-	D3DXVECTOR3			move;				// 移動ベクトル
 	D3DXCOLOR			col;				// カラー
-	BulletType			BulletType;			// 弾の種類
+	TargetState			TargetType;			// ターゲットの種類
 	float				fLength;			// 対角線の長さ
 	float				fAngele;			// 対角線の角度
-	float				fRotMove;			// 移動方向の角度
-	float				fSpeed;				// 移動速度
-	int					nLife;				// 寿命
-	int					nIdxTarget;			// ターゲットの識別番号
-	bool				bOnCollision;		// 当たり判定の有無
+	int					nIdxBullet;			// 弾の識別番号
+	bool				bLockOnEnemy;		// ターゲット内に敵がいる
 	bool				bUse;				// 使用してるかどうか
-}Bullet;
+}Target;
 
 //****************************************
 // プロトタイプ宣言
 //****************************************
-void InitBullet(void);
-void UninitBullet(void);
-void UpdateBullet(void);
-void DrawBullet(void);
-int SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType, int nIdxTarget, bool bOnCollision);
-void SetBulletVtx(VERTEX_2D *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR col, float fLength, float fAngele);
-Bullet* GetBullet(void);
+void InitTarget(void);
+void UninitTarget(void);
+void UpdateTarget(void);
+void DrawTarget(void);
+int SetTarget(D3DXVECTOR3 pos, D3DXVECTOR3 rot);
+void SetPositionTarget(int nIdxShadow, D3DXVECTOR3 pos);
+void LockOnTarget(int nIdxShadow);
+void SetTargetVtx(VERTEX_2D *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR col, float fLength, float fAngele);
+void CollisionTarget(D3DXVECTOR3 pos, float fLength, ENEMYTYPE TypeEnemy);
+Target *GetTarget(void);
 
 #endif
+
 

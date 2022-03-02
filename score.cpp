@@ -19,6 +19,7 @@
 #define SCORE_WIDTH			(30)		//スコアの幅
 #define SCORE_HEIGHT		(45)		//スコアの高さ
 #define BESTSCORE_FILE		("data/txt/BestScore.txt")	// ベストスコアの管理するファイル
+#define SCORE_TEX			("data/TEXTURE/Number_0To9.png")
 
 //============================================================================================================
 //スタティック変数
@@ -46,9 +47,7 @@ void InitScore(void)
 	VERTEX_2D *pVtx;							//頂点情報へのポインタ
 
 	//テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice,
-								"data/TEXTURE/number000.png",
-								&s_pTexture);
+	D3DXCreateTextureFromFile(pDevice, SCORE_TEX,&s_pTexture);
 
 	//変数の初期化
 	for (int nCnt = 0; nCnt < MAX_SCORE; nCnt++)

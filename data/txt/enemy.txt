@@ -1,0 +1,38 @@
+#==============================================================================
+#
+# テクスチャ読み込みファイル
+# Author : HAMADA RYUUGA
+#
+#==============================================================================
+SCRIPT			# この行は絶対消さないこと！
+
+NUM_TEXTURE = 4
+
+SCRIPT_TEX
+TEXTURE_FILENAME =  data/TEXTURE/koin.png		# [0]敵テクスチャ
+DIVISION = 5 4									#分割数 X Y
+ANIMESPEED = 5
+MOVESPEED = 3
+TRACKING
+END_TEX
+
+SCRIPT_TEX
+TEXTURE_FILENAME = data/TEXTURE/hagu.png		# [1]敵テクスチャ
+DIVISION = 5 4 									#分割数 X Y
+ANIMESPEED = 5
+END_TEX
+
+SCRIPT_TEX
+TEXTURE_FILENAME = data/TEXTURE/tate.png		# [2]敵テクスチャ
+DIVISION = 5 4 									#分割数 X Y
+ANIMESPEED = 5
+END_TEX
+
+SCRIPT_TEX
+TEXTURE_FILENAME = data/TEXTURE/tate.png		# [3]敵テクスチャ
+DIVISION = 5 4 									#分割数 X Y
+ANIMESPEED = 5
+END_TEX
+
+
+END_SCRIPT		# この行は絶対消さないこと??

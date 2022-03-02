@@ -1,40 +1,51 @@
-//=========================================
+//============================
 //
-//	マップチップのヘッダーファイル
-//	Author : 浜田琉雅
-//	Author : 冨所知生
+// マップチップ設定ヘッター
+// Author:hamada ryuuga
 //
-//=========================================
+//============================
+
 #ifndef _MAP_H_
 #define _MAP_H_
 
 #include"main.h"
 
-//=========================================
-//構造体の宣言
-//=========================================
+#define MAP_FILE0	"data/txt/map.txt"
+#define MAP_FILE1	"data/txt/map1.txt"
+#define MAP_FILE2	"data/txt/map2.txt"
+#define MAP_FILE3	"data/txt/map3.txt"
+#define MAP_FILE4	"data/txt/map4.txt"
+#define MAP_FILE5	"data/txt/map5.txt"
+#define MAP_FILE6	"data/txt/map6.txt"
+
+//-------------
+//構造体
+//-------------
 typedef struct
 {
 	D3DXVECTOR3 pos;	//位置
-	D3DXVECTOR3 move;	//移動量
 	D3DXCOLOR col;		//カラー
-	D3DXVECTOR3 siz;	//サイズ
 	int nType;			//テクスチャ
+	int tex;
 	bool bUse;
+	char filename[256];
 }Map;
 
-//=========================================
+//-----------------
 //プロトタイプ宣言
-//=========================================
+//-----------------
 void InitMap(void);
 void UninitMap(void);
 void UpdateMap(void);
 void DrawMap(void);
 void SetMap(D3DXVECTOR3 pos, int nType, int tex);
 void InitMapSet(char *Filename);
+void ConversionMap(D3DXVECTOR3 pos, int tex);
+void OutputMap(char *Filename);
+void SizeMap(float SIZ);
 Map *GetMap(void);
-void SetNorotpos2d(VERTEX_2D *pVtx, float XUP, float XDW, float YUP, float YDW);
-void Settex2d(VERTEX_2D *pVtx, float left, float right, float top, float down);
+bool CollisionMap(D3DXVECTOR3 pos);
+void ConteSet(void);
+void PasSetMap(char *Filename);//マップパスをセットする
 
 #endif // !_Map_H_
-#pragma once

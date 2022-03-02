@@ -16,13 +16,13 @@
 #include "input.h"
 #include "map.h"
 #include "bg.h"
+#include "target.h"
 #include "sound.h"
 #include <stdio.h>
 
 //------------------------------------
 // マクロ定義
 //------------------------------------
-#define MAP_FILE	"data/txt/map.txt"
 
 //------------------------------------
 // スタティック変数
@@ -40,11 +40,12 @@ void InitGame(void)
 	InitMap();		// マップ
 	InitEnemy();	// 敵
 	InitBullet();	// 弾
+	InitTarget();	// ターゲット
 	InitPlayer();	// プレイヤー
 	InitScore();	// スコア
 
 	// マップの設定。
-	InitMapSet(MAP_FILE);
+	InitMapSet(MAP_FILE0);
 
 	PlaySound(SOUND_LABEL_BGM_GAME1);
 }
@@ -60,6 +61,7 @@ void UninitGame(void)
 	UninitBullet();	// 弾
 	UninitPlayer();	// プレイヤー
 	UninitScore();	// スコア
+	UninitTarget();	// ターゲット
 }
 
 //=========================================
@@ -118,15 +120,15 @@ void UpdateGame(void)
 
 	if (GetKeyboardTrigger(DIK_1))
 	{
-		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), ENEMYTYPE_WARP_1);
+		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), 25.0f, ENEMYTYPE_SHEONITE);
 	}
 	else if (GetKeyboardTrigger(DIK_2))
 	{
-		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), ENEMYTYPE_WARP_2);
+		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), 25.0f, ENEMYTYPE_WARP_2);
 	}
 	else if (GetKeyboardTrigger(DIK_3))
 	{
-		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), ENEMYTYPE_WARP_3);
+		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f),25.0f, ENEMYTYPE_WARP_3);
 	}
 
 	if (GetKeyboardTrigger(DIK_P))
@@ -140,6 +142,7 @@ void UpdateGame(void)
 	UpdateBullet();	// 弾
 	UpdatePlayer();	// プレイヤー
 	UpdateScore();	// スコア
+	UpdateTarget();	// ターゲット
 }
 
 //=========================================
@@ -153,6 +156,7 @@ void DrawGame()
 	DrawBullet();	// 弾
 	DrawPlayer();	// プレイヤー
 	DrawScore();	// スコア
+	DrawTarget();	// ターゲット
 }
 
 //=========================================

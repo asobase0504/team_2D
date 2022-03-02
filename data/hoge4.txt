@@ -1,0 +1,16 @@
+SCRIPT
+
+MAPLYNK = data/txt/map.txt
+MAPLYNK = data/txt/map1.txt
+MAPLYNK = data/txt/map2.txt
+MAPLYNK = data/txt/map3.txt
+MAPLYNK = data/txt/map4.txt
+MAPLYNK = data/txt/map5.txt
+
+ENEMYLYNK = data/txt/hoge2.txt
+ENEMYLYNK = data/txt/hoge2.txt
+ENEMYLYNK = data/txt/hoge2.txt
+ENEMYLYNK = data/txt/hoge2.txt
+ENEMYLYNK = data/txt/hoge2.txt
+
+END_SCRIPT
