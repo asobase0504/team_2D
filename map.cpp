@@ -133,7 +133,7 @@ void UpdateMap(void)
 
 		pos = (s_aMap[i].pos + s_PosOffset)* s_fMapScale;
 
-		SetNorotpos2d(pVtx, pos.x, pos.x + BLOCKSIZEX * s_fMapScale, pos.y, pos.y + BLOCKSIZEY * s_fMapScale);
+		SetNormalpos2d(pVtx, pos.x, pos.x + BLOCKSIZEX * s_fMapScale, pos.y, pos.y + BLOCKSIZEY * s_fMapScale);
 
 		if (pos.y >= SCREEN_HEIGHT)
 		{
@@ -355,11 +355,11 @@ Map *GetMap(void)
 //==================
 void ConteSet(void)
 {
-	Enemy *Enemy = GetEnemy();
-	Enemy += stage;
 	s_PosOffset.y = 0.0f;
-	InitMapSet(&s_aMap[stage].filename[0]);
-	LoadSetFile("data\\txt\\enemy.txt");
+	// マップの設定。
+	InitMapSet(&s_aMapFile[stage][0]);
+	SetEnemyLynk(stage);
+
 }
 
 //==================

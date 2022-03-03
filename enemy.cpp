@@ -13,6 +13,7 @@
 #include "collision.h"
 #include "score.h"
 #include "player.h"
+#include "target.h"
 #include <stdio.h>
 
 //----------------------------
@@ -28,7 +29,7 @@
 //シオナイト
 #define SHEO_DIST_START_ROTATION	(200.0f)							// 回り始める距離
 #define SHEO_RADIUS_ROTATION		(SHEO_DIST_START_ROTATION - 20.0f)	// 回転半径
-#define SHEO_SPEED_ROTATION			(D3DXToRadian(2.0f))				// 回転速度
+#define SHEO_SPEED_ROTATION			(D3DXToRadian(6.0f))				// 回転速度
 #define SHEO_FRAME_GOODBY			(300)								// お帰りになる時間
 #define SHEO_SPEED_GOODBY			(10.0f)								// お帰りになる速度
 
@@ -210,9 +211,6 @@ void UpdateEnemy(void)
 			MoveBakyura(pEnemy);
 			break;
 		case ENEMYTYPE_SHEONITE:	// 空の敵
-			pEnemy->fSheoRot = -1.0f;
-			pEnemy->nSheoCnt = 0;
-			pEnemy->nLife = 30;
 			MoveSheonite(pEnemy);
 			break;
 		case ENEMYTYPE_WARP_1:		//追尾アリ、一定の距離で弾を発射し、消滅	
@@ -232,10 +230,13 @@ void UpdateEnemy(void)
 		}
 
 		// 画面端設定
-		if (pEnemy->pos.x <= -100.0f || pEnemy->pos.x >= SCREEN_WIDTH + 100.0f || pEnemy->pos.y >= SCREEN_HEIGHT + 100.0f || pEnemy->pos.y <= -100.0f)
+		if ((pEnemy->pos.x <= -200.0f)
+			|| (pEnemy->pos.x >= SCREEN_WIDTH + 200.0f)
+			|| (pEnemy->pos.y >= SCREEN_HEIGHT + 200.0f)
+			|| (pEnemy->pos.y <= -200.0f))
 		{
 			pEnemy->bUse = false;
-			pEnemy->pos.x = SCREEN_WIDTH;
+			continue;
 		}
 
 		// 弾が当たった時
@@ -623,7 +624,19 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 		pEnemy->pos = pos;
 		pEnemy->fSize = fSize;
 		pEnemy->nType = nType;
-		pEnemy->move.y = s_aTypeEnemy[nType].fSpeed;
+		pEnemy->fSpeed = 7.0f;
+//		pEnemy->move.y = saTypeEnemy[nType].fSpeed;
+
+		switch (pEnemy->nType)
+		{
+		case ENEMYTYPE_SHEONITE:
+			pEnemy->fSheoRot = -1.0f;
+			pEnemy->nSheoCnt = 0;
+			pEnemy->nLife = 30;
+			break;
+		default:
+			break;
+		}
 
 		// 頂点座標の設定
 		SetVtxPos(pVtx, &pEnemy->pos, pEnemy->fSize, pEnemy->fSize);

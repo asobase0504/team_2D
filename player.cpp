@@ -14,8 +14,9 @@
 // 定数
 //*******************************************************************************
 #define MAX_SPEED				(10.0f)			// 移動速度の最大値
-#define MIN_SPEED				(0.5f)			// 移動速度の最小値
-#define MOVE_FRICTION			(0.05f)			// 動摩擦係数
+#define MIN_SPEED				(0.0f)			// 移動速度の最小値
+#define MOVE_SPEED				(5.0f)			// 設定時の移動量
+#define MOVE_FRICTION			(0.5f)			// 動摩擦係数
 #define MAX_CNT_SHOT			(0.25f * 60)	// 弾発射間隔(秒数 * フレーム数)
 #define TARGET_DISTANCE			(300.0f)		// ターゲットの間隔
 
@@ -173,7 +174,7 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 		s_Player.BulletType = (BulletType)(0);				// 弾の種類
 		s_Player.nLife = 150;								// 体力
 		s_Player.nCntShot = 1;								// 弾発射までのカウント
-		s_Player.fSpeed = 1.0f;								// 速度
+		s_Player.fSpeed = MOVE_SPEED;						// 速度
 		s_Player.nIdxTarge = -1;							// ターゲット
 		s_Player.bFriction = false;							// 慣性の有無
 		s_Player.bUse = true;								// 使用してる

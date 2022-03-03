@@ -55,7 +55,7 @@ typedef struct
 	bool bTP;
 	// シオナイト用
 	float fSheoRot;			// シオナイト専用角度
-	int nSheoCnt;
+	int nSheoCnt;			// シオナイトカウント
 }Enemy;
 
 // プロトタイプ宣言

@@ -6,6 +6,7 @@
 //================================
 #include "title.h"
 #include "input.h"
+#include "enemy.h"
 #include "map.h"
 #include "fade.h"
 
@@ -122,6 +123,8 @@ void InitTitle(void)
 	s_pVtxBuff->Unlock();
 
 	InitMap();		// マップ
+	InitEnemy();	// エネミー
+
 	// マップの設定。
 	InitMapSet(MAP_FILE0);
 }
@@ -132,7 +135,8 @@ void InitTitle(void)
 void UninitTitle(void)
 {
 	UninitMap();	// マップ
-					
+	UninitEnemy();	// エネミー
+
 	//テクスチャの破棄
 	for (int nCnt = 0; nCnt < NUM_TITLE; nCnt++)
 	{
@@ -157,6 +161,7 @@ void UninitTitle(void)
 void UpdateTitle(void)
 {
 	UpdateMap();	// マップデータ
+	UpdateEnemy();	// エネミー
 
 	VERTEX_2D*pVtx;		//頂点情報へのポインタ
 
@@ -222,6 +227,7 @@ void UpdateTitle(void)
 void DrawTitle(void)
 {
 	DrawMap();		// マップデータ
+	DrawEnemy();	// エネミー
 
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();	//デバイスの取得
 

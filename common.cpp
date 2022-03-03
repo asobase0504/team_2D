@@ -78,7 +78,7 @@ void SetTex2d(VERTEX_2D *pVtx, float left, float right, float top, float down)
 // ç¿ïWê›íË
 //AutherÅFhamada ryuuga
 //=========================================
-void SetNorotpos2d(VERTEX_2D *pVtx, float XUP, float XDW, float YUP, float YDW)
+void SetNormalpos2d(VERTEX_2D *pVtx, float XUP, float XDW, float YUP, float YDW)
 {
 	pVtx[0].pos = D3DXVECTOR3(XUP, YUP, 0.0f);
 	pVtx[1].pos = D3DXVECTOR3(XDW, YUP, 0.0f);

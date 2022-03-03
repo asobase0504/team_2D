@@ -35,7 +35,7 @@ void InitResult(void)
 	//	テクスチャの読み込み
 	//------------------------------
 	D3DXCreateTextureFromFile(pDevice,
-							  "data\\TEXTURE\\Enemy\\sky001.jpg",
+							  "data\\TEXTURE\\sky001.jpg",
 							  &s_pTexture[0]);
 
 	D3DXCreateTextureFromFile(pDevice,
@@ -226,7 +226,7 @@ void UpdateResult(void)
 	//----------------
 	//	画面遷移
 	//----------------
-	if (GetKeyboardTrigger(DIK_RETURN) == true || GetJoypadTrigger(JOYKEY_A,0))
+	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_A,0))
 	{
 		SetFade(MODE_TITLE);
 	}

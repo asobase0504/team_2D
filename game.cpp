@@ -142,6 +142,11 @@ void UpdateGame(void)
 		SetFade(MODE_RESULT);
 	}
 
+	if (GetKeyboardTrigger(DIK_M))	// リザルトに移行デバッグ
+	{
+		ConteSet();
+	}
+
 	UpdateBG();		// 背景
 	UpdateMap();	// マップデータ
 	UpdateEnemy();	// 敵

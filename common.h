@@ -23,7 +23,7 @@ typedef struct
 void SetVtxAnimTex(VERTEX_2D* pVtx, ANIM_TEX* pAnimTex);
 void SetVtxColor(VERTEX_2D* pVtx, D3DXCOLOR* col);
 void SetTex2d(VERTEX_2D *pVtx, float left, float right, float top, float down);
-void SetNorotpos2d(VERTEX_2D *pVtx, float XUP, float XDW, float YUP, float YDW);
+void SetNormalpos2d(VERTEX_2D *pVtx, float XUP, float XDW, float YUP, float YDW);
 void SetVtxPos(VERTEX_2D* pVtx, D3DXVECTOR3* pos, float fWidth, float fHeight);
 
 #endif
