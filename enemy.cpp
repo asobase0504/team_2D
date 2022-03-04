@@ -13,6 +13,7 @@
 #include "collision.h"
 #include "score.h"
 #include "player.h"
+#include "Boss.h"
 #include "target.h"
 #include <stdio.h>
 
@@ -603,11 +604,11 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 {
 	Enemy* pEnemy = s_aEnemy;
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
-	
+
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++,pEnemy++, pVtx += 4)
+	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++, pVtx += 4)
 	{
 		if (pEnemy->bUse)
 		{
@@ -625,7 +626,7 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 		pEnemy->fSize = fSize;
 		pEnemy->nType = nType;
 		pEnemy->fSpeed = 7.0f;
-//		pEnemy->move.y = saTypeEnemy[nType].fSpeed;
+		//		pEnemy->move.y = saTypeEnemy[nType].fSpeed;
 
 		switch (pEnemy->nType)
 		{
@@ -633,6 +634,9 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 			pEnemy->fSheoRot = -1.0f;
 			pEnemy->nSheoCnt = 0;
 			pEnemy->nLife = 30;
+			break;
+		case ENEMYTYPE_BOSS:
+			SetBoss(pos);
 			break;
 		default:
 			break;
@@ -643,8 +647,10 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 
 		break;
 	}
+
 	// 頂点をアンロックする
 	s_pVtxBuff->Unlock();
+
 	return pEnemy;
 }
 

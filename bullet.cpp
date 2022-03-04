@@ -25,6 +25,7 @@ static LPDIRECT3DTEXTURE9 s_pTexture[MAX_BULLET] = {};	// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 static Bullet s_aBullet[MAX_BULLET];					// 弾数
 static char s_texName[MAX_BULLET][128];					// 弾テクスチャの名前情報を取得
+static int TestCount;									// テクスチャの色が切り替わるまでのカウント
 
 //---------------------------------------------------------------------------
 // 弾初期化
@@ -37,13 +38,17 @@ void InitBullet(void)
 	// 弾テクスチャの名前情報の初期化
 	memset(&s_texName[0], 0, sizeof(s_texName));
 
-
-	for (int i = 0; i < MAX_BULLET_TYPE; i++)
-	{// 弾に張り付けるテクスチャの読み込み
-		D3DXCreateTextureFromFile(pDevice,
-			&s_texName[i][0],
-			&s_pTexture[i]);
-	}
+	TestCount = 0;
+	
+	// 弾に張り付けるテクスチャの読み込み
+	//空の弾
+	D3DXCreateTextureFromFile(pDevice,
+		"Data/TEXTURE/bullet_sky.png",
+		&s_pTexture[0]);
+	//陸への弾
+	D3DXCreateTextureFromFile(pDevice,
+		"Data/TEXTURE/bullet_ground.png",
+		&s_pTexture[1]);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_BULLET,		// 確保するバッファサイズ
@@ -156,6 +161,21 @@ void UpdateBullet(void)
 		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 		pVtx += i * 4;
+
+		TestCount++;
+
+		if (TestCount >= 30)
+		{
+			if (TestCount >= 60)
+			{
+				TestCount = 0;
+			}
+			pBullet->col = D3DXCOLOR(0.0f, 1.0f, 1.0f, 1.0f);		// カラー
+		}
+		else
+		{
+			pBullet->col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);		// カラー
+		}
 
 		//頂点座標の設定
 		SetBulletVtx(pVtx, pBullet->pos, pBullet->rot, pBullet->col, pBullet->fLength, pBullet->fAngele);

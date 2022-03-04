@@ -1,30 +1,30 @@
 //**************************************************************************************************
 //
 // 弾の設定処理
-// Auther：唐﨑結斗
+// Author：唐﨑結斗
 // Author : 髙野馨將
 //
 //**************************************************************************************************
-#include "main.h"
-#include "input.h"
-		 
-#include "bullet.h"
-#include "target.h"
+#include"main.h"
+#include"input.h"
+
+#include"bullet.h"
 
 //*******************************************************************************
 // マクロ定義
 //*******************************************************************************
-#define BULLET_SPEED_SKY		(15.0f)		// 空中の弾速度
-#define BULLET_SPEED_GROUND		(8.0f)		// 地上の弾速度
-#define SIZE_BULLET				(15.0f)		// 弾の大きさ
+#define BULLET_SPEED_SKY	(10.0f)		// 空中の弾速度
+#define BULLET_SPEED_GROUND	(10.0f)		// 地上の弾速度
+#define SIZE_BULLET			(10.0f)		//弾の大きさ
 
 //*******************************************************************************
 // グローバル変数
 //*******************************************************************************
-static LPDIRECT3DTEXTURE9 s_pTexture[MAX_BULLET_TYPE] = {};		// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;				// 頂点バッファへのポインタ
-static Bullet s_aBullet[MAX_BULLET];							// 弾数
-static char s_texName[MAX_BULLET_TYPE][128];					// 弾テクスチャの名前情報を取得
+static LPDIRECT3DTEXTURE9 s_pTexture[MAX_BULLET] = {};	// テクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
+static Bullet s_aBullet[MAX_BULLET];					// 弾数
+static char s_texName[MAX_BULLET][128];					// 弾テクスチャの名前情報を取得
+static int TestCount;									// テクスチャの色が切り替わるまでのカウント
 
 //---------------------------------------------------------------------------
 // 弾初期化
@@ -37,14 +37,17 @@ void InitBullet(void)
 	// 弾テクスチャの名前情報の初期化
 	memset(&s_texName[0], 0, sizeof(s_texName));
 
-	/*strcpy(&s_texName[0][0], "data/")*/
-
-	for (int i = 0; i < MAX_BULLET_TYPE; i++)
-	{// 弾に張り付けるテクスチャの読み込み
-		D3DXCreateTextureFromFile(pDevice,
-			&s_texName[i][0],
-			&s_pTexture[i]);
-	}
+	TestCount = 0;
+	
+	// 弾に張り付けるテクスチャの読み込み
+	//空の弾
+	D3DXCreateTextureFromFile(pDevice,
+		"Data/TEXTURE/bullet_sky.png",
+		&s_pTexture[0]);
+	//陸への弾
+	D3DXCreateTextureFromFile(pDevice,
+		"Data/TEXTURE/bullet_ground.png",
+		&s_pTexture[1]);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_BULLET,		// 確保するバッファサイズ
@@ -66,9 +69,9 @@ void InitBullet(void)
 	for (int i = 0; i < MAX_BULLET; i++)
 	{
 		Bullet* pBullet = &s_aBullet[i];
-		
+
 		// 対角線の長さを算出する
-		pBullet->fLength = sqrtf((pBullet->size.x * pBullet->size.x) + (pBullet->size.y * pBullet->size.y))* 0.5f;
+		pBullet->fLength = sqrtf(((pBullet->size.x * pBullet->size.x) + (pBullet->size.y * pBullet->size.y)) * 0.5f);
 
 		// 対角線の角度を算出
 		pBullet->fAngele = atan2f(pBullet->size.x, pBullet->size.y);
@@ -88,7 +91,7 @@ void InitBullet(void)
 //---------------------------------------------------------------------------
 void UninitBullet(void)
 {
-	for (int i = 0; i < MAX_BULLET_TYPE; i++)
+	for (int i = 0; i < MAX_BULLET; i++)
 	{// テクスチャの破棄	  
 		if (s_pTexture[i] != NULL)
 		{
@@ -112,6 +115,12 @@ void UninitBullet(void)
 //---------------------------------------------------------------------------
 void UpdateBullet(void)
 {
+	//デバイスへのポインタ
+	LPDIRECT3DDEVICE9 pDevice;
+
+	//デバイスの取得
+	pDevice = GetDevice();
+
 	for (int i = 0; i < MAX_BULLET; i++)
 	{
 		Bullet* pBullet = &s_aBullet[i];
@@ -132,21 +141,8 @@ void UpdateBullet(void)
 		// 移動
 		pBullet->pos += pBullet->move;
 
-		if (pBullet->BulletType == BULLETTYPE_PLAYER_GROUND)
-		{// 地上弾の時
-		 // ターゲット情報の取得
-			Target *pTarget = GetTarget();
-
-			pTarget += pBullet->nIdxTarget;
-
-			if (pBullet->pos.y  - pBullet->size.y < pTarget->pos.y - pTarget->size.y)
-			{
-				pBullet->bUse = false;
-			}
-		}
-
 		//対角線の長さを算出する
-		pBullet->fLength = sqrtf((pBullet->size.x * pBullet->size.x) + (pBullet->size.y * pBullet->size.y))* 0.5f;
+		pBullet->fLength = sqrtf(((pBullet->size.x * pBullet->size.x) + (pBullet->size.y * pBullet->size.y)) * 0.5f);
 
 		//対角線の角度を算出
 		pBullet->fAngele = atan2f(pBullet->size.x, pBullet->size.y);
@@ -157,6 +153,21 @@ void UpdateBullet(void)
 		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 		pVtx += i * 4;
+
+		TestCount++;
+
+		if (TestCount >= 30)
+		{
+			if (TestCount >= 60)
+			{
+				TestCount = 0;
+			}
+			pBullet->col = D3DXCOLOR(0.0f, 1.0f, 1.0f, 1.0f);		// カラー
+		}
+		else
+		{
+			pBullet->col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);		// カラー
+		}
 
 		//頂点座標の設定
 		SetBulletVtx(pVtx, pBullet->pos, pBullet->rot, pBullet->col, pBullet->fLength, pBullet->fAngele);
@@ -188,6 +199,9 @@ void DrawBullet(void)
 	//頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
+	//頂点バッファをデバイスのデータストリームに設定
+	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
+
 	for (int i = 0; i < MAX_BULLET; i++)
 	{
 		Bullet* pBullet = &s_aBullet[i];
@@ -196,26 +210,39 @@ void DrawBullet(void)
 		{
 			continue;
 		}
+		
+		if (TestCount >= 30)
+		{
+			//αテストの有効化
+			pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+			pDevice->SetRenderState(D3DRS_ALPHAREF, 175);
+			pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
+
+			pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_SUBTRACT);
+			pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+		}
 
 		//テクスチャの設定
 		pDevice->SetTexture(0, s_pTexture[(int)(pBullet->BulletType)]);
-
 		//弾描画
 		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, i * 4, 2);
 	}
+
+	//αブレンディングを元に戻す
+	pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 }
 
 //---------------------------------------------------------------------------
 // 弾設定
 //---------------------------------------------------------------------------
-int SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType, int nIdxTarget, bool bOnCollision)
+void SetBullet(D3DXVECTOR3	pos, D3DXVECTOR3 rot, int nType)
 {
-	// 変数宣言
-	int nCntBullet = 0;
-
-	for (int nCntBullet = 0; nCntBullet < MAX_BULLET; nCntBullet++)
+	for (int i = 0; i < MAX_BULLET; i++)
 	{
-		Bullet* pBullet = &s_aBullet[nCntBullet];
+		Bullet* pBullet = &s_aBullet[i];
 
 		if (pBullet->bUse)
 		{//使用されてない場合
@@ -225,8 +252,7 @@ int SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType, int nIdxTarget, bool 
 		//タイトルロゴ情報の設定
 		pBullet->pos = pos;									// 中心点
 		pBullet->rot = rot;									// 向き
-		pBullet->BulletType = (BulletType)(nType);			// タイプ
-		pBullet->nIdxTarget = nIdxTarget;					// ターゲットの番号
+		pBullet->BulletType = (BulletType)(nType);			// タイプ 
 		pBullet->bUse = true;								// 使用してる
 
 		pBullet->fRotMove = pBullet->rot.z - D3DX_PI;		// 移動方向
@@ -243,28 +269,23 @@ int SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType, int nIdxTarget, bool 
 		switch (pBullet->BulletType)
 		{
 		case BULLETTYPE_PLAYER_SKY:
-			pBullet->size = D3DXVECTOR3(20.0f, 20.0f, 0.0f);		// 大きさ
+			pBullet->size = D3DXVECTOR3(10.0f, 10.0f, 0.0f);		// 大きさ
 			pBullet->col = D3DXCOLOR(0.0f, 1.0f, 1.0f, 1.0f);		// カラー
 			pBullet->fSpeed = BULLET_SPEED_SKY;						// 速度
-			pBullet->bOnCollision = true;							// 当たり判定の有無
 			pBullet->nLife = 180;									// 寿命
 			break;
 
 		case BULLETTYPE_PLAYER_GROUND:
-			pBullet->size = D3DXVECTOR3(20.0f, 20.0f, 0.0f);		// 大きさ
+			pBullet->size = D3DXVECTOR3(10.0f, 10.0f, 0.0f);		// 大きさ
 			pBullet->col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);		// カラー
 			pBullet->fSpeed = BULLET_SPEED_GROUND;					// 速度
-			pBullet->bOnCollision = bOnCollision;					// 当たり判定の有無
 			pBullet->nLife = 180;									// 寿命
 			break;
-
 		case BULLETTYPE_ENEMY:
-			pBullet->size = D3DXVECTOR3(20.0f, 20.0f, 0.0f);		// 大きさ
+			pBullet->size = D3DXVECTOR3(10.0f, 10.0f, 0.0f);		// 大きさ
 			pBullet->col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);		// カラー
-			pBullet->fSpeed = 3.0f;									// 速度
-			pBullet->bOnCollision = true;							// 当たり判定の有無
-			pBullet->nLife = 180;									// 寿命
-			break;
+			pBullet->fSpeed = 3.0f;					// 速度
+			pBullet->nLife = 180;										// 寿命
 		}
 
 		// 移動ベクトルの算出
@@ -273,7 +294,7 @@ int SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType, int nIdxTarget, bool 
 		pBullet->move *= pBullet->fSpeed;
 
 		//対角線の長さを算出する
-		pBullet->fLength = sqrtf((pBullet->size.x * pBullet->size.x) + (pBullet->size.y * pBullet->size.y))* 0.5f;
+		pBullet->fLength = sqrtf(((pBullet->size.x * pBullet->size.x) + (pBullet->size.y * pBullet->size.y)) / 2.0f);
 
 		//対角線の角度を算出
 		pBullet->fAngele = atan2f(pBullet->size.x, pBullet->size.y);
@@ -284,7 +305,7 @@ int SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType, int nIdxTarget, bool 
 		//頂点バッファをロックし、頂点情報へのポインタを取得
 		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-		pVtx += nCntBullet * 4;
+		pVtx += i * 4;
 
 		//頂点座標の設定
 		SetBulletVtx(pVtx, pBullet->pos, pBullet->rot, pBullet->col, pBullet->fLength, pBullet->fAngele);
@@ -292,19 +313,8 @@ int SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType, int nIdxTarget, bool 
 		//頂点バッファをアンロック
 		s_pVtxBuff->Unlock();
 
-		return nCntBullet;
 		break;
-	}	
-
-	return nCntBullet;
-}
-
-//---------------------------------------------------------------------------
-// 弾情報の取得
-//---------------------------------------------------------------------------
-Bullet *GetBullet(void)
-{
-	return &s_aBullet[0];
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -346,4 +356,9 @@ void SetBulletVtx(VERTEX_2D *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR c
 	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
 	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+}
+
+Bullet * GetBullet(void)
+{
+	return s_aBullet;
 }

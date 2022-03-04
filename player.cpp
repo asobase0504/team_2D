@@ -6,6 +6,7 @@
 //**************************************************************************************************
 #include "main.h"
 #include "input.h"
+#include "life.h"
 #include "common.h"
 #include "player.h"
 #include "target.h"
@@ -71,6 +72,7 @@ void InitPlayer(void)
 
 	// プレイヤーのセット
 	SetPlayer(D3DXVECTOR3(640.0f, 360.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+
 }
 
 //---------------------------------------------------------------------------
@@ -172,7 +174,7 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 		s_Player.size = D3DXVECTOR3(50.0f,50.0f,0.0f);		// サイズ
 		s_Player.col = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);		// カラー
 		s_Player.BulletType = (BulletType)(0);				// 弾の種類
-		s_Player.nLife = 150;								// 体力
+		s_Player.nLife = 5;									// 体力
 		s_Player.nCntShot = 1;								// 弾発射までのカウント
 		s_Player.fSpeed = MOVE_SPEED;						// 速度
 		s_Player.nIdxTarge = -1;							// ターゲット
@@ -190,6 +192,11 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 
 		// ターゲット
 		s_Player.nIdxTarge = SetTarget(D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y - TARGET_DISTANCE,0.0f), s_Player.rot);
+
+		for (int i = 0; i < s_Player.nLife; i++)
+		{
+			SetLife(D3DXVECTOR3(25.0f + 42.5f * i, SCREEN_HEIGHT - 25.0f, 0.0f));
+		}
 	}
 
 	//頂点バッファをアンロック

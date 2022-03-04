@@ -10,13 +10,19 @@
 #include "game.h"
 #include "main.h"
 #include "bullet.h"
+#include "bestscore.h"
+#include "scoreup.h"
 #include "player.h"
 #include "score.h"
+#include "Boss.h"
+#include "life.h"
 #include "enemy.h"
 #include "input.h"
 #include "map.h"
 #include "bg.h"
 #include "target.h"
+#include "scoreup.h"
+#include "flag.h"
 #include "sound.h"
 #include "fade.h"
 #include <stdio.h>
@@ -37,13 +43,18 @@ void InitGame(void)
 {
 	s_bPause = false;
 
-	InitBG();		// 背景
-	InitMap();		// マップ
-	InitEnemy();	// 敵
-	InitBullet();	// 弾
-	InitTarget();	// ターゲット
-	InitPlayer();	// プレイヤー
-	InitScore();	// スコア
+	InitBG();			// 背景
+	InitMap();			// マップ
+	InitBoss();			// ボス
+	InitEnemy();		// 敵
+	InitBullet();		// 弾
+	InitTarget();		// ターゲット
+	InitLife();			// ライフ
+	InitPlayer();		// プレイヤー
+	InitScore();		// スコア
+	InitBestScore();	// ベストスコア
+	InitScoreUp();		// スコアアップ
+	InitFlag();			// フラグ
 
 	// マップの設定。
 	InitMapSet(MAP_FILE0);
@@ -56,13 +67,17 @@ void InitGame(void)
 //=========================================
 void UninitGame(void)
 {
-	UninitEnemy();	// 敵	
-	UninitBG();		// 背景
-	UninitMap();	// マップ
-	UninitBullet();	// 弾
-	UninitPlayer();	// プレイヤー
-	UninitScore();	// スコア
-	UninitTarget();	// ターゲット
+	UninitEnemy();		// 敵	
+	UninitBG();			// 背景
+	UninitMap();		// マップ
+	UninitBullet();		// 弾
+	UninitPlayer();		// プレイヤー
+	UninitScore();		// スコア
+	UninitTarget();		// ターゲット
+	UninitBestScore();	// ベストスコア
+	UninitLife();		// ライフ
+	UninitScoreUp();	// スコアアップ
+	UninitFlag();			// フラグ
 }
 
 //=========================================
@@ -125,7 +140,7 @@ void UpdateGame(void)
 	}
 	else if (GetKeyboardTrigger(DIK_2))
 	{
-		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), 25.0f, ENEMYTYPE_WARP_2);
+		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), 25.0f, ENEMYTYPE_BOSS);
 	}
 	else if (GetKeyboardTrigger(DIK_3))
 	{
@@ -147,13 +162,18 @@ void UpdateGame(void)
 		ConteSet();
 	}
 
-	UpdateBG();		// 背景
-	UpdateMap();	// マップデータ
-	UpdateEnemy();	// 敵
-	UpdateBullet();	// 弾
-	UpdatePlayer();	// プレイヤー
-	UpdateScore();	// スコア
-	UpdateTarget();	// ターゲット
+	UpdateBG();			// 背景
+	UpdateMap();		// マップデータ
+	UpdateBoss();		// ボス
+	UpdateEnemy();		// 敵
+	UpdateBullet();		// 弾
+	UpdatePlayer();		// プレイヤー
+	UpdateScore();		// スコア
+	UpdateTarget();		// ターゲット
+	UpdateLife();		// ライフ
+	UpdateBestScore();	// ベストスコア
+	UpdateScoreUp();	// スコアアップ
+	UpdateFlag();			// フラグ
 }
 
 //=========================================
@@ -161,13 +181,18 @@ void UpdateGame(void)
 //=========================================
 void DrawGame()
 {
-	DrawBG();		// 背景
-	DrawMap();		// マップデータ
-	DrawEnemy();	// 敵
-	DrawBullet();	// 弾
-	DrawPlayer();	// プレイヤー
-	DrawScore();	// スコア
-	DrawTarget();	// ターゲット
+	DrawBG();			// 背景
+	DrawMap();			// マップデータ
+	DrawBoss();			// ボス
+	DrawEnemy();		// 敵
+	DrawBullet();		// 弾
+	DrawPlayer();		// プレイヤー
+	DrawScore();		// スコア
+	DrawTarget();		// ターゲット
+	DrawLife();			// ライフ
+	DrawBestScore();	// ベストスコア
+	DrawScoreUp();		// スコアアップ
+	DrawFlag();			// フラグ
 }
 
 //=========================================

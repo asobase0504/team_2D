@@ -156,7 +156,7 @@ void UpdateBoss(void)
 		s_aBoss->Enemy[4]->move.y = BOSS_SPEED;				//こいつが死んだら全部死ぬようにする
 
 
-		if (s_aBoss->Enemy[4]->nLife == 0)					//154行
+		if (s_aBoss->Enemy[4]->nLife == 0)
 		{
 			s_aBoss->nLife = 0;
 			s_aBoss->Enemy[0]->nLife = 0;
@@ -164,7 +164,6 @@ void UpdateBoss(void)
 			s_aBoss->Enemy[2]->nLife = 0;
 			s_aBoss->Enemy[3]->nLife = 0;
 		}
-
 
 		if (s_aBoss->nLife > 0)
 		{
@@ -226,9 +225,8 @@ void UpdateBoss(void)
 		}
 		else
 		{// 敵が死んだときの処理をここに撃ち込んでください
-
-
-
+			s_aBoss->bUse = false;
+			continue;
 		}
 		// 位置を更新
 		s_aBoss->pos += s_aBoss->move;
@@ -310,11 +308,9 @@ void DrawBoss(void)
 }
 void SetBoss(D3DXVECTOR3 pos)
 {
-
 	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
 	{
 		//s_aBoss->Enemy[BOSS_PARTS_1]->flg = false;
-
 
 		if (s_aBoss->bUse)
 		{// 敵が使用されている場合
@@ -332,14 +328,11 @@ void SetBoss(D3DXVECTOR3 pos)
 		s_aBoss->pos = s_aBoss->Enemy[3]->pos;
 		s_aBoss->pos = s_aBoss->Enemy[4]->pos;
 
-
 		s_aBoss->pos = pos;
-		//s_aBoss->nLife = 1;
+		s_aBoss->nLife = 1;
 		s_aBoss->bUse = true;	// 使用している状態	
 								//s_aBoss->nCounter = 0;	// インクリメント
 								//s_aBoss->nType = nType;
-
-
 
 		if (s_aBoss->pos.y <= SCREEN_HEIGHT / 2)
 		{
@@ -352,7 +345,7 @@ void SetBoss(D3DXVECTOR3 pos)
 
 		pVtx += nCntEnemy * 4;	// 頂点座標データのポインタを４つ分進める
 
-								// 頂点座標の設定
+		// 頂点座標の設定
 		pVtx[0].pos.x = s_aBoss->pos.x - ENEMY_WIDTH;
 		pVtx[0].pos.y = s_aBoss->pos.y - ENEMY_HEIGHT;
 		pVtx[0].pos.z = 0.0f;

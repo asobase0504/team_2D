@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bestscore.cpp" />
     <ClCompile Include="bg.cpp" />
     <ClCompile Include="Boss.cpp" />
     <ClCompile Include="bullet.cpp" />
@@ -159,18 +160,22 @@
     <ClCompile Include="common.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="fade.cpp" />
+    <ClCompile Include="flag.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="life.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="result.cpp" />
     <ClCompile Include="score.cpp" />
+    <ClCompile Include="scoreup.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="target.cpp" />
     <ClCompile Include="title.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bestscore.h" />
     <ClInclude Include="bg.h" />
     <ClInclude Include="Boss.h" />
     <ClInclude Include="bullet.h" />
@@ -179,13 +184,16 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="enemy.h" />
     <ClInclude Include="fade.h" />
+    <ClInclude Include="flag.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="life.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="score.h" />
+    <ClInclude Include="scoreup.h" />
     <ClInclude Include="sound.h" />
     <ClInclude Include="target.h" />
     <ClInclude Include="title.h" />

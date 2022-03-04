@@ -37,6 +37,12 @@
     <Filter Include="ヘッダー ファイル\Title">
       <UniqueIdentifier>{3a0e5310-89d5-4c0f-8543-e37c80272581}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Game\UI">
+      <UniqueIdentifier>{cc4409da-5317-4aaa-9b5f-0624ffdf6cb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Game\player">
+      <UniqueIdentifier>{0f42692a-5139-4c4e-838c-5db0ce9c1fd1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Boss.cpp">
@@ -60,9 +66,6 @@
     <ClCompile Include="map.cpp">
       <Filter>ソース ファイル\Game</Filter>
     </ClCompile>
-    <ClCompile Include="player.cpp">
-      <Filter>ソース ファイル\Game</Filter>
-    </ClCompile>
     <ClCompile Include="bullet.cpp">
       <Filter>ソース ファイル\Game</Filter>
     </ClCompile>
@@ -74,9 +77,6 @@
     </ClCompile>
     <ClCompile Include="collision.cpp">
       <Filter>ソース ファイル\System</Filter>
-    </ClCompile>
-    <ClCompile Include="score.cpp">
-      <Filter>ソース ファイル\Game</Filter>
     </ClCompile>
     <ClCompile Include="common.cpp">
       <Filter>ソース ファイル\System</Filter>
@@ -90,7 +90,25 @@
     <ClCompile Include="result.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="score.cpp">
+      <Filter>ソース ファイル\Game\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="life.cpp">
+      <Filter>ソース ファイル\Game\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>ソース ファイル\Game\player</Filter>
+    </ClCompile>
     <ClCompile Include="target.cpp">
+      <Filter>ソース ファイル\Game\player</Filter>
+    </ClCompile>
+    <ClCompile Include="bestscore.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="scoreup.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="flag.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -147,6 +165,18 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="target.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="life.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="bestscore.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="scoreup.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="flag.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
