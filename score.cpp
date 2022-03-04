@@ -5,6 +5,8 @@
 //
 //============================================================================================================
 #include "score.h"
+#include "bestscore.h"
+#include "scoreup.h"
 
 #include <stdio.h>
 
@@ -332,13 +334,13 @@ void AddScore(int nValue)
 	VERTEX_2D *pVtx;			//頂点情報へのポインタ
 	int aPosTexU[MAX_SCORE];	//各桁の数字を格納
 
-	//頂点バッファをロックし、頂点情報へのポインタを取得
-	s_pVtxBuffNowScore->Lock(0, 0, (void**)&pVtx, 0);
-
 	//スコアの値に任意の値を加算する
 	s_nNowScore += nValue;
 
+	SetScoreUp(nValue);
+
 	//スコアの値に合わせてテクスチャを変更
+
 	aPosTexU[0]	= s_nNowScore % 100000000 / 10000000;
 	aPosTexU[1] = s_nNowScore % 10000000 / 1000000;
 	aPosTexU[2] = s_nNowScore % 1000000 / 100000;
@@ -347,6 +349,9 @@ void AddScore(int nValue)
 	aPosTexU[5] = s_nNowScore % 1000 / 100;
 	aPosTexU[6] = s_nNowScore % 100 / 10;
 	aPosTexU[7] = s_nNowScore % 10 / 1;
+
+	//頂点バッファをロックし、頂点情報へのポインタを取得
+	s_pVtxBuffNowScore->Lock(0, 0, (void**)&pVtx, 0);
 
 	//テクスチャ座標の設定
 	for (int nCnt = 0; nCnt < MAX_SCORE; nCnt++)
@@ -364,6 +369,8 @@ void AddScore(int nValue)
 
 	if (s_nNowScore >= s_nBestScore)
 	{//現在のスコアがベストスコアを更新したとき
+		BlinkBestScore();	// ベストスコアのテクスチャを点滅させる
+
 		//頂点バッファをロックし、頂点情報へのポインタを取得
 		s_pVtxBuffBestScore->Lock(0, 0, (void**)&pVtx, 0);
 

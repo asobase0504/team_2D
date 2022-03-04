@@ -15,6 +15,7 @@
 #include "player.h"
 #include "Boss.h"
 #include "target.h"
+#include "sound.h"
 #include <stdio.h>
 
 //----------------------------
@@ -259,6 +260,7 @@ void UpdateEnemy(void)
 		// エネミーのライフが0になったとき
 		if (pEnemy->nLife <= 0)
 		{
+			PlaySound(SOUND_LABEL_SE_ENEMYDEAD);
 			pEnemy->bUse = false;
 		}
 
@@ -634,9 +636,6 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 			pEnemy->fSheoRot = -1.0f;
 			pEnemy->nSheoCnt = 0;
 			pEnemy->nLife = 30;
-			break;
-		case ENEMYTYPE_BOSS:
-			SetBoss(pos);
 			break;
 		default:
 			break;

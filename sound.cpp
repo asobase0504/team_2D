@@ -41,6 +41,13 @@ SOUNDPARAM g_aParam[SOUND_LABEL_MAX] =
 	{ "data/BGM/魔王魂_8bit25.wav", 0 },	// BGM5
 	{ "data/BGM/sht_a02.wav", 0 },			// BGM6
 	{ "data/BGM/sht_a03.wav", 0 },			// BGM7
+	{ "data/BGM/sht_a03.wav", 0 },			// BGMリザルト
+	{ "data/BGM/sht_a03.wav", 0 },			// BGMランキング
+	{ "data/BGM/sht_a03.wav", 0 },			// BGMスタッフロール
+	{ "data/SE/se_bonbonbon_1.wav", 0 },	// SEプレイヤーの死亡音
+	{ "data/SE/se_pyuun.wav", 0 },			// SEプレイヤーの弾
+	{ "data/SE/se_pow_1.wav", 0 },			// SEプレイヤーの死亡音
+	{ "data/SE/se_zugyan_1.wav", 0 },		// SEエネミーの死亡音
 };
 
 //=============================================================================

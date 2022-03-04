@@ -27,7 +27,6 @@ typedef enum
 	ENEMYTYPE_WARP_2,		// ワープする敵2	(挙動不審)
 	ENEMYTYPE_WARP_3,		// ワープする敵3	(挙動不審)
 	ENEMYTYPE_WARP_4,		// ワープする敵4	(挙動不審)
-	ENEMYTYPE_BOSS,			// ボス
 	BOSS_PARTS_1,			// BOSS_PARTS1
 	BOSS_PARTS_2,			// BOSS_PARTS2
 	BOSS_PARTS_3,			// BOSS_PARTS3

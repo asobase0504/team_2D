@@ -9,6 +9,7 @@
 #include"input.h"
 #include "bullet.h"
 #include "target.h"
+#include "sound.h"
 
 //*******************************************************************************
 // マクロ定義
@@ -183,7 +184,7 @@ void UpdateBullet(void)
 		//頂点バッファをアンロック
 		s_pVtxBuff->Unlock();
 
-		if (pBullet->pos.x <= -SIZE_BULLET || pBullet->pos.x >= SCREEN_WIDTH + SIZE_BULLET || pBullet->pos.y <= -SIZE_BULLET || pBullet->pos.y >= SCREEN_HEIGHT + SIZE_BULLET)
+		if (pBullet->pos.y <= -SIZE_BULLET)
 		{//弾が画面外に出た
 			pBullet->bUse = false;	//使用していない状態にする
 		}
@@ -267,6 +268,7 @@ int SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType, int nIdxTarget, bool 
 			pBullet->fSpeed = BULLET_SPEED_SKY;						// 速度
 			pBullet->bOnCollision = true;							// 当たり判定の有無
 			pBullet->nLife = 180;									// 寿命
+			PlaySound(SOUND_LABEL_SE_SKYBULLET);
 			break;
 
 		case BULLETTYPE_PLAYER_GROUND:
@@ -275,10 +277,11 @@ int SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType, int nIdxTarget, bool 
 			pBullet->fSpeed = BULLET_SPEED_GROUND;					// 速度
 			pBullet->bOnCollision = bOnCollision;					// 当たり判定の有無
 			pBullet->nLife = 180;									// 寿命
+			PlaySound(SOUND_LABEL_SE_GLOUNDBULLET);
 			break;
 
 		case BULLETTYPE_ENEMY:
-			pBullet->size = D3DXVECTOR3(20.0f, 20.0f, 0.0f);		// 大きさ
+			pBullet->size = D3DXVECTOR3(SIZE_BULLET, SIZE_BULLET, 0.0f);		// 大きさ
 			pBullet->col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);		// カラー
 			pBullet->fSpeed = 3.0f;									// 速度
 			pBullet->bOnCollision = true;							// 当たり判定の有無

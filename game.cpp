@@ -140,7 +140,7 @@ void UpdateGame(void)
 	}
 	else if (GetKeyboardTrigger(DIK_2))
 	{
-		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), 25.0f, ENEMYTYPE_BOSS);
+		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), 25.0f, ENEMYTYPE_SHEONITE);
 	}
 	else if (GetKeyboardTrigger(DIK_3))
 	{

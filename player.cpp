@@ -38,7 +38,7 @@ void InitPlayer(void)
 
 	// プレイヤーに張り付けるテクスチャの読み込み
 	D3DXCreateTextureFromFile(pDevice,
-		"data/TEXTURE/bullet00.png",
+		"data/TEXTURE/player000.png",
 		&s_pTexture);
 
 	// 頂点バッファの生成
