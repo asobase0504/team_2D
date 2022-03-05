@@ -147,19 +147,9 @@ void UpdateGame(void)
 		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f),25.0f, ENEMYTYPE_WARP_3);
 	}
 
-	if (GetKeyboardTrigger(DIK_P))
-	{
-		SetScorePos(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f));
-	}
-
 	if (GetKeyboardTrigger(DIK_T))	// リザルトに移行デバッグ
 	{
 		SetFade(MODE_RESULT);
-	}
-
-	if (GetKeyboardTrigger(DIK_M))	// リザルトに移行デバッグ
-	{
-		ConteSet();
 	}
 
 	UpdateBG();			// 背景
@@ -173,7 +163,12 @@ void UpdateGame(void)
 	UpdateLife();		// ライフ
 	UpdateBestScore();	// ベストスコア
 	UpdateScoreUp();	// スコアアップ
-	UpdateFlag();			// フラグ
+	UpdateFlag();		// フラグ
+
+	if (GetPlayer()->nLife <= 0)
+	{	// リザルトに移行
+		SetFade(MODE_RESULT);
+	}
 }
 
 //=========================================

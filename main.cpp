@@ -11,8 +11,9 @@
 #include "main.h"
 #include "fade.h"
 #include "title.h"
-#include "result.h"
 #include "game.h"
+#include "result.h"
+#include "ranking.h"
 #include "input.h"
 #include "sound.h"
 #include <stdio.h>
@@ -298,12 +299,15 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 //=========================================
 void Uninit(void)
 {
-	UninitSound();	// 音楽
-	UninitInput();	// 入力
-	UninitFade();	// フェード
-	UninitTitle();	// タイトル
-	UninitGame();	// ゲーム
-	UninitResult();	// リザルト
+	StopSound();		// 音楽の停止
+
+	UninitSound();		// 音楽
+	UninitInput();		// 入力
+	UninitFade();		// フェード
+	UninitTitle();		// タイトル
+	UninitGame();		// ゲーム
+	UninitResult();		// リザルト
+	UninitRanking();	// ランキング
 
 	// デバッグ表示用フォントの破棄
 	if (g_pFont != NULL)
@@ -344,6 +348,9 @@ void Update(void)
 	case MODE_RESULT:
 		UpdateResult();
 		break;
+	case MODE_RANKING:
+		UpdateRanking();
+		break;
 	default:
 		break;
 	}
@@ -380,6 +387,9 @@ void Draw(void)
 			break;
 		case MODE_RESULT:
 			DrawResult();
+			break;
+		case MODE_RANKING:
+			DrawRanking();
 			break;
 		default:
 			break;
@@ -427,6 +437,9 @@ void SetMode(MODE mode)
 	case MODE_RESULT:
 		UninitResult();
 		break;
+	case MODE_RANKING:
+		UninitRanking();
+		break;
 	}
 
 	// 新しい画面(モード)の初期化処理
@@ -440,6 +453,9 @@ void SetMode(MODE mode)
 		break;
 	case MODE_RESULT:
 		InitResult();
+		break;
+	case MODE_RANKING:
+		InitRanking();
 		break;
 	}
 

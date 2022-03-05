@@ -18,6 +18,8 @@
 #define MAP_FILE5	"data/txt/map5.txt"
 #define MAP_FILE6	"data/txt/map6.txt"
 
+#define MAP_SPEAD	(2.5f)
+
 //-------------
 //ç\ë¢ëÃ
 //-------------

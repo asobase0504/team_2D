@@ -21,7 +21,7 @@
 //----------------------------
 // マクロ
 //----------------------------
-#define MOVE_PEED   (5.0f)
+#define MOVE_SPEED   (5.0f)
 #define COLLISION	(25)
 #define RADIUS		(5.0f)
 #define SPEED		(2.0f)
@@ -126,9 +126,6 @@ void InitEnemy(void)
 	{
 		s_aTypeEnemy[nCnt].nLife = 1;
 	}
-
-	s_aTypeEnemy[ENEMYTYPE_SHEONITE].nLife = 30;
-	s_aTypeEnemy[ENEMYTYPE_BAKYURA].nLife = 255;
 
 	//テクスチャデータ読み込み
 	LoadSetFile("data\\txt\\enemy.txt");
@@ -244,11 +241,23 @@ void UpdateEnemy(void)
 			{
 				continue;
 			}
-			if (CollisionCircle(pEnemy->pos, COLLISION, pBullet->pos, pBullet->size.x))
+			if (pBullet->BulletType == BULLETTYPE_PLAYER_GROUND && pEnemy->nType >= 5 && pEnemy->nType <= 6 || pBullet->BulletType == BULLETTYPE_PLAYER_GROUND && pEnemy->nType >= 11)
 			{
-				AddScore(255);
-				HitEnemy(pEnemy, 1);
-				pBullet->bUse = false;
+				if (CollisionCircle(pEnemy->pos, COLLISION, pBullet->pos, pBullet->size.x))
+				{
+					AddScore(255);
+					HitEnemy(pEnemy, 1);
+					pBullet->bUse = false;
+				}
+			}
+			else if (pBullet->BulletType == BULLETTYPE_PLAYER_SKY && pEnemy->nType <= 4 || pBullet->BulletType == BULLETTYPE_PLAYER_SKY && pEnemy->nType >= 7 && pEnemy->nType <= 10)
+			{
+				if (CollisionCircle(pEnemy->pos, COLLISION, pBullet->pos, pBullet->size.x))
+				{
+					AddScore(255);
+ 					HitEnemy(pEnemy, 1);
+					pBullet->bUse = false;
+				}
 			}
 		}
 
@@ -365,7 +374,7 @@ void UpdateBuckSky(Enemy* pEnemy)
 	// プレイヤー情報の取得
 	Player* pPlayer = GetPlayer();
 
-	if (CollisionCircle(pEnemy->pos, JUDGEMENT, pPlayer->pos, JUDGEMENT))
+	if (pEnemy->pos.x <= pPlayer->pos.x - pPlayer->size.x && pEnemy->pos.x >= pPlayer->pos.x + pPlayer->size.x)
 	{// 敵が逃げる処理
 		pEnemy->bTracking = false;		//追尾
 		pEnemy->bBack = true;		//戻る処理
@@ -460,7 +469,7 @@ void UpdateZakato1(Enemy* pEnemy)
 
 	float fRotMove, fRotDest, fRotDiff;
 
-	fRotMove = atan2f(pEnemy->move.x, pEnemy->move.y);				//現在の移動方向
+	fRotMove = atan2f(pEnemy->move.x, pEnemy->move.y);			//現在の移動方向
 
 	fRotDest = atan2f(pPlayer->pos.x - pEnemy->pos.x, pPlayer->pos.y - pEnemy->pos.y);			//目的の移動方向
 
@@ -490,8 +499,8 @@ void UpdateZakato1(Enemy* pEnemy)
 		fRotMove += D3DX_PI * 2;
 	}
 
-	pEnemy->move.x = sinf(fRotMove) * MOVE_PEED;
-	pEnemy->move.y = cosf(fRotMove) * MOVE_PEED;
+	pEnemy->move.x = sinf(fRotMove) * MOVE_SPEED;
+	pEnemy->move.y = cosf(fRotMove) * MOVE_SPEED;
 
 	pEnemy->bTracking = false;
 
@@ -699,7 +708,7 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 //--------------------------------------------------
 void HitEnemy(Enemy* pEnemy, int nDamage)
 {
-	pEnemy->nLife -= nDamage;
+ 	pEnemy->nLife -= nDamage;
 
 	//
 	// ダメージ時のSE

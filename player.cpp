@@ -18,11 +18,12 @@
 //*******************************************************************************
 #define MAX_SPEED				(10.0f)			// 移動速度の最大値
 #define MIN_SPEED				(0.0f)			// 移動速度の最小値
-#define MOVE_SPEED				(5.0f)			// 設定時の移動量
+#define MOVE_SPEED				(50.0f)			// 設定時の移動量
 #define MOVE_FRICTION			(0.5f)			// 動摩擦係数
 #define MAX_CNT_SKY_SHOT		(0.25f * 60)	// 空中弾発射間隔(秒数 * フレーム数)
 #define MAX_CNT_GRAND_SHOT		(0.7f * 60)		// 地上弾発射間隔(秒数 * フレーム数)
 #define TARGET_DISTANCE			(300.0f)		// ターゲットの間隔
+#define START_POS				(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.9f, 0.0f))	// スタート時の位置
 
 //*******************************************************************************
 // グローバル変数
@@ -74,7 +75,7 @@ void InitPlayer(void)
 	s_pVtxBuff->Unlock();
 
 	// プレイヤーのセット
-	SetPlayer(D3DXVECTOR3(640.0f, 360.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	SetPlayer(START_POS, D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 }
 
 //---------------------------------------------------------------------------
@@ -139,6 +140,8 @@ void UpdatePlayer(void)
 		}
 		if (CollisionCircle(s_Player.pos, s_Player.size.x, pBullet->pos, pBullet->size.x))
 		{
+			s_Player.pos = START_POS;
+			s_Player.nLife--;
 			ConteSet();	
 			pBullet->bUse = false;
 		}

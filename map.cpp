@@ -25,7 +25,7 @@ static LPDIRECT3DTEXTURE9 s_pTextureMap = NULL; //テクスチャのポインタ
 static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuffMap = NULL; //頂点バッファの設定
 static Map s_aMap[NUM_MAP];
 static char s_aMapFile[10][255];
-static D3DXVECTOR3 s_Move(0.0f, 5.0f, 0.0f);
+static D3DXVECTOR3 s_Move(0.0f, MAP_SPEAD, 0.0f);
 static D3DXVECTOR3 s_PosOffset;
 static float s_fMapScale;
 static int stage = 0;
