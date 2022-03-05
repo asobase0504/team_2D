@@ -136,7 +136,7 @@ void UpdateGame(void)
 
 	if (GetKeyboardTrigger(DIK_1))
 	{
-		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), 25.0f, ENEMYTYPE_SHEONITE);
+		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), 25.0f, ENEMYTYPE_SKY_1);
 	}
 	else if (GetKeyboardTrigger(DIK_2))
 	{
@@ -149,7 +149,7 @@ void UpdateGame(void)
 
 	if (GetKeyboardTrigger(DIK_P))
 	{
-		AddScore(123);
+		SetScorePos(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f));
 	}
 
 	if (GetKeyboardTrigger(DIK_T))	// リザルトに移行デバッグ

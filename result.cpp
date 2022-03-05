@@ -11,7 +11,7 @@
 #include <time.h>
 
 //マクロ定義
-#define NUM_RESULT	(4)					//テクスチャの最大数
+#define NUM_RESULT	(5)					//テクスチャの最大数
 #define BLINK_TIME	(300)				//点滅にかかる時間
 #define BLINK_HALF	(BLINK_TIME / 2)	//点滅が切り替わる時間
 #define MAP_SPEED	(0.0001f)			//画面スクロールの速さ
@@ -29,55 +29,62 @@ static int s_nMapTime;
 void InitResult(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();	//デバイスの取得
-	//SCORE *pScore = GetScore();	//スコアの取得
+												//SCORE *pScore = GetScore();	//スコアの取得
 
-	//------------------------------
-	//	テクスチャの読み込み
-	//------------------------------
+												//------------------------------
+												//	テクスチャの読み込み
+												//------------------------------
 	D3DXCreateTextureFromFile(pDevice,
-							  "data\\TEXTURE\\sky001.jpg",
-							  &s_pTexture[0]);
-
-	D3DXCreateTextureFromFile(pDevice,
-							  "data\\TEXTURE\\Congratulation.png",
-							  &s_pTexture[1]);
+		"data\\TEXTURE\\Result_BG.png",
+		&s_pTexture[0]);
 
 	D3DXCreateTextureFromFile(pDevice,
-							  "data\\TEXTURE\\flag.png",
-							  &s_pTexture[2]);
+		"data\\TEXTURE\\ScoreLine.png",
+		&s_pTexture[1]);
 
 	D3DXCreateTextureFromFile(pDevice,
-							  "",
-							  &s_pTexture[3]);
+		"data\\TEXTURE\\RESULT.png",
+		&s_pTexture[2]);
+
+	D3DXCreateTextureFromFile(pDevice,
+		"data\\TEXTURE\\player000.png",
+		&s_pTexture[3]);
+
+	D3DXCreateTextureFromFile(pDevice,
+		"data\\TEXTURE\\ENEMY\\sky_enemy_001.png",
+		&s_pTexture[4]);
 
 	//頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * NUM_RESULT,	//確保するバッファのサイズ
-								D3DUSAGE_WRITEONLY,
-								FVF_VERTEX_2D,			//頂点フォーマット
-								D3DPOOL_MANAGED,
-								&s_pVtxBuff,
-								NULL);
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,			//頂点フォーマット
+		D3DPOOL_MANAGED,
+		&s_pVtxBuff,
+		NULL);
 
 	//------------------------------
 	//	構造体の初期化
 	//------------------------------
 	//位置の初期化
 	s_Result[0].pos = D3DXVECTOR3(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.0f);
-	s_Result[1].pos = D3DXVECTOR3(SCREEN_WIDTH / 2 + 20.0f, 200.0f, 0.0f);
-	s_Result[2].pos = D3DXVECTOR3(750.0f, 450.0f, 0.0f);
-	s_Result[3].pos = D3DXVECTOR3(350.0f, 450.0f, 0.0f);
+	s_Result[1].pos = D3DXVECTOR3(500.0f, 400.0f, 0.0f);
+	s_Result[2].pos = D3DXVECTOR3(300.0f, 100.0f, 0.0f);
+	s_Result[3].pos = D3DXVECTOR3(1050.0f, SCREEN_HEIGHT - 100.0f, 0.0f);
+	s_Result[4].pos = D3DXVECTOR3(100.0f, SCREEN_HEIGHT - 100.0f, 0.0f);
 
 	//幅の初期化
 	s_Result[0].fWidth = SCREEN_WIDTH / 2;
-	s_Result[1].fWidth = 500.0f;
-	s_Result[2].fWidth = 300.0f;
-	s_Result[3].fWidth = 100.0f;
+	s_Result[1].fWidth = 350.0f;
+	s_Result[2].fWidth = 250.0f;
+	s_Result[3].fWidth = 80.0f;
+	s_Result[4].fWidth = 80.0f;
 
 	//高さの初期化
 	s_Result[0].fHeight = SCREEN_HEIGHT / 2;
-	s_Result[1].fHeight = 100.0f;
+	s_Result[1].fHeight = 50.0f;
 	s_Result[2].fHeight = 50.0f;
-	s_Result[3].fHeight = 100.0f;
+	s_Result[3].fHeight = 80.0f;
+	s_Result[4].fHeight = 80.0f;
 
 	//色の初期化
 	for (int nCnt = 0; nCnt < NUM_RESULT; nCnt++)
@@ -87,7 +94,7 @@ void InitResult(void)
 
 	VERTEX_2D*pVtx;		//頂点情報へのポインタ
 
-	//頂点バッファをロックし、頂点情報へのポインタを取得
+						//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	//------------------------------
@@ -110,26 +117,26 @@ void InitResult(void)
 		pVtx[3].rhw = 1.0f;
 
 		//頂点カラーの設定
-		pVtx[0].col = result->col;
-		pVtx[1].col = result->col;
-		pVtx[2].col = result->col;
-		pVtx[3].col = result->col;
-
-		//テクスチャ座標の設定
 		if (nCnt == 0)
 		{//背景のテクスチャなら
-			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-			pVtx[1].tex = D3DXVECTOR2(0.25f, 0.0f);
-			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-			pVtx[3].tex = D3DXVECTOR2(0.25f, 1.0f);
+			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.9f);
+			pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.9f);
+			pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.9f);
+			pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.9f);
 		}
 		else
 		{//それ以外のテクスチャ
-			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-			pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+			pVtx[0].col = result->col;
+			pVtx[1].col = result->col;
+			pVtx[2].col = result->col;
+			pVtx[3].col = result->col;
 		}
+
+		//テクスチャ座標の設定
+		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
 		pVtx += 4;
 	}
@@ -176,9 +183,9 @@ void UninitResult(void)
 void UpdateResult(void)
 {
 	VERTEX_2D*pVtx;				//頂点情報へのポインタ
-	//SCORE *pScore = GetScore();	//スコアの取得
+								//SCORE *pScore = GetScore();	//スコアの取得
 
-	//頂点バッファをロックし、頂点情報へのポインタを取得
+								//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	s_nTime++;				//タイムの加算
@@ -188,30 +195,15 @@ void UpdateResult(void)
 	{
 		RESULT *result = s_Result + nCnt;
 
-		//------------------------
-		//	テクスチャの上下
-		//------------------------
 		if (s_nTime >= BLINK_HALF)
-		{//タイムが150以上なら
-			s_Result[2].pos.y -= 0.12f;	//上げる
-			s_Result[3].pos.y -= 0.12f;
+		{
+			s_Result[3].pos.y += 0.7f;
+			s_Result[4].pos.x -= 0.8f;
 		}
 		else
-		{//タイムが150未満なら
-			s_Result[2].pos.y += 0.12f;	//下げる
-			s_Result[3].pos.y += 0.12f;
-		}
-
-		//------------------------
-		//	背景のスクロール
-		//------------------------
-		if (nCnt == 0)
-		{//背景のテクスチャなら
-		 //テクスチャ座標の設定
-			pVtx[0].tex += D3DXVECTOR2(MAP_SPEED, 0.0f);
-			pVtx[1].tex += D3DXVECTOR2(MAP_SPEED, 0.0f);
-			pVtx[2].tex += D3DXVECTOR2(MAP_SPEED, 0.0f);
-			pVtx[3].tex += D3DXVECTOR2(MAP_SPEED, 0.0f);
+		{
+			s_Result[3].pos.y -= 0.7f;
+			s_Result[4].pos.x += 0.8f;
 		}
 
 		//頂点座標の設定
@@ -226,9 +218,9 @@ void UpdateResult(void)
 	//----------------
 	//	画面遷移
 	//----------------
-	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_A,0))
+	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_A, 0))
 	{
-		SetFade(MODE_TITLE);
+		SetFade(MODE_RANKING);
 	}
 
 	//頂点バッファをアンロックする
@@ -245,7 +237,7 @@ void DrawResult(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();	//デバイスの取得
 
-	//頂点バッファをデータストリームに設定
+												//頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
 
 	//頂点フォーマットの設定

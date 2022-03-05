@@ -166,7 +166,9 @@
     <ClCompile Include="life.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
+    <ClCompile Include="menu.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="ranking.cpp" />
     <ClCompile Include="result.cpp" />
     <ClCompile Include="score.cpp" />
     <ClCompile Include="scoreup.cpp" />
@@ -190,7 +192,9 @@
     <ClInclude Include="life.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="ranking.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="score.h" />
     <ClInclude Include="scoreup.h" />

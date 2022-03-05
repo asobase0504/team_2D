@@ -1,10 +1,7 @@
 //=============================================================================
 //
-// 入力処理 [input.h]
+// 入力処理 [jobiusinput.h]
 // Author1 : KOZUNA HIROHITO
-// Author2 : ISOE JUKIA
-//
-//	＜最後の行を見ることを推奨＞
 //
 //=============================================================================
 
@@ -21,7 +18,6 @@
 //----------------------------------------------------------------------------
 //インクルードファイル
 //----------------------------------------------------------------------------
-
 #include "main.h"
 
 //----------------------------------------------------------------------------
@@ -47,23 +43,59 @@ typedef enum
 	JOYKEY_B,					//Bボタン
 	JOYKEY_X,					//Xボタン
 	JOYKEY_Y,					//Yボタン
-	JOYKEY_LEFT_STICK,			//左スティック
-	JOYKEY_RIGHT_STICK,			//右スティック
 	JOYKEY_MAX
 }JOYKEY;
 
-//キー種類(マウス)
+//キー種類(ジョイパッド(DirectInput))
+typedef enum
+{										//	PS5					スイッチpor				スイッチジョイコン（未調査）
+	JOYKEY_DIRECT_0_BUTTON = 0,			//□ボタン			//Bボタン				//A
+	JOYKEY_DIRECT_1_BUTTON,				//×ボタン			//Aボタン				//X
+	JOYKEY_DIRECT_2_BUTTON,				//〇ボタン			//Yボタン				//B
+	JOYKEY_DIRECT_3_BUTTON,				//△ボタン			//Xボタン				//Y
+	JOYKEY_DIRECT_4_BUTTON,				//L1ボタン			//L1ボタン				//SL
+	JOYKEY_DIRECT_5_BUTTON,				//R1ボタン			//R1ボタン				//SR
+	JOYKEY_DIRECT_6_BUTTON,				//L2ボタン			//L2ボタン				//
+	JOYKEY_DIRECT_7_BUTTON,				//R2ボタン			//R2ボタン				//
+	JOYKEY_DIRECT_8_BUTTON,				//クリエイト		//-ボタン				//
+	JOYKEY_DIRECT_9_BUTTON,				//オプション		//+ボタン				//
+	JOYKEY_DIRECT_10_BUTTON,			//L3ボタン			//L3ボタン				//
+	JOYKEY_DIRECT_11_BUTTON,			//R3ボタン			//R3ボタン				//
+	JOYKEY_DIRECT_12_BUTTON,			//ホームボタン		//ホームボタン			//
+	JOYKEY_DIRECT_13_BUTTON,			//タッチパッド		//キャプチャー			//
+	JOYKEY_DIRECT_14_BUTTON,			//		//
+	JOYKEY_DIRECT_15_BUTTON,			//		//
+	JOYKEY_DIRECT_16_BUTTON,			//		//
+	JOYKEY_DIRECT_17_BUTTON,			//左スティック		//
+	JOYKEY_DIRECT_18_BUTTON,			//右スティック		//
+	JOYKEY_DIRECT_19_BUTTON,			//十字キー（上）
+	JOYKEY_DIRECT_20_BUTTON,			//十字キー（下）
+	JOYKEY_DIRECT_21_BUTTON,			//十字キー（左）
+	JOYKEY_DIRECT_22_BUTTON,			//十字キー（右）
+	JOYKEY_DIRECT_MAX
+}JOYKEY_DIRECT;
+
+//キー種類(ジョイパッド(DirectInput))(十字キー&8方向スティック)
 typedef enum
 {
-	MOUSE_INPUT_LEFT,			//マウス左ボタン
-	MOUSE_INPUT_RIGHT,			//マウス右ボタン
-	MOUSE_INPUT_MIDDLE,			//マウス中央ボタン
-	MOUSE_INPUT_4,				//マウスボタン4
-	MOUSE_INPUT_5,				//マウスボタン5
-	MOUSE_INPUT_6,				//マウスボタン6
-	MOUSE_INPUT_7,				//マウスボタン7
-	MOUSE_INPUT_8,				//マウスボタン8
-}MOUSE;
+	JOYKEY_CROSS_UP = 0,								//上
+	JOYKEY_CROSS_UP_RIGHT = 4500,					//右上
+	JOYKEY_CROSS_RIGHT = 9000,						//右
+	JOYKEY_CROSS_DOWN_RIGHT = 13500,					//右下
+	JOYKEY_CROSS_DOWN = 18000,						//下
+	JOYKEY_CROSS_DOWN_LEFT = 22500,					//左下
+	JOYKEY_CROSS_LEFT = 27000,						//左
+	JOYKEY_CROSS_UP_LEFT = 31500,					//左上
+	JOYKEY_CROSS_MAX
+}JOYKEY_CROSS;
+
+//スティック識別(ジョイパッド)
+typedef enum
+{
+	JOYKEY_RIGHT_STICK = 0,
+	JOYKEY_LEFT_STICK,
+	JOYKEY_RIGHT_LEFT_MAX
+}JOYKEY_RIGHT_LEFT;
 
 //----------------------------------------------------------------------------
 //プロトタイプ宣言
@@ -76,118 +108,28 @@ void UninitInput(void);									//入力処理全部の終了処理
 void UpdateInput(void);									//入力処理全部の更新処理
 
 //プロトタイプ宣言キーボード
-bool GetKeyboardPress(int nKey);			//キーボードプレス処理
-bool GetKeyboardTrigger(int nKey);			//キーボードトリガー処理
-bool GetKeyboardAllPress(void);				//キーボード全キープレス処理
-bool GetKeyboardAllTrigger(void);			//キーボード全キートリガー処理
+bool GetKeyboardPress(int nKey);						//キーボードプレス処理
+bool GetKeyboardTrigger(int nKey);						//キーボードトリガー処理
+bool GetKeyboardRelease(int nKey);			//キーボードリリース処理
+bool GetKeyboardAllPress(void);							//キーボード全キープレス処理
+bool GetKeyboardAllTrigger(void);						//キーボード全キートリガー処理
 
-//プロトタイプ宣言ジョイパット
+														//プロトタイプ宣言ジョイパット(DirectInput)
+bool GetDirectJoypadPress(JOYKEY_DIRECT Key);						//ジョイパッドプレス処理
+bool GetDirectJoypadPress(JOYKEY_CROSS Key);					//ジョイパッドプレス処理
+bool GetDirectJoypadTrigger(JOYKEY_DIRECT Key);						//ジョイパッドトリガー処理
+bool GetDirectJoypadTrigger(JOYKEY_CROSS Key);				//ジョイパッドトリガー処理
+bool GetDirectJoypadAllPress(void);									//ジョイパッド全キープレス処理
+D3DXVECTOR3 GetDirectJoypadStick(JOYKEY_RIGHT_LEFT Key);		//ジョイパッドスティック処理
+bool GetDirectJoypadStickPress(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key);			//ジョイパッドスティック8方向プレス処理
+bool GetDirectJoypadStickTrigger(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key);			//ジョイパッドスティック8方向トリガー処理
+
+																							//プロトタイプ宣言ジョイパット
 bool GetJoypadPress(JOYKEY Key, int nPlayer);					//ジョイパッドプレス処理
 bool GetJoypadTrigger(JOYKEY Key, int nPlayer);					//ジョイパッドトリガー処理
-D3DXVECTOR3 GetJoypadStick(JOYKEY Key, int nPlayer);			//ジョイパッドスティック処理
+D3DXVECTOR3 GetJoypadStick(JOYKEY_RIGHT_LEFT RightLeft, int nPlayer);			//ジョイパッドスティック処理
 int GetJoypadTriggerPedal(JOYKEY Key, int nPlayer);				//ジョイパッドトリガーペダル処理
-void JoypadVibration(int nTime, WORD nStrength, int nPlayer);	//ジョイパッド振動制御
-
-//プロトタイプ宣言マウス
-bool GetMousePress(MOUSE mouse);			//マウスのプレス処理
-bool GetMouseTrigger(MOUSE mouse);			//マウスのトリガー処理
-D3DXVECTOR3 GetMouse(void);					//マウスの画面内の位置
-int GetMouseWheel(void);					//マウスのホイールの動き処理
+bool GetJoypadStickPress(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key, int nPlayer);				//ジョイパッドスティックプレス８方向
+bool GetJoypadStickTrigger(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key, int nPlayer);			//ジョイパッドスティックトリガー８方向
 
 #endif
-
-/*************************************************************************************************************
-
-//main.hに追加分
-
-//インクルード
-#include "dinput.h"						//入力処理に必要
-#include "Xinput.h"						//ジョイパット処理
-
-//main.cppに追加分
-
-//インクルード
-#include "input.h"
-
-//初期化処理に以下のコードを入力
-
-//入力処理の初期化処理
-if (FAILED(InitInput(hInstance, hWnd)))
-{
-return E_FAIL;
-}
-
-//終了処理に以下のコードを入力
-
-//入力処理の終了処理
-UninitInput();
-
-//更新処理に以下のコードを入力
-
-//入力処理の更新処理
-UpdateInput();
-
-//各関数の説明
-
-//--------------------------------------------------------------------------------------------------------
-//プロトタイプ宣言キーボード
-//--------------------------------------------------------------------------------------------------------
-
-{//引数にキーのマクロを入れそれが押されたかどうかをboolで返す
-bool GetKeyboardPress(int nKey);			//キーボードプレス処理
-bool GetKeyboardTrigger(int nKey);			//キーボードトリガー処理
-bool GetKeyboardAllPress(void);				//キーボード全キープレス処理
-bool GetKeyboardAllTrigger(void);			//キーボード全キートリガー処理
-}
-
-//--------------------------------------------------------------------------------------------------------
-//プロトタイプ宣言ジョイパット
-//--------------------------------------------------------------------------------------------------------
-
-{//引数にキーの列挙型を入れそれが押されたかどうかをboolで返す
-bool GetJoypadPress(JOYKEY Key, int nPlayer);					//ジョイパッドプレス処理
-bool GetJoypadTrigger(JOYKEY Key, int nPlayer);					//ジョイパッドトリガー処理
-}
-
-//返す値　スティックを倒せば倒すほど(1.0f or -1.0f)に近く
-//スティックの遊びはifの条件式に組む
-//例　if(GetJoypadStick(JOYKEY_RIGHT_STICK,0)  > 0.5f)
-//    {//右に半分より多く倒したら
-
-{第一引数はキー（スティック）,第二引数はプレイヤー番号
-D3DXVECTOR3 GetJoypadStick(JOYKEY Key, int nPlayer);			//ジョイパッドスティック処理
-}
-
-//返す値　ペダルがどれだけ押し込まれたかをintで返す
-//ペダルの遊びはifの条件式に組む
-//例　if(GetJoypadTriggerPedal(JOYKEY_RIGHT_TRIGGER,0) > 100))
-//    {//右ペダルを100より多く倒したら
-
-{第一引数はキー（スティック）,第二引数はプレイヤー番号
-int GetJoypadTriggerPedal(JOYKEY Key, int nPlayer);				//ジョイパッドトリガーペダル処理
-}
-
-{第一引数は揺らす時間, 第二引数はどれくらいの強さで揺らすか, 第三引数はプレイヤー番号
-void JoypadVibration(int nTime, WORD nStrength, int nPlayer);	//ジョイパッド振動制御
-}
-
-//--------------------------------------------------------------------------------------------------------
-//プロトタイプ宣言マウス
-//--------------------------------------------------------------------------------------------------------
-
-{//引数にキーの列挙型を入れそれが押されたかどうかをboolで返す
-bool GetMousePress(MOUSE mouse);			//マウスのプレス処理
-bool GetMouseTrigger(MOUSE mouse);			//マウスのトリガー処理
-}
-
-//返す値　マウスのposを返す値
-{
-D3DXVECTOR3 GetMouse(void);					//マウスの画面内の位置
-}
-
-{//引数無し、返す値は奥に回すと＋で返り手前に回すとーで返ってきます
-int GetMouseWheel(void);					//マウスのホイールの動き処理
-}
-************************************************************************************************************/
-
-

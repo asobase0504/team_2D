@@ -6,22 +6,18 @@
 //**************************************************************************************************
 #include "main.h"
 #include "input.h"
-#include "life.h"
 #include "common.h"
 #include "player.h"
-#include "collision.h"
 #include "target.h"
-#include "map.h"
 
 //*******************************************************************************
 // 定数
 //*******************************************************************************
 #define MAX_SPEED				(10.0f)			// 移動速度の最大値
 #define MIN_SPEED				(0.0f)			// 移動速度の最小値
-#define MOVE_SPEED				(5.0f)			// 設定時の移動量
 #define MOVE_FRICTION			(0.5f)			// 動摩擦係数
 #define MAX_CNT_SKY_SHOT		(0.25f * 60)	// 空中弾発射間隔(秒数 * フレーム数)
-#define MAX_CNT_GRAND_SHOT		(0.7f * 60)		// 地上弾発射間隔(秒数 * フレーム数)
+#define MAX_CNT_GRAND_SHOT		(0.5f * 60)		// 地上弾発射間隔(秒数 * フレーム数)
 #define TARGET_DISTANCE			(300.0f)		// ターゲットの間隔
 
 //*******************************************************************************
@@ -41,7 +37,7 @@ void InitPlayer(void)
 
 	// プレイヤーに張り付けるテクスチャの読み込み
 	D3DXCreateTextureFromFile(pDevice,
-		"data/TEXTURE/player000.png",
+		"data/TEXTURE/bullet00.png",
 		&s_pTexture);
 
 	// 頂点バッファの生成
@@ -110,7 +106,7 @@ void UpdatePlayer(void)
 
 	// 弾の発射
 	ShotPlayer();
-
+	   
 	if (s_Player.nIdxTarge != -1)
 	{
 		// ターゲットの移動
@@ -128,21 +124,6 @@ void UpdatePlayer(void)
 
 	// 頂点バッファをアンロック
 	s_pVtxBuff->Unlock();
-
-	// 弾が当たった時
-	Bullet* pBullet = GetBullet();
-	for (int i = 0; i < MAX_BULLET; i++, pBullet++)
-	{
-		if (!pBullet->bUse || pBullet->BulletType != BULLETTYPE_ENEMY)
-		{
-			continue;
-		}
-		if (CollisionCircle(s_Player.pos, s_Player.size.x, pBullet->pos, pBullet->size.x))
-		{
-			ConteSet();	
-			pBullet->bUse = false;
-		}
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -191,10 +172,10 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 		s_Player.size = D3DXVECTOR3(50.0f,50.0f,0.0f);		// サイズ
 		s_Player.col = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);		// カラー
 		s_Player.BulletType = (BulletType)(0);				// 弾の種類
-		s_Player.nLife = 5;									// 体力
-		s_Player.nCntShot = 1;								// 弾発射までのカウント
-		s_Player.fSpeed = MOVE_SPEED;						// 速度
+		s_Player.fSpeed = 5.0f;								// 速度
+		s_Player.nLife = 150;								// 体力
 		s_Player.nIdxTarge = -1;							// ターゲット
+		s_Player.nCntShot = 0;								// 弾発射までのカウント
 		s_Player.nCntShotUse = 0;							// 弾の発射ができるまでのカウント
 		s_Player.bTriggerShot = false;						// トリガー弾発射の可不可
 		s_Player.bPressShot = false;						// プレス弾発射の可不可
@@ -211,11 +192,6 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 
 		// ターゲット
 		s_Player.nIdxTarge = SetTarget(D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y - TARGET_DISTANCE,0.0f), s_Player.rot);
-
-		for (int i = 0; i < s_Player.nLife; i++)
-		{
-			SetLife(D3DXVECTOR3(25.0f + 42.5f * i, SCREEN_HEIGHT - 25.0f, 0.0f));
-		}
 	}
 
 	//頂点バッファをアンロック

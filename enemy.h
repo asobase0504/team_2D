@@ -53,6 +53,8 @@ typedef struct
 	bool bBack;				// 戻るシステム
 	bool bTracking;			// 追尾使用
 	bool bTP;
+	bool bReflect;			// 反射
+
 	// シオナイト用
 	float fSheoRot;			// シオナイト専用角度
 	int nSheoCnt;			// シオナイトカウント

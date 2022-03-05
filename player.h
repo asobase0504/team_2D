@@ -27,7 +27,9 @@ typedef struct
 	int					nLife;				// 体力
 	int					nCntShot;			// 弾の発射までのカウント
 	int					nIdxTarge;			// ターゲットナンバー
-	bool				bFriction;			// 慣性を使用するか
+	int					nCntShotUse;		// 弾の発射ができるまでのカウント
+	bool				bTriggerShot;		// トリガー弾発射の可不可
+	bool				bPressShot;			// プレス弾発射の可不可
 	bool				bUse;				// 使用してるかどうか
 }Player;
 

@@ -157,7 +157,7 @@ void DrawFade(void)
 	pDevice->SetTexture(0, NULL);
 
 	// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP,4,2);
+	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
 }
 
 //====================================

@@ -1,32 +1,34 @@
 //============================================================================================================
 //
-//チーム制作[score.h]
+//チーム制作[ranking.h]
 //Author:Kishimoto Eiji
 //
 //============================================================================================================
-#ifndef _SCORE_H_
-#define _SCORE_H_
+#ifndef _RANKING_H_
+#define _RANKING_H_
 
 #include "main.h"
 
 //============================================================================================================
-//マクロ定義
+//ランキングスコアの構造体の定義
 //============================================================================================================
-#define MAX_SCORE		(8)			//スコアの最大桁数
+typedef struct
+{
+	D3DXVECTOR3 pos;	//位置
+	D3DXCOLOR col;		//色
+	int nScore;			//スコア
+}RankScore;
 
 //============================================================================================================
 //プロトタイプ宣言
 //============================================================================================================
-void InitScore(void);
-void UninitScore(void);
-void UpdateScore(void);
-void DrawScore(void);
-void AddScore(int nValue);
-void SubScore(int nValue);
-void SaveBestScore(void);
-int LoadBestScore(void);
-int GetScore(void);
-void SetScorePos(D3DXVECTOR3 pos);
-void SetBestScorePos(D3DXVECTOR3 pos);
+void InitRanking(void);
+void UninitRanking(void);
+void UpdateRanking(void);
+void DrawRanking(void);
+void ResetRanking(void);
+void SetRanking(int nScore);
+void SaveRanking(void);
+void LoadRanking(void);
 
 #endif

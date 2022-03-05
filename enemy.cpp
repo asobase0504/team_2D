@@ -21,12 +21,15 @@
 //----------------------------
 // マクロ
 //----------------------------
+#define MOVE_PEED   (5.0f)
 #define COLLISION	(25)
 #define RADIUS		(5.0f)
 #define SPEED		(2.0f)
 #define JUDGEMENT	(100)	// 避ける敵の判定サイズ
 #define UP_ESCAPE	(200)	// 上に逃げる敵の判定サイズ
-#define MAXSTAGE (5)
+#define ABILTIY		(0.005f)
+#define MAXSTAGE	(5)
+#define JUGE		(80)
 
 //シオナイト
 #define SHEO_DIST_START_ROTATION	(200.0f)							// 回り始める距離
@@ -54,11 +57,12 @@ static void UpdateSky2(Enemy* pEnemy);		// 空の敵2の更新
 static void UpdateBuckSky(Enemy* pEnemy);	// 帰る空の敵の更新
 static void MoveBakyura(Enemy* pEnemy);		// バキュラの移動処理
 static void MoveSheonite(Enemy* pEnemy);	// シオナイトの移動処理
-static void UpdateZakato1(Enemy* pEnemy);	// ザカートの処理1(追尾アリ、一定の間隔で弾を発射して消滅)
+static void UpdateZakato1(Enemy* pEnemy);	// TOGETOGE
 static void UpdateZakato2(Enemy* pEnemy);	// ザカートの処理2(追尾ナシ、一定の間隔で弾を発射して消滅)
 static void UpdateZakato3(Enemy* pEnemy);	// ザカートの処理3(追尾アリ、時間経過で弾を発射して消滅)
 static void UpdateZakato4(Enemy* pEnemy);	// ザカートの処理4(追尾ナシ、時間経過で弾を発射して消滅)
 static void ZakatoFinish(Enemy* pEnemy);	// ザカートが終了する際の処理
+static void ReflectMove(Enemy* pEnemy);
 
 //**************************************************
 // グローバル関数
@@ -70,15 +74,6 @@ static void ZakatoFinish(Enemy* pEnemy);	// ザカートが終了する際の処理
 void InitEnemy(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();		//デバイスのポインタ
-
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice,
-		"data/TEXTURE/Enemy/koin.png",				// 目玉
-		&s_pTex[ENEMYTYPE_SKY_1]);
-
-	D3DXCreateTextureFromFile(pDevice,
-		"date/image/enemy/enemy 1.png",				// 車
-		&s_pTex[ENEMYTYPE_SKY_2]);
 
 	ZeroMemory(s_aEnemy, sizeof(s_aEnemy[0]));
 
@@ -290,11 +285,8 @@ void UpdateSky1(Enemy* pEnemy)
 	// 追尾の処理
 	TrackingMove(pEnemy);
 
-	if (CollisionCircle(pEnemy->pos, JUDGEMENT, pPlayer->pos, JUDGEMENT))
-	{//敵が逃げる処理
-		pEnemy->bTracking = false;
-		pEnemy->move.x = 3.0f;
-	}
+	//pEnemy->move.y = pEnemy->fSpeed;
+	ReflectMove(pEnemy);
 
 	// 弾を出す処理
 	if (pEnemy->pos.y > 0.0f)
@@ -383,7 +375,7 @@ void UpdateBuckSky(Enemy* pEnemy)
 	if (pEnemy->pos.y > 0.0f)
 	{	// 画面内に収まっている場合
 		pEnemy->nCntBullet++;
-		if (pEnemy->nCntBullet >= 120)
+		if (pEnemy->nCntBullet >= 60)
 		{
 			// エネミーからプレイヤーまでの距離の算出
 			D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
@@ -465,18 +457,63 @@ void UpdateZakato1(Enemy* pEnemy)
 	// プレイヤー情報の取得
 	Player* pPlayer = GetPlayer();
 
-	//追尾アリ、一定の距離で弾を発射し、消滅
-	if (!pEnemy->bTP)
-	{
-		pEnemy->pos = D3DXVECTOR3(pEnemy->pos.x, SCREEN_HEIGHT / 2, 0.0f);
-		pEnemy->bTP = true;
+
+	float fRotMove, fRotDest, fRotDiff;
+
+	fRotMove = atan2f(pEnemy->move.x, pEnemy->move.y);				//現在の移動方向
+
+	fRotDest = atan2f(pPlayer->pos.x - pEnemy->pos.x, pPlayer->pos.y - pEnemy->pos.y);			//目的の移動方向
+
+	fRotDiff = fRotDest - fRotMove; 	//目的の移動方向までの差分
+
+	//角度の値を修正する
+	if (fRotDiff > D3DX_PI)
+	{//目的の移動方向への差分が3.14より上の場合
+		fRotDiff -= D3DX_PI * 2;
 	}
-	if (pEnemy->pos.x + JUDGEMENT >= pPlayer->pos.x - JUDGEMENT
-		&& pEnemy->pos.x - JUDGEMENT <= pPlayer->pos.x + JUDGEMENT
-		&& pEnemy->pos.y + JUDGEMENT >= pPlayer->pos.y - JUDGEMENT
-		&& pEnemy->pos.y - JUDGEMENT <= pPlayer->pos.y + JUDGEMENT)
-	{//敵が終了する処理
-		ZakatoFinish(pEnemy);
+
+	else if (fRotDiff < -D3DX_PI)
+	{//目的の移動方向への差分が3.14より下の場合
+		fRotDiff += D3DX_PI * 2;
+	}
+
+	fRotMove += fRotDiff * ABILTIY;				//移動方向の補正
+
+	//move 修正
+	if (fRotMove > D3DX_PI)
+	{//現在の移動方向の角度が3.14を超えた場合
+		fRotMove -= D3DX_PI * 2;
+	}
+
+	else if (fRotMove < -D3DX_PI)
+	{//現在の移動方向の角度が3.14より下の場合
+		fRotMove += D3DX_PI * 2;
+	}
+
+	pEnemy->move.x = sinf(fRotMove) * MOVE_PEED;
+	pEnemy->move.y = cosf(fRotMove) * MOVE_PEED;
+
+	pEnemy->bTracking = false;
+
+	// 弾を出す処理
+	if (pEnemy->pos.y > 0.0f)
+	{	// 画面内に収まっている場合
+
+		pEnemy->nCntBullet++;
+
+		if (pEnemy->nCntBullet >= 120)
+		{
+			// エネミーからプレイヤーまでの距離の算出
+			D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
+
+			//対角線の角度を算出
+			Direction.z = atan2f(Direction.x, Direction.y);
+			Direction.x = 0.0f;		// 使わない情報なので初期化
+			Direction.y = 0.0f;		// 使わない情報なので初期化
+
+			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
+			pEnemy->nCntBullet = 0;
+		}
 	}
 }
 
@@ -636,6 +673,9 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 			pEnemy->fSheoRot = -1.0f;
 			pEnemy->nSheoCnt = 0;
 			pEnemy->nLife = 30;
+			break;
+		case ENEMYTYPE_SKY_1:
+			pEnemy->bReflect = true;
 			break;
 		default:
 			break;
@@ -893,4 +933,26 @@ void EnemyLynk(char *Filename)
 void SetEnemyLynk(int number)
 {
 	LoadSetFile(&EnemyLink[number][0]);
+}
+
+//--------------------
+// 当たり判定
+//--------------------
+void ReflectMove(Enemy* pEnemy)
+{
+	Player* pPlayer = GetPlayer();
+
+	if (pEnemy->bReflect)
+	{
+		if(pEnemy->pos.x + JUGE >= pPlayer->pos.x - JUGE
+			&& pEnemy->pos.x - JUGE <= pPlayer->pos.x + JUGE
+			&& pEnemy->pos.y + JUGE >= pPlayer->pos.y - JUGE
+			&& pEnemy->pos.y - JUGE <= pPlayer->pos.y + JUGE)
+		{//敵が終了する処理			
+			pEnemy->bReflect = false;
+			pEnemy->bTracking = false;
+			pEnemy->move.x += -pEnemy->move.x * 3;
+//			pEnemy->move.y += -pEnemy->move.y * 3;
+		}
+	}
 }
