@@ -19,10 +19,12 @@
 #include "enemy.h"
 #include "input.h"
 #include "map.h"
-#include "bg.h"
+#include "menu.h"
+#include "pause.h"
 #include "target.h"
 #include "scoreup.h"
 #include "flag.h"
+#include "crater.h"
 #include "sound.h"
 #include "fade.h"
 #include <stdio.h>
@@ -43,7 +45,6 @@ void InitGame(void)
 {
 	s_bPause = false;
 
-	InitBG();			// 背景
 	InitMap();			// マップ
 	InitBoss();			// ボス
 	InitEnemy();		// 敵
@@ -55,6 +56,9 @@ void InitGame(void)
 	InitBestScore();	// ベストスコア
 	InitScoreUp();		// スコアアップ
 	InitFlag();			// フラグ
+	InitCrater();		// クレーター
+	InitMenu();			// メニュー
+	InitPause();		// ポーズ
 
 	// マップの設定。
 	InitMapSet(MAP_FILE0);
@@ -67,17 +71,20 @@ void InitGame(void)
 //=========================================
 void UninitGame(void)
 {
-	UninitEnemy();		// 敵	
-	UninitBG();			// 背景
 	UninitMap();		// マップ
+	UninitBoss();		// ボス
+	UninitEnemy();		// 敵	
 	UninitBullet();		// 弾
+	UninitTarget();		// ターゲット
+	UninitLife();		// ライフ
 	UninitPlayer();		// プレイヤー
 	UninitScore();		// スコア
-	UninitTarget();		// ターゲット
 	UninitBestScore();	// ベストスコア
-	UninitLife();		// ライフ
 	UninitScoreUp();	// スコアアップ
-	UninitFlag();			// フラグ
+	UninitFlag();		// フラグ
+	UninitCrater();		// クレーター
+	UninitMenu();		// メニュー
+	UninitPause();		// ポーズ
 }
 
 //=========================================
@@ -85,18 +92,23 @@ void UninitGame(void)
 //=========================================
 void UpdateGame(void)
 {
-	// ポーズの機能
-	//if (GetJoypadTrigger(JOYKEY_START) || GetKeyboardTrigger(DIK_P))
-	//{
-	//	s_bPause = !s_bPause;
-	//}
+	if (GetJoypadTrigger(JOYKEY_START, 0) || GetKeyboardTrigger(DIK_P))
+	{
+		s_bPause = !s_bPause;
 
-	//// ポーズ中ならポーズ以外を更新しない
-	//if (s_bPause)
-	//{
-	//	UpdatePause();		// ポーズ
-	//	return;
-	//}
+		if (s_bPause)
+		{// ポーズしてる
+			SetPause();		// メニューの設定
+		}
+	}
+
+	// ポーズ中ならポーズ以外を更新しない
+	if (s_bPause)
+	{
+		UpdateMenu();		// メニュー
+		UpdatePause();		// ポーズ
+		return;
+	}
 
 	if (GetKeyboardTrigger(DIK_F1))
 	{
@@ -152,8 +164,8 @@ void UpdateGame(void)
 		SetFade(MODE_RESULT);
 	}
 
-	UpdateBG();			// 背景
 	UpdateMap();		// マップデータ
+	UpdateCrater();		// クレーター
 	UpdateBoss();		// ボス
 	UpdateEnemy();		// 敵
 	UpdateBullet();		// 弾
@@ -176,8 +188,8 @@ void UpdateGame(void)
 //=========================================
 void DrawGame()
 {
-	DrawBG();			// 背景
 	DrawMap();			// マップデータ
+	DrawCrater();		// クレーター
 	DrawBoss();			// ボス
 	DrawEnemy();		// 敵
 	DrawBullet();		// 弾
@@ -188,6 +200,11 @@ void DrawGame()
 	DrawBestScore();	// ベストスコア
 	DrawScoreUp();		// スコアアップ
 	DrawFlag();			// フラグ
+	if (s_bPause)
+	{
+		DrawPause();		// ポーズ
+		DrawMenu();			// メニュー
+	}
 }
 
 //=========================================

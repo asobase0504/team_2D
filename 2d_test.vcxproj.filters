@@ -69,9 +69,6 @@
     <ClCompile Include="bullet.cpp">
       <Filter>ソース ファイル\Game</Filter>
     </ClCompile>
-    <ClCompile Include="bg.cpp">
-      <Filter>ソース ファイル\Game</Filter>
-    </ClCompile>
     <ClCompile Include="Calculation.cpp">
       <Filter>ソース ファイル\System</Filter>
     </ClCompile>
@@ -118,7 +115,13 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="crater.cpp">
+      <Filter>ソース ファイル\Game\enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="staffroll.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="pause.cpp">
+      <Filter>ソース ファイル\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -127,9 +130,6 @@
     </ClInclude>
     <ClInclude Include="enemy.h">
       <Filter>ヘッダー ファイル\Game\enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="bg.h">
-      <Filter>ヘッダー ファイル\Game</Filter>
     </ClInclude>
     <ClInclude Include="bullet.h">
       <Filter>ヘッダー ファイル\Game</Filter>
@@ -195,7 +195,13 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="crater.h">
+      <Filter>ヘッダー ファイル\Game\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="staffroll.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="pause.h">
+      <Filter>ソース ファイル\Game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

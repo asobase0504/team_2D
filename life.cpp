@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //ライフ
-//Author;takano
+//Author;Takano Minto
 //
 //------------------------------------------------------------------------------
 #include"life.h"
@@ -45,7 +45,7 @@ void InitLife(void)
 
 	VERTEX_2D*pVtx;			//頂点情報へのポインタ
 
-	//頂点バッファをコック＆ロックし、頂点情報へのポインタを取得
+	//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	for (int nCnt = 0; nCnt < MAX_LIFE; nCnt++)
@@ -74,7 +74,7 @@ void InitLife(void)
 		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 		pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
-		pVtx += 4;				//デデデータが4個分進む
+		pVtx += 4;				//データが4個分進む
 	}
 	//頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
@@ -155,7 +155,7 @@ void SetLife(D3DXVECTOR3 pos)
 			
 			VERTEX_2D *pVtx;
 
-			//頂点バッファをコック＆ロックし、頂点情報へのポインタを取得
+			//頂点バッファをロックし、頂点情報へのポインタを取得
 			s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 			pVtx += nCnt * 4;						//データに合わせた数値分進む
 

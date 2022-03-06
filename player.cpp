@@ -56,7 +56,7 @@ void InitPlayer(void)
 	// プレイヤー情報の初期化
 	memset(&s_Player, 0, sizeof(s_Player));
 
-	// 頂点情報へのポインタを生成						
+	// 頂点情報へのポインタを生成
 	VERTEX_2D *pVtx;
 
 	// 頂点バッファをロックし、頂点情報へのポインタを取得

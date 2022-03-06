@@ -16,6 +16,7 @@
 #include "ranking.h"
 #include "input.h"
 #include "sound.h"
+#include "staffroll.h"
 #include <stdio.h>
 
 //-----------------------------------------
@@ -43,6 +44,7 @@ LPDIRECT3DDEVICE9 g_pD3DDevice = NULL;
 LPD3DXFONT g_pFont = NULL;	// フォントへのポインタ
 int g_nCountFPS = 0;		// FPSカウンタ
 static MODE s_mode = MODE_TITLE;
+static bool s_bExit;
 
 //=========================================
 // メイン関数
@@ -150,6 +152,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 				Draw();
 
 				dwFrameCount++;	// フレームカウントを加算
+
+				if (s_bExit)
+				{
+					break;	// ウィンドウを破棄する
+				}
 			}
 		}
 	}
@@ -171,6 +178,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 //=========================================
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (s_bExit)
+	{
+		// ウィンドウを破棄する
+		DestroyWindow(hWnd);
+	}
+
 	switch (uMsg)
 	{
 	case WM_DESTROY:	// ウィンドウ破棄のメッセージ
@@ -285,6 +298,7 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	{
 		return E_FAIL;
 	}
+	s_bExit = false;
 
 	InitSound(hWnd);
 
@@ -308,6 +322,7 @@ void Uninit(void)
 	UninitGame();		// ゲーム
 	UninitResult();		// リザルト
 	UninitRanking();	// ランキング
+	UninitStaffroll();	// スタッフロール
 
 	// デバッグ表示用フォントの破棄
 	if (g_pFont != NULL)
@@ -351,6 +366,9 @@ void Update(void)
 	case MODE_RANKING:
 		UpdateRanking();
 		break;
+	case MODE_STAFFROLL:
+		UpdateStaffroll();	// スタッフロール
+		break;
 	default:
 		break;
 	}
@@ -390,6 +408,9 @@ void Draw(void)
 			break;
 		case MODE_RANKING:
 			DrawRanking();
+			break;
+		case MODE_STAFFROLL:
+			DrawStaffroll();	// スタッフロール
 			break;
 		default:
 			break;
@@ -440,6 +461,9 @@ void SetMode(MODE mode)
 	case MODE_RANKING:
 		UninitRanking();
 		break;
+	case MODE_STAFFROLL:
+		UninitStaffroll();	// スタッフロール
+		break;
 	}
 
 	// 新しい画面(モード)の初期化処理
@@ -457,6 +481,9 @@ void SetMode(MODE mode)
 	case MODE_RANKING:
 		InitRanking();
 		break;
+	case MODE_STAFFROLL:
+		InitStaffroll();	// スタッフロール
+		break;
 	}
 
 	s_mode = mode;	// 現在の画面(モード)を切り替える
@@ -468,4 +495,12 @@ void SetMode(MODE mode)
 MODE GetMode(void)
 {
 	return s_mode;
+}
+
+//=========================================
+// 終了処理
+//=========================================
+void ExitExe(void)
+{
+	s_bExit = true;
 }

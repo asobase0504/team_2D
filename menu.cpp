@@ -17,8 +17,6 @@
 // マクロ定義
 //--------------------------------------------------
 #define MAX_MENU					(16)		// メニューの最大数
-#define MAX_OPTION					(16)		// 選択肢の最大数
-#define MAX_TEXTURE					(4)			// テクスチャの最大数
 #define NORMAL_BLINK_SPEED			(0.01f)		// 通常時の点滅速度
 #define DECISION_BLINK_SPEED		(0.1f)		// 決定時の点滅速度
 #define MIN_ALPHA					(0.6f)		// α値の最小値
@@ -31,10 +29,11 @@
 
 typedef struct
 {
-	D3DXVECTOR3		pos;			// 位置
-	D3DXCOLOR		col;			// 色
-	float			fWidth;			// 幅
-	float			fHeight;		// 高さ
+	D3DXVECTOR3				pos;			// 位置
+	D3DXCOLOR				col;			// 色
+	float					fWidth;			// 幅
+	float					fHeight;		// 高さ
+	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Option;
 
 /*↓ メニュー ↓*/
@@ -54,7 +53,6 @@ typedef struct
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9			s_pTexture[MAX_TEXTURE];		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;				// 頂点バッファへのポインタ
 static Menu							s_aMenu[MAX_MENU];				// メニューの情報
 static int							s_nSelectMenu;					// 選ばれているメニュー
@@ -81,30 +79,6 @@ void InitMenu(void)
 
 	// メモリのクリア
 	memset(s_aMenu, 0, sizeof(s_aMenu));
-
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(
-		pDevice,
-		"data/TEXTURE/GAMESTART.png",
-		&s_pTexture[0]);
-
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(
-		pDevice,
-		"data/TEXTURE/RANKING.png",
-		&s_pTexture[1]);
-
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(
-		pDevice,
-		"data/TEXTURE/STAFFROLL.png",
-		&s_pTexture[2]);
-
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(
-		pDevice,
-		"data/TEXTURE/EXIT.png",
-		&s_pTexture[3]);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
@@ -161,15 +135,6 @@ void InitMenu(void)
 //--------------------------------------------------
 void UninitMenu(void)
 {
-	for (int i = 0; i < MAX_TEXTURE; i++)
-	{
-		if (s_pTexture[i] != NULL)
-		{// テクスチャの解放
-			s_pTexture[i]->Release();
-			s_pTexture[i] = NULL;
-		}
-	}
-
 	if (s_pVtxBuff != NULL)
 	{// 頂点バッファの解放
 		s_pVtxBuff->Release();
@@ -193,7 +158,7 @@ void UpdateMenu(void)
 
 	Option *pOption = &pMenu->Option[s_nSelectOption];
 
-	pOption->col.a = 1.0f;
+	pOption->col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// 色の設定
 	SetColor(*pOption);
@@ -203,7 +168,7 @@ void UpdateMenu(void)
 
 	float fCurve = cosf((s_nAlphaTime * pMenu->fBlinkSpeed) * (D3DX_PI * 2.0f));
 
-	pOption->col.a = (fCurve * (1.0f - MIN_ALPHA)) + MIN_ALPHA;
+	pOption->col = D3DXCOLOR(1.0f, 0.0f, 0.0f, (fCurve * (1.0f - MIN_ALPHA)) + MIN_ALPHA);
 	
 	// 色の設定
 	SetColor(*pOption);
@@ -237,7 +202,7 @@ void DrawMenu(void)
 		for (int j = 0; j < pMenu->nNumUse; j++)
 		{
 			// テクスチャの設定
-			pDevice->SetTexture(0, s_pTexture[j]);
+			pDevice->SetTexture(0, pMenu->Option[j].pTexture);
 
 			int nIdx = (i * MAX_MENU) + (j * 4);
 
@@ -253,13 +218,15 @@ void DrawMenu(void)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetMenu(const MenuArgument &menu)
+int SetMenu(const MenuArgument &menu)
 {
 	VERTEX_2D *pVtx = NULL;		// 頂点情報へのポインタ
 
-	for (int i = 0; i < MAX_MENU; i++)
+	int nIdx = 0;
+
+	for (int nIdx = 0; nIdx < MAX_MENU; nIdx++)
 	{
-		Menu *pMenu = &s_aMenu[i];
+		Menu *pMenu = &s_aMenu[nIdx];
 
 		if (pMenu->bUse)
 		{// 使用している
@@ -273,11 +240,6 @@ void SetMenu(const MenuArgument &menu)
 		pMenu->pos = D3DXVECTOR3(fPosX, menu.fTop, 0.0f);
 		pMenu->nNumUse = menu.nNumUse;
 
-		if (pMenu->nNumUse > MAX_TEXTURE)
-		{// 指定の値より上
-			pMenu->nNumUse = MAX_TEXTURE;
-		}
-
 		pMenu->fWidth = menu.fRight - menu.fLeft;
 		pMenu->fHeight = menu.fBottom - menu.fTop;
 		pMenu->fInterval = pMenu->fHeight / (menu.nNumUse + 1);
@@ -285,7 +247,7 @@ void SetMenu(const MenuArgument &menu)
 
 		pMenu->bUse = true;
 
-		s_nSelectMenu = i;
+		s_nSelectMenu = nIdx;
 		s_nSelectOption = 0;
 
 		for (int j = 0; j < pMenu->nNumUse; j++)
@@ -296,11 +258,12 @@ void SetMenu(const MenuArgument &menu)
 			pOption->col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 			pOption->fWidth = menu.fWidth;
 			pOption->fHeight = menu.fHeight;
+			pOption->pTexture = *menu.pTexture[j];
 
 			// 頂点情報をロックし、頂点情報へのポインタを取得
 			s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-			pVtx += (i * MAX_MENU) + (j * 4);		// 指定の位置までポインタを進める
+			pVtx += (nIdx * MAX_MENU) + (j * 4);		// 指定の位置までポインタを進める
 
 			float fWidth = menu.fWidth * 0.5f;
 			float fHeight = menu.fHeight * 0.5f;
@@ -323,6 +286,19 @@ void SetMenu(const MenuArgument &menu)
 
 		break;
 	}
+
+	return nIdx;
+}
+
+//--------------------------------------------------
+// リセット
+//--------------------------------------------------
+void ResetMenu(int nIdx)
+{
+	s_nSelectMenu = 0;
+	s_nSelectOption = 0;
+	s_nAlphaTime = 0;
+	s_aMenu[nIdx].bUse = false;
 }
 
 //--------------------------------------------------

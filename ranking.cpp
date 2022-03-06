@@ -133,10 +133,10 @@ void InitRanking(void)
 	pVtx[3].rhw = 1.0f;
 
 	//頂点カラーの設定
-	pVtx[0].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-	pVtx[1].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-	pVtx[2].col = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
-	pVtx[3].col = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
+	pVtx[0].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+	pVtx[1].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+	pVtx[2].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+	pVtx[3].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
 
 	//テクスチャ座標の設定
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);

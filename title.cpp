@@ -13,6 +13,7 @@
 #include "input.h"
 #include "map.h"
 #include "enemy.h"
+#include "bullet.h"
 #include "fade.h"
 #include "menu.h"
 
@@ -41,10 +42,10 @@
 //--------------------------------------------------
 typedef enum
 {
-	MENU_GAME = 0,			// ゲーム
-	MENU_RANKING,			// ランキング
-	MENU_STAFF_ROLE,		// スタッフロール
-	MENU_EXIT,				// 終了
+	MENU_GAME = 0,		// ゲーム
+	MENU_RANKING,		// ランキング
+	MENU_STAFFROLL,		// スタッフロール
+	MENU_EXIT,			// 終了
 	MENU_MAX
 }MENU;
 
@@ -63,17 +64,20 @@ typedef struct
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9			s_pTexture = NULL;			// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファへのポインタ
-static LPDIRECT3DTEXTURE9			s_pTextureLight = NULL;		// 後光のテクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffLight = NULL;		// 後光の頂点バッファへのポインタ
-static Light						s_light[MAX_LIGHT];			// 後光の情報
-static int							s_nTime;					// 時間
-static int							s_nSelectMenu;				// 選ばれているメニュー
+static LPDIRECT3DTEXTURE9			s_pTexture = NULL;				// テクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;				// 頂点バッファへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureLight = NULL;			// 後光のテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffLight = NULL;			// 後光の頂点バッファへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureMenu[MENU_MAX];		// メニューのテクスチャへのポインタ
+static Light						s_light[MAX_LIGHT];				// 後光の情報
+static int							s_nTime;						// 時間
+static int							s_nSelectMenu;					// 選ばれているメニュー
+static int							s_nIdxMenu;						// 使っているメニューの番号
 
-																//--------------------------------------------------
-																// プロトタイプ宣言
-																//--------------------------------------------------
+//--------------------------------------------------
+// プロトタイプ宣言
+//--------------------------------------------------
+static void UpdateLight(void);
 static void Input(void);
 
 //--------------------------------------------------
@@ -97,6 +101,30 @@ void InitTitle(void)
 		"data/TEXTURE/TitleLight_red.png",
 		&s_pTextureLight);
 
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/GAMESTART.png",
+		&s_pTextureMenu[MENU_GAME]);
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/RANKING.png",
+		&s_pTextureMenu[MENU_RANKING]);
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/STAFFROLL.png",
+		&s_pTextureMenu[MENU_STAFFROLL]);
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/EXIT.png",
+		&s_pTextureMenu[MENU_EXIT]);
+
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
 		sizeof(VERTEX_2D) * 4,
@@ -117,7 +145,7 @@ void InitTitle(void)
 
 	VERTEX_2D *pVtx = NULL;		// 頂点情報へのポインタ
 
-								// 頂点バッファをロックし、頂点情報へのポインタを取得
+	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.5f, TITLE_POS_Y, 0.0f);
@@ -223,9 +251,10 @@ void InitTitle(void)
 
 	InitMap();		// マップ
 	InitEnemy();	// エネミー
+	InitBullet();	// 弾
 	InitMenu();		// メニュー
 
-					// マップの設定。
+	// マップの設定。
 	InitMapSet(MAP_FILE0);
 
 	MenuArgument menu;
@@ -237,8 +266,13 @@ void InitTitle(void)
 	menu.fWidth = MENU_WIDTH;
 	menu.fHeight = MENU_HEIGHT;
 
+	for (int i = 0; i < MENU_MAX; i++)
+	{
+		menu.pTexture[i] = &s_pTextureMenu[i];
+	}
+	
 	// メニューの設定
-	SetMenu(menu);
+	s_nIdxMenu = SetMenu(menu);
 }
 
 //--------------------------------------------------
@@ -248,6 +282,7 @@ void UninitTitle(void)
 {
 	UninitMap();	// マップ
 	UninitEnemy();	// エネミー
+	UninitBullet();	// 弾
 	UninitMenu();	// メニュー
 
 	if (s_pTexture != NULL)
@@ -273,6 +308,15 @@ void UninitTitle(void)
 		s_pTextureLight->Release();
 		s_pTextureLight = NULL;
 	}
+
+	for (int i = 0; i < MENU_MAX; i++)
+	{
+		if (s_pTextureMenu[i] != NULL)
+		{// テクスチャの解放
+			s_pTextureMenu[i]->Release();
+			s_pTextureMenu[i] = NULL;
+		}
+	}
 }
 
 //--------------------------------------------------
@@ -284,11 +328,70 @@ void UpdateTitle(void)
 	UpdateEnemy();	// エネミー
 	UpdateMenu();	// メニュー
 
+	// 後光
+	UpdateLight();
+
+	// 入力
+	Input();
+}
+
+//--------------------------------------------------
+// 描画
+//--------------------------------------------------
+void DrawTitle(void)
+{
+	DrawMap();		// マップデータ
+	DrawEnemy();	// エネミー
+
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// 頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(0, s_pVtxBuffLight, 0, sizeof(VERTEX_2D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	//テクスチャの設定
+	pDevice->SetTexture(0, s_pTextureLight);
+
+	for (int i = 0; i < MAX_LIGHT; i++)
+	{
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(
+			D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+			i * 4,						// 描画する最初の頂点インデックス
+			2);							// 描画するプリミティブ数
+	}
+
+	// 頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	//テクスチャの設定
+	pDevice->SetTexture(0, s_pTexture);
+
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+		0,							// 描画する最初の頂点インデックス
+		2);							// 描画するプリミティブ数
+
+	DrawMenu();		// メニュー
+}
+
+//--------------------------------------------------
+// 後光
+//--------------------------------------------------
+static void UpdateLight(void)
+{
 	s_nTime++;
 
 	VERTEX_2D *pVtx = NULL;		// 頂点情報へのポインタ
 
-								// 頂点バッファをロックし、頂点情報へのポインタを取得
+	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuffLight->Lock(0, 0, (void**)&pVtx, 0);
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.5f, TITLE_POS_Y, 0.0f);
@@ -332,56 +435,6 @@ void UpdateTitle(void)
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuffLight->Unlock();
-
-	// 入力
-	Input();
-}
-
-//--------------------------------------------------
-// 描画
-//--------------------------------------------------
-void DrawTitle(void)
-{
-	DrawMap();		// マップデータ
-	DrawEnemy();	// エネミー
-
-					// デバイスへのポインタの取得
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, s_pVtxBuffLight, 0, sizeof(VERTEX_2D));
-
-	// 頂点フォーマットの設定
-	pDevice->SetFVF(FVF_VERTEX_2D);
-
-	//テクスチャの設定
-	pDevice->SetTexture(0, s_pTextureLight);
-
-	for (int i = 0; i < MAX_LIGHT; i++)
-	{
-		// ポリゴンの描画
-		pDevice->DrawPrimitive(
-			D3DPT_TRIANGLESTRIP,		// プリミティブの種類
-			i * 4,						// 描画する最初の頂点インデックス
-			2);							// 描画するプリミティブ数
-	}
-
-	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
-
-	// 頂点フォーマットの設定
-	pDevice->SetFVF(FVF_VERTEX_2D);
-
-	//テクスチャの設定
-	pDevice->SetTexture(0, s_pTexture);
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(
-		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
-		0,							// 描画する最初の頂点インデックス
-		2);							// 描画するプリミティブ数
-
-	DrawMenu();		// メニュー
 }
 
 //--------------------------------------------------
@@ -409,27 +462,19 @@ static void Input(void)
 		switch (s_nSelectMenu)
 		{
 		case MENU_GAME:				// ゲーム
-
 			SetFade(MODE_GAME);
-
 			break;
 
 		case MENU_RANKING:			// ランキング
-
 			SetFade(MODE_RANKING);
-
 			break;
 
-		case MENU_STAFF_ROLE:		// スタッフロール	
-
-									/* 書き換え、よろしくお願いいたします */
-
+		case MENU_STAFFROLL:		// スタッフロール	
+			SetFade(MODE_STAFFROLL);
 			break;
 
 		case MENU_EXIT:				// 終了
-
-									/* 書き換え、よろしくお願いいたします */
-
+			ExitExe();
 			break;
 
 		default:

@@ -152,7 +152,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bestscore.cpp" />
-    <ClCompile Include="bg.cpp" />
     <ClCompile Include="Boss.cpp" />
     <ClCompile Include="bullet.cpp" />
     <ClCompile Include="Calculation.cpp" />
@@ -168,18 +167,19 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="menu.cpp" />
+    <ClCompile Include="pause.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="ranking.cpp" />
     <ClCompile Include="result.cpp" />
     <ClCompile Include="score.cpp" />
     <ClCompile Include="scoreup.cpp" />
     <ClCompile Include="sound.cpp" />
+    <ClCompile Include="staffroll.cpp" />
     <ClCompile Include="target.cpp" />
     <ClCompile Include="title.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bestscore.h" />
-    <ClInclude Include="bg.h" />
     <ClInclude Include="Boss.h" />
     <ClInclude Include="bullet.h" />
     <ClInclude Include="Calculation.h" />
@@ -195,12 +195,14 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="menu.h" />
+    <ClInclude Include="pause.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="ranking.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="score.h" />
     <ClInclude Include="scoreup.h" />
     <ClInclude Include="sound.h" />
+    <ClInclude Include="staffroll.h" />
     <ClInclude Include="target.h" />
     <ClInclude Include="title.h" />
   </ItemGroup>

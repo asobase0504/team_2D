@@ -15,6 +15,7 @@
 #include "player.h"
 #include "Boss.h"
 #include "target.h"
+#include "crater.h"
 #include "sound.h"
 #include <stdio.h>
 
@@ -187,7 +188,7 @@ void UpdateEnemy(void)
 		switch (pEnemy->nType)
 		{
 		case ENEMYTYPE_SKY_1:
-			UpdateSky1(pEnemy);
+ 			UpdateSky1(pEnemy);
 			break;
 		case ENEMYTYPE_SKY_2:
 			UpdateSky2(pEnemy);
@@ -265,6 +266,7 @@ void UpdateEnemy(void)
 		if (pEnemy->nLife <= 0)
 		{
 			PlaySound(SOUND_LABEL_SE_ENEMYDEAD);
+			SetCrater(pEnemy->pos);
 			pEnemy->bUse = false;
 		}
 
