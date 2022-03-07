@@ -12,6 +12,7 @@
 #include "collision.h"
 #include "target.h"
 #include "map.h"
+#include "fade.h"
 
 //*******************************************************************************
 // ’è”
@@ -141,16 +142,24 @@ void UpdatePlayer(void)
 				continue;
 			}
 			if (CollisionCircle(s_Player.pos, s_Player.size.x, pBullet->pos, pBullet->size.x))
-			{// ’e‚É“–‚½‚Á‚½
+			{// ’e‚É“–‚½‚Á‚½//‹Ê‚ª“¯Žž‚É“ñ”­‚ ‚½‚Á‚½Žž‚P‚¾‚¯Œ¸‚é‚æ‚¤‚É‚µ‚Äby•l“c—®‰ë
 				Target *pTarget = GetTarget();
+				StartFadeOut();//‚±‚±‚ê‚ªƒtƒF[ƒh
 				s_Player.nLife--;
-				ConteSet(0);
+				DeleteBullet();
+				int Map = GetStage();
+				ConteSet(Map);//MAPÝ’è
 				s_Player.state = PLAYER_STATE_DAMAGE;
 				s_Player.nCntState = RESPAWN_PLAYER;
 				s_Player.pos = SPAWN_POS;
 				pTarget += s_Player.nIdxTarge;
 				pTarget->bUse = false;
 				pBullet->bUse = false;
+				HitLife();
+				if (s_Player.nLife <= 0)
+				{	// ƒŠƒUƒ‹ƒg‚ÉˆÚs
+					ChangeMode(MODE_RESULT);
+				}
 			}
 		}
 	}

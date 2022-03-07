@@ -17,6 +17,7 @@
 #include "target.h"
 #include "crater.h"
 #include "sound.h"
+#include "life.h"
 #include <stdio.h>
 
 //----------------------------
@@ -211,7 +212,7 @@ void UpdateEnemy(void)
 			case ENEMYTYPE_GROUND_1:	// 直進敵
 				pEnemy->nCntBullet++;
 
-				if (pEnemy->nCntBullet >= 30)
+				if (pEnemy->nCntBullet >= 60)
 				{
 					// エネミーからプレイヤーまでの距離の算出
 					D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
@@ -1053,9 +1054,7 @@ void Updateflag(Enemy* pEnemy)	//
 	if ((CollisionCircle(pEnemy->pos, COLLISION, pPlayer->pos, pPlayer->size.x)) && pEnemy->FlagOn)
 	{
 		pEnemy->bUse = false;
-		//ここがライフ加算
-		//頼んだ
-		//がんばれかいと
+		SetLife();
 	}
 
 

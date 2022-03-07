@@ -26,7 +26,7 @@ void InitLife(void)
 {
 	LPDIRECT3DDEVICE9 pDevice;						//デバイスのポインタ
 
-	//デヴァイスの取得
+													//デヴァイスの取得
 	pDevice = GetDevice();
 
 	//頂点バッファの生成
@@ -48,7 +48,7 @@ void InitLife(void)
 
 	VERTEX_2D*pVtx;						//頂点情報へのポインタ
 
-	//頂点バッファをロックし、頂点情報へのポインタを取得
+										//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	for (int nCnt = 0; nCnt < MAX_LIFE; nCnt++)
@@ -80,7 +80,7 @@ void InitLife(void)
 		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 		pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
-		pVtx += 4;				//データが4個分進む
+		pVtx += 4;				//デデデータが4個分進む
 	}
 	//頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
@@ -122,7 +122,7 @@ void DrawLife(void)
 {
 	LPDIRECT3DDEVICE9 pDevice;						//デバイスのポインタ
 
-	//デヴァイスの取得
+													//デヴァイスの取得
 	pDevice = GetDevice();
 
 	//頂点バッファをデータストリームに設定
@@ -139,7 +139,7 @@ void DrawLife(void)
 		if (bUseLife[i])
 		{//使用されている時
 
-			//ポリゴンの描画
+		 //ポリゴンの描画
 			pDevice->DrawPrimitive
 			(D3DPT_TRIANGLESTRIP,
 				i * 4,
@@ -153,9 +153,13 @@ void DrawLife(void)
 //-----------------------------------
 void SetLife(void)
 {
-	bUseLife[nCountNumber] = true;		//使用する
+	if (nCountNumber < MAX_LIFE)
+	{//MAXLIFE以上入るのを防ぐ
 
-	nCountNumber++;
+		bUseLife[nCountNumber] = true;		//使用する
+
+		nCountNumber++;						//ライフのカウンターを増やす
+	}
 }
 
 //-----------------------------------
@@ -163,7 +167,12 @@ void SetLife(void)
 //-----------------------------------
 void HitLife(void)
 {
-	nCountNumber--;
+	if (nCountNumber > 0)
+	{//0以下が入るのを防ぐ
 
-	bUseLife[nCountNumber] = false;
+		nCountNumber--;						//ライフのカウンターを減らす
+
+		bUseLife[nCountNumber] = false;		//使用しない状態にする
+	}
+
 }

@@ -179,10 +179,7 @@ void UpdateGame(void)
 	UpdateBestScore();	// ベストスコア
 	UpdateScoreUp();	// スコアアップ
 	//UpdateFlag();		// フラグ
-	if (GetPlayer()->nLife <= 0)
-	{	// リザルトに移行
-		ChangeMode(MODE_RESULT);
-	}
+
 }
 
 //=========================================

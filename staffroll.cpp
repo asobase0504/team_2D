@@ -108,7 +108,7 @@ void InitStaffroll(void)
 	MODE_ROLL = false;
 	TYFP = false;
 
-	VERTEX_2D*pVtx;		//頂点情報へのポインタ
+	VERTEX_2D*pVtx;		//頂点情報へのポインタこれ使ってる？？使ってないなら消すよby浜田
 
 	SetStaffroll(StaffPos[0], StaffWidth[0], StaffHeight[0], 0);
 }
