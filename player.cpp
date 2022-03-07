@@ -16,16 +16,21 @@
 //*******************************************************************************
 // 定数
 //*******************************************************************************
-#define MAX_SPEED				(10.0f)			// 移動速度の最大値
-#define MIN_SPEED				(0.0f)			// 移動速度の最小値
-#define MOVE_SPEED				(50.0f)			// 設定時の移動量
-#define MOVE_FRICTION			(0.5f)			// 動摩擦係数
-#define MAX_CNT_SKY_SHOT		(0.25f * 60)	// 空中弾発射間隔(秒数 * フレーム数)
-#define MAX_CNT_GRAND_SHOT		(0.7f * 60)		// 地上弾発射間隔(秒数 * フレーム数)
-#define TARGET_DISTANCE			(300.0f)		// ターゲットの間隔
-#define START_POS				(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.9f, 0.0f))	// スタート時の位置
+#define MAX_SPEED				(10.0f)																		// 移動速度の最大値
+#define MIN_SPEED				(0.0f)																		// 移動速度の最小値
+#define MOVE_SPEED				(50.0f)																		// 設定時の移動量
+#define MOVE_FRICTION			(0.5f)																		// 動摩擦係数
+#define MAX_CNT_SKY_SHOT		(0.25f * 60)																// 空中弾発射間隔(秒数 * フレーム数)
+#define MAX_CNT_GRAND_SHOT		(0.7f * 60)																	// 地上弾発射間隔(秒数 * フレーム数)
+#define TARGET_DISTANCE			(300.0f)																	// ターゲットの間隔
+#define PLAYER_RADIUS			(50.0f)																		// 半径
+#define	START_LIFE				(5)																			// 最初の体力
+#define RESPAWN_PLAYER			(60)																		// リスポーン待機時間
+#define START_POS_Y				(SCREEN_HEIGHT * 0.8f)														// スタート時の位置(Y)
+#define SPAWN_POS				(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT + PLAYER_RADIUS, 0.0f))		// スポーン時の位置
 
-//*******************************************************************************
+
+//******************************************************************************
 // グローバル変数
 //*******************************************************************************
 static LPDIRECT3DTEXTURE9 s_pTexture = NULL;				// テクスチャへのポインタ
@@ -75,7 +80,7 @@ void InitPlayer(void)
 	s_pVtxBuff->Unlock();
 
 	// プレイヤーのセット
-	SetPlayer(START_POS, D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	SetPlayer(SPAWN_POS, D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 }
 
 //---------------------------------------------------------------------------
@@ -103,19 +108,93 @@ void UninitPlayer(void)
 //---------------------------------------------------------------------------
 void UpdatePlayer(void)
 {
-	// 移動ベクトルの更新
-	s_Player.move = MovePlayer();
+	if (s_Player.state == PLAYER_STATE_NORMAL)
+	{// 通常状態の時
+		// 移動ベクトルの更新
+		s_Player.move = MovePlayer();
 
-	// 位置の更新
-	s_Player.pos += s_Player.move;
+		// 位置の更新
+		s_Player.pos += s_Player.move;
 
-	// 弾の発射
-	ShotPlayer();
+		// 弾の発射
+		ShotPlayer();
+
+		// プレイヤーの移動制限
+		LockMovePlayer(&s_Player.pos, s_Player.size);
+	}	
 
 	if (s_Player.nIdxTarge != -1)
 	{
 		// ターゲットの移動
 		SetPositionTarget(s_Player.nIdxTarge, D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y - TARGET_DISTANCE, 0.0f));
+	}
+
+	if (s_Player.state == PLAYER_STATE_NORMAL)
+	{// 通常状態の時
+		// 弾が当たった時
+		Bullet* pBullet = GetBullet();
+		for (int i = 0; i < MAX_BULLET; i++, pBullet++)
+		{
+			if (!pBullet->bUse
+				|| pBullet->BulletType != BULLETTYPE_ENEMY)
+			{// 弾が使用されていないか、敵の弾以外の時
+				continue;
+			}
+			if (CollisionCircle(s_Player.pos, s_Player.size.x, pBullet->pos, pBullet->size.x))
+			{// 弾に当たった
+				Target *pTarget = GetTarget();
+				s_Player.nLife--;
+				ConteSet();
+				s_Player.state = PLAYER_STATE_DAMAGE;
+				s_Player.nCntState = RESPAWN_PLAYER;
+				s_Player.pos = SPAWN_POS;
+				pTarget += s_Player.nIdxTarge;
+				pTarget->bUse = false;
+				pBullet->bUse = false;
+			}
+		}
+	}
+
+	// プレイヤーの状態
+	switch (s_Player.state)
+	{
+	case PLAYER_STATE_NORMAL:
+		s_Player.col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		break;
+
+	case PLAYER_STATE_DAMAGE:
+		s_Player.col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+		s_Player.nCntState--;
+
+		if (s_Player.nCntState <= 0)
+		{// カウントが0以下の時
+			s_Player.col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			s_Player.state = PLAYER_STATE_START;
+			s_Player.nCntState = 0;
+		}
+		break;
+
+	case PLAYER_STATE_START:
+		// 位置の更新
+		if (s_Player.nLife == START_LIFE)
+		{
+			s_Player.pos.y += -1.0f;
+		}
+		else
+		{
+			s_Player.pos.y += -5.0f;
+		}
+
+		if (s_Player.pos.y <= START_POS_Y)
+		{// スタート位置に至った時
+			s_Player.pos.y = START_POS_Y;
+			s_Player.state = PLAYER_STATE_NORMAL;
+
+			// ターゲット
+			s_Player.nIdxTarge = SetTarget(D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y - TARGET_DISTANCE, 0.0f), s_Player.rot);
+		}
+
+		break;
 	}
 	
 	// 頂点情報へのポインタを生成						
@@ -129,23 +208,6 @@ void UpdatePlayer(void)
 
 	// 頂点バッファをアンロック
 	s_pVtxBuff->Unlock();
-
-	// 弾が当たった時
-	Bullet* pBullet = GetBullet();
-	for (int i = 0; i < MAX_BULLET; i++, pBullet++)
-	{
-		if (!pBullet->bUse || pBullet->BulletType != BULLETTYPE_ENEMY)
-		{
-			continue;
-		}
-		if (CollisionCircle(s_Player.pos, s_Player.size.x, pBullet->pos, pBullet->size.x))
-		{
-			s_Player.pos = START_POS;
-			s_Player.nLife--;
-			ConteSet();	
-			pBullet->bUse = false;
-		}
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -178,7 +240,7 @@ void DrawPlayer(void)
 //---------------------------------------------------------------------------
 // プレイヤー設定
 //---------------------------------------------------------------------------
-void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
+void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 {
 	//頂点情報へのポインタを生成						
 	VERTEX_2D *pVtx;
@@ -189,19 +251,21 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 	if (!s_Player.bUse)
 	{//使用されてない場合
 		// プレイヤー情報の設定
-		s_Player.pos = pos;									// 中心点
-		s_Player.rot = rot;									// 向き
-		s_Player.size = D3DXVECTOR3(50.0f,50.0f,0.0f);		// サイズ
-		s_Player.col = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);		// カラー
-		s_Player.BulletType = (BulletType)(0);				// 弾の種類
-		s_Player.nLife = 5;									// 体力
-		s_Player.nCntShot = 1;								// 弾発射までのカウント
-		s_Player.fSpeed = MOVE_SPEED;						// 速度
-		s_Player.nIdxTarge = -1;							// ターゲット
-		s_Player.nCntShotUse = 0;							// 弾の発射ができるまでのカウント
-		s_Player.bTriggerShot = false;						// トリガー弾発射の可不可
-		s_Player.bPressShot = false;						// プレス弾発射の可不可
-		s_Player.bUse = true;								// 使用してる
+		s_Player.pos = pos;													// 中心点
+		s_Player.rot = rot;													// 向き
+		s_Player.size = D3DXVECTOR3(PLAYER_RADIUS, PLAYER_RADIUS,0.0f);		// サイズ
+		s_Player.col = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);						// カラー
+		s_Player.BulletType = (BulletType)(0);								// 弾の種類
+		s_Player.state = PLAYER_STATE_START;								// 通常状態
+		s_Player.nLife = START_LIFE;										// 体力
+		s_Player.nCntShot = 1;												// 弾発射までのカウント
+		s_Player.fSpeed = MOVE_SPEED;										// 速度
+		s_Player.nIdxTarge = -1;											// ターゲット
+		s_Player.nCntShotUse = 0;											// 弾の発射ができるまでのカウント
+		s_Player.nCntState = 0;												// 状態変更までのカウント
+		s_Player.bTriggerShot = false;										// トリガー弾発射の可不可
+		s_Player.bPressShot = false;										// プレス弾発射の可不可
+		s_Player.bUse = true;												// 使用してる
 
 		//対角線の長さを算出する
 		s_Player.fLength = sqrtf((s_Player.size.x * s_Player.size.x) + (s_Player.size.y * s_Player.size.y))* 0.5f;
@@ -211,9 +275,6 @@ void SetPlayer(D3DXVECTOR3	pos, D3DXVECTOR3 rot)
 
 		//頂点座標の設定
 		SetPlayerVtx(pVtx, s_Player.pos, s_Player.rot, s_Player.col, s_Player.fLength, s_Player.fAngele);
-
-		// ターゲット
-		s_Player.nIdxTarge = SetTarget(D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y - TARGET_DISTANCE,0.0f), s_Player.rot);
 
 		for (int i = 0; i < s_Player.nLife; i++)
 		{
@@ -362,10 +423,11 @@ void ShotPlayer()
 		&& !s_Player.bTriggerShot
 		&& !s_Player.bPressShot)
 	{
-		// トリガー弾を使用している
+		// トリガー弾とプレス弾を使用している
 		s_Player.bTriggerShot = true;
 		s_Player.bPressShot = true;
 
+		// カウントを最大値にする
 		s_Player.nCntShot = nCntMaxShot;
 	}
 
@@ -376,7 +438,7 @@ void ShotPlayer()
 	if (GetKeyboardRelease(DIK_SPACE)
 		&& s_Player.bPressShot
 		&& s_Player.bTriggerShot)
-	{
+	{// キーが離されたら
 		s_Player.nCntShotUse = s_Player.nCntShot;
 		s_Player.nCntShot = 0;
 		s_Player.bPressShot = false;
@@ -413,6 +475,29 @@ void ShotPlayer()
 		}
 		
 		s_Player.nCntShot = 0;
+	}
+}
+
+//---------------------------------------------------------------------------
+// プレイヤーの移動制限
+//---------------------------------------------------------------------------
+void LockMovePlayer(D3DXVECTOR3 *pos, D3DXVECTOR3 size)
+{
+	if (0.0f + (size.x / 2.0f) >= pos->x)
+	{
+		pos->x = 0.0f + (size.x / 2.0f);
+	}
+	if (0.0f + (size.y / 2.0f) >= pos->y)
+	{
+		pos->y = 0.0f + (size.y / 2.0f);
+	}
+	if (SCREEN_WIDTH - (size.x / 2.0f) <= pos->x)
+	{
+		pos->x = SCREEN_WIDTH - (size.x / 2.0f);
+	}
+	if (SCREEN_HEIGHT - (size.y / 2.0f) <= pos->y)
+	{
+		pos->y = SCREEN_HEIGHT - (size.y / 2.0f);
 	}
 }
 

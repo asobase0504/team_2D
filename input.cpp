@@ -198,8 +198,9 @@ void UpdateKeyboard(void)
 	{
 		for (nCntKey = 0; nCntKey < NUM_KEY_MAX; nCntKey++)
 		{
-			g_aKeyStateTrigger[nCntKey] = (g_aKeyState[nCntKey] ^ aKeyState[nCntKey]) & aKeyState[nCntKey]; //キーボードのトリガー情報を保存
-			g_aKeyState[nCntKey] = aKeyState[nCntKey];		//キーボードのプレス情報を保存
+			g_aKeyStateTrigger[nCntKey] = (g_aKeyState[nCntKey] ^ aKeyState[nCntKey]) & aKeyState[nCntKey];			//キーボードのトリガー情報を保存
+			g_aKeyStateRelease[nCntKey] = (g_aKeyState[nCntKey] ^ aKeyState[nCntKey]) & g_aKeyState[nCntKey];		//キーボードのリリース情報を保存
+			g_aKeyState[nCntKey] = aKeyState[nCntKey];																//キーボードのプレス情報を保存
 		}
 	}
 	else
@@ -629,7 +630,7 @@ bool GetJoypadStickPress(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key, int nPla
 	return false;
 }
 
-//ジョイパッドスティックトリガー８方向
+//ジョイパッドスティックトリガ８方向
 bool GetJoypadStickTrigger(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key, int nPlayer)
 {
 	if (GetJoypadStickPress(RightLeft, Key, nPlayer)
