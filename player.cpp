@@ -144,7 +144,7 @@ void UpdatePlayer(void)
 			{// ’e‚É“–‚½‚Á‚½
 				Target *pTarget = GetTarget();
 				s_Player.nLife--;
-				ConteSet();
+				ConteSet(0);
 				s_Player.state = PLAYER_STATE_DAMAGE;
 				s_Player.nCntState = RESPAWN_PLAYER;
 				s_Player.pos = SPAWN_POS;
@@ -278,7 +278,7 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 
 		for (int i = 0; i < s_Player.nLife; i++)
 		{
-			SetLife(D3DXVECTOR3(25.0f + 42.5f * i, SCREEN_HEIGHT - 25.0f, 0.0f));
+			SetLife();
 		}
 	}
 

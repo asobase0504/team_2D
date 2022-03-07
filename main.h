@@ -42,7 +42,8 @@ typedef enum
 	MODE_RESULT,	// リザルト画面
 	MODE_RANKING,	// ランキング画面
 	MODE_STAFFROLL, // スタッフロール
-	MODE_MAX
+	MODE_MAX,
+	MODE_NONE
 }MODE;
 
 //------------------------------------
@@ -60,8 +61,9 @@ typedef struct
 // プロトタイプ宣言
 //------------------------------------
 LPDIRECT3DDEVICE9 GetDevice(void);
-void SetMode(MODE mode);
+void SetMode(void);
 MODE GetMode(void);
-void ExitExe(void);
+void ExitExe(void); 
+void ChangeMode(MODE mode);
 
 #endif	// !_MAIN_H_

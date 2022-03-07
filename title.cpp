@@ -468,15 +468,15 @@ static void Input(void)
 		switch (s_nSelectMenu)
 		{
 		case MENU_GAME:				// ゲーム
-			SetFade(MODE_GAME);
+			ChangeMode(MODE_GAME);
 			break;
 
 		case MENU_RANKING:			// ランキング
-			SetFade(MODE_RANKING);
+			ChangeMode(MODE_RANKING);
 			break;
 
 		case MENU_STAFFROLL:		// スタッフロール	
-			SetFade(MODE_STAFFROLL);
+			ChangeMode(MODE_STAFFROLL);
 			break;
 
 		case MENU_EXIT:				// 終了

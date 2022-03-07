@@ -13,7 +13,7 @@
 //マクロ定義
 #define NUM_STAFFROLL	(100)					//テクスチャの最大数
 #define MAP_SPEED	(0.0005f)					//画面スクロールの速さ
-#define MAX_MEMBER	(2)							//エンドロールにのせる最大数
+#define MAX_MEMBER	(14)						//エンドロールにのせる最大数
 
 //スタティック変数
 static LPDIRECT3DTEXTURE9			s_pTexture[NUM_STAFFROLL] = {};		//テクスチャへのポインタ
@@ -25,6 +25,7 @@ static STAFFROLL s_Staffroll[NUM_STAFFROLL];	//スタッフロールの情報の取得
 static bool MODE_ROLL;							//エンドロールの経過状況
 static int RollNumber;							//現在のエンドロールの番号
 static int FinishRoll;							//エンドロールを終了するまでの時間
+static bool TYFP;								//ThankyouforPlayingを停止する処理
 
 //============================
 // スタッフロールの初期化処理
@@ -33,18 +34,43 @@ void InitStaffroll(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();	//デバイスの取得
 
-//------------------------------
-//	テクスチャの読み込み
-//------------------------------
+	//------------------------------
+	//	テクスチャの読み込み
+	//------------------------------
 	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\jobilogo.png", &s_pTexture[0]);
 
 	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\buriya.png", &s_pTexture[1]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\hamada.png", &s_pTexture[2]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\kitune.png", &s_pTexture[2]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\press.png", &s_pTexture[3]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\koduna.png", &s_pTexture[3]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\press.png", &s_pTexture[4]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\YudaKaitoEnd.png", &s_pTexture[4]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\keisuke.png", &s_pTexture[5]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\generalsupport.png", &s_pTexture[6]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\mizuki002.png", &s_pTexture[7]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\mizuki001.png", &s_pTexture[8]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\mizuki000.png", &s_pTexture[9]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\Sato Teruto.png", &s_pTexture[10]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\StaffRoll_MyName.png", &s_pTexture[11]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\buriNameEnemy.png", &s_pTexture[12]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\buriNameLevel.png", &s_pTexture[13]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\ThankyouforPlaying.png", &s_pTexture[14]);
+
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\.png", &s_pTexture[15]);
+
+	//これを最後にしてください
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\ThankyouforPlaying.png", &s_pTexture[16]);
 
 	//頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * NUM_STAFFROLL,	//確保するバッファのサイズ
@@ -66,8 +92,8 @@ void InitStaffroll(void)
 	StaffWidth[1] = 450.0f;
 
 	//高さの設定
-	StaffHeight[0]= SCREEN_HEIGHT / 2;
-	StaffHeight[1]= 100.0f;
+	StaffHeight[0] = SCREEN_HEIGHT / 2;
+	StaffHeight[1] = 100.0f;
 
 	for (int nCnt = 0; nCnt < NUM_STAFFROLL; nCnt++)
 	{
@@ -80,6 +106,7 @@ void InitStaffroll(void)
 	FinishRoll = 0;
 	RollNumber = 0;
 	MODE_ROLL = false;
+	TYFP = false;
 
 	VERTEX_2D*pVtx;		//頂点情報へのポインタ
 
@@ -115,8 +142,8 @@ void UninitStaffroll(void)
 void UpdateStaffroll(void)
 {
 	VERTEX_2D*pVtx;		//頂点情報へのポインタ
-	
-	//頂点バッファをロックし、頂点情報へのポインタを取得
+
+						//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	STAFFROLL *staff = s_Staffroll;
@@ -125,75 +152,89 @@ void UpdateStaffroll(void)
 	{
 		if (staff->bUse)
 		{
-			staff->nCntStaff++;
+			if (TYFP == false)
+			{
+				staff->nCntStaff++;
 
-			if (MODE_ROLL)
-			{//頂点座標の設定
+				if (MODE_ROLL)
+				{//頂点座標の設定
 
-				staff->pos.y -= 1.0f;
+					staff->pos.y -= 2.0f;
 
-				pVtx[0].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth + staff->nCntStaff / 2, staff->pos.y - staff->fHeight, 0.0f);
-				pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth - staff->nCntStaff / 2, staff->pos.y - staff->fHeight, 0.0f);
-				pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth + staff->nCntStaff / 2, staff->pos.y + staff->fHeight - staff->nCntStaff / 3, 0.0f);
-				pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth - staff->nCntStaff / 2, staff->pos.y + staff->fHeight - staff->nCntStaff / 3, 0.0f);
+					//頂点座標の設定
+					pVtx[0].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
+					pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
+					pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
+					pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
 
-				//rhwの設定
-				pVtx[0].rhw = 1.0f;
-				pVtx[1].rhw = 1.0f;
-				pVtx[2].rhw = 1.0f;
-				pVtx[3].rhw = 1.0f;
+					//rhwの設定
+					pVtx[0].rhw = 1.0f;
+					pVtx[1].rhw = 1.0f;
+					pVtx[2].rhw = 1.0f;
+					pVtx[3].rhw = 1.0f;
 
-				//頂点カラーの設定
-				pVtx[0].col = staff->col;
-				pVtx[1].col = staff->col;
-				pVtx[2].col = staff->col;
-				pVtx[3].col = staff->col;
+					//頂点カラーの設定
+					pVtx[0].col = staff->col;
+					pVtx[1].col = staff->col;
+					pVtx[2].col = staff->col;
+					pVtx[3].col = staff->col;
 
-				if (RollNumber < MAX_MEMBER - 1)
-				{
-					if (staff->nCntStaff == 240)
+					if (RollNumber < MAX_MEMBER - 1)
 					{
-						RollNumber++;
+						if (staff->nCntStaff == 240)
+						{
+							RollNumber++;
 
-						SetStaffroll(StaffPos[1], StaffWidth[1], StaffHeight[1], 1 + RollNumber);
+							SetStaffroll(StaffPos[1], StaffWidth[1], StaffHeight[1], 1 + RollNumber);
+						}
+					}
+					if (RollNumber == MAX_MEMBER - 1)
+					{
+						FinishRoll++;
+
+						if (FinishRoll == 250 * MAX_MEMBER)
+						{
+							TYFP = true;
+							FinishRoll = 0;
+						}
 					}
 				}
-				if(RollNumber == MAX_MEMBER - 1)
+				else if (!MODE_ROLL)
 				{
-					FinishRoll++;
+					//頂点座標の設定
+					pVtx[0].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth + staff->nCntStaff * 3, staff->pos.y - staff->fHeight + staff->nCntStaff * 2, 0.0f);
+					pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth - staff->nCntStaff * 3, staff->pos.y - staff->fHeight + staff->nCntStaff * 2, 0.0f);
+					pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth + staff->nCntStaff * 3, staff->pos.y + staff->fHeight - staff->nCntStaff * 2, 0.0f);
+					pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth - staff->nCntStaff * 3, staff->pos.y + staff->fHeight - staff->nCntStaff * 2, 0.0f);
 
-					if (FinishRoll == 600 * MAX_MEMBER)
+					//rhwの設定
+					pVtx[0].rhw = 1.0f;
+					pVtx[1].rhw = 1.0f;
+					pVtx[2].rhw = 1.0f;
+					pVtx[3].rhw = 1.0f;
+
+					//頂点カラーの設定
+					pVtx[0].col = staff->col;
+					pVtx[1].col = staff->col;
+					pVtx[2].col = staff->col;
+					pVtx[3].col = staff->col;
+
+					if (staff->nCntStaff == 180)
 					{
-						SetFade(MODE_TITLE);
+						staff->nCntStaff = 0;
+						staff->bUse = false;
+						MODE_ROLL = true;
+						SetStaffroll(StaffPos[1], StaffWidth[1], StaffHeight[1], 1);
 					}
 				}
 			}
-			else if (!MODE_ROLL)
+			else
 			{
-				//頂点座標の設定
-				pVtx[0].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth + staff->nCntStaff / 2, staff->pos.y - staff->fHeight + staff->nCntStaff / 3, 0.0f);
-				pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth - staff->nCntStaff / 2, staff->pos.y - staff->fHeight + staff->nCntStaff / 3, 0.0f);
-				pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth + staff->nCntStaff / 2, staff->pos.y + staff->fHeight - staff->nCntStaff / 3, 0.0f);
-				pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth - staff->nCntStaff / 2, staff->pos.y + staff->fHeight - staff->nCntStaff / 3, 0.0f);
+				FinishRoll++;
 
-				//rhwの設定
-				pVtx[0].rhw = 1.0f;
-				pVtx[1].rhw = 1.0f;
-				pVtx[2].rhw = 1.0f;
-				pVtx[3].rhw = 1.0f;
-
-				//頂点カラーの設定
-				pVtx[0].col = staff->col;
-				pVtx[1].col = staff->col;
-				pVtx[2].col = staff->col;
-				pVtx[3].col = staff->col;
-
-				if (staff->pos.x < staff->nCntStaff / 2)
+				if (FinishRoll == 180 * MAX_MEMBER)
 				{
-					staff->nCntStaff = 0;
-					staff->bUse = false;
-					MODE_ROLL = true;
-					SetStaffroll(StaffPos[1], StaffWidth[1], StaffHeight[1], 1);
+					ChangeMode(MODE_TITLE);
 				}
 			}
 		}
@@ -209,7 +250,7 @@ void UpdateStaffroll(void)
 	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_A, 0))
 	{
 
-		SetFade(MODE_TITLE);
+		ChangeMode(MODE_TITLE);
 	}
 }
 
@@ -220,7 +261,7 @@ void DrawStaffroll(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();	//デバイスの取得
 
-	//頂点バッファをデータストリームに設定
+												//頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
 
 	//頂点フォーマットの設定
@@ -246,11 +287,11 @@ void DrawStaffroll(void)
 //=========================================
 //スタッフロールを設置する処理
 //=========================================
-void SetStaffroll(D3DXVECTOR3 pos, float fWidth , float fHeight, int nType)
+void SetStaffroll(D3DXVECTOR3 pos, float fWidth, float fHeight, int nType)
 {
 	VERTEX_2D*pVtx;		//頂点情報へのポインタ
 
-	//頂点バッファをロックし、頂点情報へのポインタを取得
+						//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	for (int nCnt = 0; nCnt < NUM_STAFFROLL; nCnt++)
@@ -271,7 +312,7 @@ void SetStaffroll(D3DXVECTOR3 pos, float fWidth , float fHeight, int nType)
 			pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
 			pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
 			pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
-			
+
 			//rhwの設定
 			pVtx[0].rhw = 1.0f;
 			pVtx[1].rhw = 1.0f;
