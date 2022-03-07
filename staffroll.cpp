@@ -164,7 +164,7 @@ void UpdateStaffroll(void)
 
 					if (FinishRoll == 600 * MAX_MEMBER)
 					{
-						SetFade(MODE_TITLE);
+						ChangeMode(MODE_TITLE);
 					}
 				}
 			}
@@ -209,7 +209,7 @@ void UpdateStaffroll(void)
 	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_A, 0))
 	{
 
-		SetFade(MODE_TITLE);
+		ChangeMode(MODE_TITLE);
 	}
 }
 

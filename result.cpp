@@ -230,7 +230,7 @@ void UpdateResult(void)
 	//----------------
 	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_A, 0))
 	{
-		SetFade(MODE_RANKING);
+		ChangeMode(MODE_RANKING);
 	}
 
 	//頂点バッファをアンロックする

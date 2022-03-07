@@ -164,7 +164,7 @@ void UpdateGame(void)
 
 	if (GetKeyboardTrigger(DIK_T))	// リザルトに移行デバッグ
 	{
-		SetFade(MODE_RESULT);
+		ChangeMode(MODE_RESULT);
 	}
 
 	UpdateMap();		// マップデータ
@@ -182,7 +182,7 @@ void UpdateGame(void)
 	//UpdateFlag();		// フラグ
 	if (GetPlayer()->nLife <= 0)
 	{	// リザルトに移行
-		SetFade(MODE_RESULT);
+		ChangeMode(MODE_RESULT);
 	}
 }
 
