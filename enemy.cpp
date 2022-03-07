@@ -15,6 +15,7 @@
 #include "player.h"
 #include "Boss.h"
 #include "target.h"
+#include "crater.h"
 #include "sound.h"
 #include <stdio.h>
 
@@ -64,6 +65,7 @@ static void UpdateZakato4(Enemy* pEnemy);	// ÉUÉJÅ[ÉgÇÃèàóù4(í«îˆÉiÉVÅAéûä‘åoâﬂÇ
 static void ZakatoFinish(Enemy* pEnemy);	// ÉUÉJÅ[ÉgÇ™èIóπÇ∑ÇÈç€ÇÃèàóù
 static void ReflectMove(Enemy* pEnemy);
 static void Updateflag(Enemy* pEnemy);		// ÉtÉâÉbÉNÇÃèàóù
+
 //**************************************************
 // ÉOÉçÅ[ÉoÉãä÷êî
 //**************************************************
@@ -87,7 +89,8 @@ void InitEnemy(void)
 
 	VERTEX_2D *pVtx;			// í∏ì_èÓïÒÇ÷ÇÃÉ|ÉCÉìÉ^
 	count = 0;
-								// í∏ì_ÉoÉbÉtÉ@ÇÉçÉbÉNÇµÅAí∏ì_èÓïÒÇ÷ÇÃÉ|ÉCÉìÉ^ÇéÊìæ
+
+	// í∏ì_ÉoÉbÉtÉ@ÇÉçÉbÉNÇµÅAí∏ì_èÓïÒÇ÷ÇÃÉ|ÉCÉìÉ^ÇéÊìæ
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
@@ -126,9 +129,9 @@ void InitEnemy(void)
 	{
 		s_aTypeEnemy[nCnt].nLife = 1;
 	}
-	
-		//ÉeÉNÉXÉ`ÉÉÉfÅ[É^ì«Ç›çûÇ›
-		LoadSetFile("data\\txt\\enemy.txt");
+
+	//ÉeÉNÉXÉ`ÉÉÉfÅ[É^ì«Ç›çûÇ›
+	LoadSetFile("data\\txt\\enemy.txt");
 }
 
 //--------------------------------------------------
@@ -345,14 +348,13 @@ void UpdateSky2(Enemy* pEnemy)
 	// í«îˆÇÃèàóù
 	TrackingMove(pEnemy);
 
-	if (pEnemy->pos.x >= pPlayer->pos.x - pPlayer->size.x
-		&& pEnemy->pos.x <= pPlayer->pos.x + pPlayer->size.x)
-	{
+	if (CollisionCircle(pEnemy->pos, JUDGEMENT, pPlayer->pos, JUDGEMENT))
+	{// ìGÇ™ì¶Ç∞ÇÈèàóù
 		pEnemy->bTracking = false;
 		pEnemy->move.y = 0;		// ÉRÉÅÉìÉgÉAÉEÉgÇè¡Ç∑Ç∆íºäpÇ…ã»Ç™ÇÈ
 		pEnemy->move.x = 3;
 	}
-	
+
 	// íeÇèoÇ∑èàóù
 	if (pEnemy->pos.y > 0.0f)
 	{	// âÊñ ì‡Ç…é˚Ç‹Ç¡ÇƒÇ¢ÇÈèÍçá
@@ -492,7 +494,7 @@ void UpdateZakato1(Enemy* pEnemy)
 
 	fRotDiff = fRotDest - fRotMove; 	//ñ⁄ìIÇÃà⁄ìÆï˚å¸Ç‹Ç≈ÇÃç∑ï™
 
-										//äpìxÇÃílÇèCê≥Ç∑ÇÈ
+	//äpìxÇÃílÇèCê≥Ç∑ÇÈ
 	if (fRotDiff > D3DX_PI)
 	{//ñ⁄ìIÇÃà⁄ìÆï˚å¸Ç÷ÇÃç∑ï™Ç™3.14ÇÊÇËè„ÇÃèÍçá
 		fRotDiff -= D3DX_PI * 2;
@@ -505,7 +507,7 @@ void UpdateZakato1(Enemy* pEnemy)
 
 	fRotMove += fRotDiff * ABILTIY;				//à⁄ìÆï˚å¸ÇÃï‚ê≥
 
-												//move èCê≥
+	//move èCê≥
 	if (fRotMove > D3DX_PI)
 	{//åªç›ÇÃà⁄ìÆï˚å¸ÇÃäpìxÇ™3.14Çí¥Ç¶ÇΩèÍçá
 		fRotMove -= D3DX_PI * 2;
@@ -624,7 +626,7 @@ void ZakatoFinish(Enemy* pEnemy)
 	Direction.x = 0.0f;		// égÇÌÇ»Ç¢èÓïÒÇ»ÇÃÇ≈èâä˙âª
 	Direction.y = 0.0f;		// égÇÌÇ»Ç¢èÓïÒÇ»ÇÃÇ≈èâä˙âª
 
-							//íeÇÃî≠éÀ
+	//íeÇÃî≠éÀ
 	SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
 	pEnemy->nCntBullet = 0;
 	pEnemy->bTracking = false;		//í«îˆ
@@ -640,7 +642,7 @@ void DrawEnemy(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();		// ÉfÉoÉCÉXÇÃÉ|ÉCÉìÉ^
 
-													// í∏ì_ÉoÉbÉtÉ@ÇÉfÅ[É^ÉXÉgÉäÅ[ÉÄÇ…ê›íË
+	// í∏ì_ÉoÉbÉtÉ@ÇÉfÅ[É^ÉXÉgÉäÅ[ÉÄÇ…ê›íË
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
 
 	// í∏ì_ÉtÉHÅ[É}ÉbÉgÇÃê›íË
@@ -657,7 +659,7 @@ void DrawEnemy(void)
 		}
 
 		// É|ÉäÉSÉìÇÃï`âÊ
-		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntEnemy * 4, 2);
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP,nCntEnemy * 4,2);
 	}
 }
 
@@ -670,7 +672,7 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 	Enemy* pEnemy = s_aEnemy;
 	VERTEX_2D *pVtx;			// í∏ì_èÓïÒÇ÷ÇÃÉ|ÉCÉìÉ^
 
-								// í∏ì_ÉoÉbÉtÉ@ÇÉçÉbÉNÇµÅAí∏ì_èÓïÒÇ÷ÇÃÉ|ÉCÉìÉ^ÇéÊìæ
+	// í∏ì_ÉoÉbÉtÉ@ÇÉçÉbÉNÇµÅAí∏ì_èÓïÒÇ÷ÇÃÉ|ÉCÉìÉ^ÇéÊìæ
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++, pVtx += 4)
@@ -773,7 +775,6 @@ Enemy *GetEnemy(void)
 //ÉtÉ@ÉCÉãÇÃì¸óÕÉ}ÉbÉvèÓïÒ
 // AuthorÅFHamada Ryuga
 //----------------------------
-
 void LoadSetFile(char *Filename)
 {
 	char	s_aString[256];//
@@ -928,7 +929,7 @@ void LoadSetFile(char *Filename)
 				nCntEnemy = 0;
 				while (1)
 				{//188 2900
-				 // ï∂éöóÒÇÃèâä˙âªÇ∆ì«Ç›çûÇ›
+					// ï∂éöóÒÇÃèâä˙âªÇ∆ì«Ç›çûÇ›
 					s_aString[0] = {};
 					fscanf(pFile, "%s", &s_aString[0]);
 
@@ -962,7 +963,7 @@ void LoadSetFile(char *Filename)
 					}
 					if (strcmp(&s_aString[0], "END_SET") == 0)
 					{//ÉZÉbÉg
-						SetEnemy(D3DXVECTOR3(s_modelpos), fSize, (ENEMYTYPE)nType);
+						SetEnemy(D3DXVECTOR3(s_modelpos),fSize,(ENEMYTYPE)nType);
 						break;
 					}
 					if (strcmp(&s_aString[0], "END_SCRIPT") == 0)
@@ -972,9 +973,9 @@ void LoadSetFile(char *Filename)
 				}
 			}
 		}
+		//ÉtÉ@ÉCÉãÇï¬Ç∂ÇÈ
+		fclose(pFile);
 	}
-	//ÉtÉ@ÉCÉãÇï¬Ç∂ÇÈ
-	fclose(pFile);
 }
 
 //--------------------
@@ -1008,7 +1009,7 @@ void ReflectMove(Enemy* pEnemy)
 	{
 		if (pEnemy->pos.x >= pPlayer->pos.x - pPlayer->size.x
 			&& pEnemy->pos.x <= pPlayer->pos.x + pPlayer->size.x)
-		{
+		{//ìGÇ™èIóπÇ∑ÇÈèàóù			
 			pEnemy->bReflect = false;
 			pEnemy->bTracking = false;
 			pEnemy->move.x += -pEnemy->move.x * 3;
@@ -1016,6 +1017,7 @@ void ReflectMove(Enemy* pEnemy)
 		}
 	}
 }
+
 //--------------------
 //ìGè¡Ç∑
 // AuthorÅFHamada Ryuga

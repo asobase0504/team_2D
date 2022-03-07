@@ -296,11 +296,11 @@ static void Input(void)
 			break;
 
 		case MENU_RETRY:		// リトライ
-			SetFade(MODE_GAME);
+			ChangeMode(MODE_GAME);
 			break;
 
 		case MENU_TITLE:		// タイトル
-			SetFade(MODE_TITLE);
+			ChangeMode(MODE_TITLE);
 			break;
 
 		default:

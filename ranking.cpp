@@ -378,7 +378,7 @@ void UpdateRanking(void)
 		if (GetKeyboardTrigger(DIK_RETURN))
 		{//Enterキーが押された
 			//タイトル画面に遷移
-			SetFade(MODE_TITLE);
+			ChangeMode(MODE_TITLE);
 		}
 	}
 
