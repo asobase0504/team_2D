@@ -51,7 +51,7 @@ typedef struct
 	int nLife;				// 体力
 	int nCntState;			// 状態管理カウント
 	int nCntBullet;			// 弾の出る時間
-							// 挙動管理
+	// 挙動管理
 	bool bBack;				// 戻るシステム
 	bool bTracking;			// 追尾使用
 	bool bTP;
