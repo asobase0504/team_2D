@@ -1,38 +1,49 @@
-//====================================
+//==================================================
 // 
-// 画面遷移の処理
-// Author Yuda Kaito
+// 3Dゲーム制作 ( fade.cpp )
+// Author  : katsuki mizuki
 // 
-//====================================
-
-//------------------------------------
-// include
-//------------------------------------
-#include "main.h"
+//==================================================
 #include "fade.h"
+#include "input.h"
 #include "common.h"
+#include "player.h"
+#include <assert.h>
 
-//------------------------------------
-// グローバル変数
-//------------------------------------
-static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;	// 頂点バッファへのポインタ
-static FADE s_fade;									// フェードの状態
-static MODE s_modeNext;								// 次の画面(モード)
-static D3DXCOLOR s_colorFade;						// ポリゴン(フェード)の色
+//--------------------------------------------------
+// マクロ定義
+//--------------------------------------------------
+#define FADE_CHANGE		(0.05f)		// フェードの変化量
 
-//====================================
-// 画面遷移の初期化処理
-//====================================
+//--------------------------------------------------
+// スタティック変数
+//--------------------------------------------------
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファのポインタ
+static FADE							s_fade;					// 今のフェード
+static MODE							s_modeNext;				// 次のモード
+static D3DXCOLOR					s_colorFade;			// ポリゴン(フェード)の色
+static int							s_nCntOut;				// アウトのカウンター
+
+															//--------------------------------------------------
+															// 初期化
+															//--------------------------------------------------
 void InitFade(MODE modeNext)
 {
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();	// デバイスの取得
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	s_fade = FADE_IN;		// フェードイン状態に
-	s_modeNext = modeNext;	// 次の画面(モード)を設定
-	s_colorFade = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);	// 黒いポリゴン(不透明)にしておく
+	// 黒いポリゴン(不透明)にしておく
+	s_colorFade = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+
+	s_fade = FADE_NONE;			// フェードイン状態に
+
+	s_modeNext = modeNext;		// 次の画面(モード)を設定
+
+	s_nCntOut = 0;
 
 	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_2D,
 		D3DPOOL_MANAGED,
@@ -41,32 +52,20 @@ void InitFade(MODE modeNext)
 
 	VERTEX_2D *pVtx;		// 頂点情報へのポインタ
 
-	// 頂点バッファをロックし、頂点情報へのポインタを取得
+							// 頂点情報をロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(-SCREEN_WIDTH, -SCREEN_HEIGHT, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(SCREEN_WIDTH, -SCREEN_HEIGHT, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(-SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
+	float fWidth = SCREEN_WIDTH * 0.5f;
+	float fHeight = SCREEN_HEIGHT * 0.5f;
 
-	// rhwの設定
-	pVtx[0].rhw = 1.0f;
-	pVtx[1].rhw = 1.0f;
-	pVtx[2].rhw = 1.0f;
-	pVtx[3].rhw = 1.0f;
+	// 頂点座標の設定処理
+	Setpos(pVtx, D3DXVECTOR3(fWidth, fHeight, 0.0f), fWidth, fHeight, SETPOS_MIDDLE);
 
-	// 頂点カラーの設定
-	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	// rhwの初期化処理
+	Initrhw(pVtx);
 
-	// テクスチャ座標の設定	   u      v
-	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	// 頂点カラーの設定処理
+	Setcol(pVtx, s_colorFade);
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
@@ -75,77 +74,136 @@ void InitFade(MODE modeNext)
 	SetMode(s_modeNext);
 }
 
-//====================================
-// 画面遷移の終了処理
-//====================================
+//--------------------------------------------------
+// 終了
+//--------------------------------------------------
 void UninitFade(void)
 {
-	// 頂点バッファの破棄
 	if (s_pVtxBuff != NULL)
-	{
+	{// 頂点バッファの破棄
 		s_pVtxBuff->Release();
 		s_pVtxBuff = NULL;
 	}
 }
 
-//====================================
-// 画面遷移の更新処理
-//====================================
+//--------------------------------------------------
+// 更新
+//--------------------------------------------------
 void UpdateFade(void)
 {
-	if (s_fade == FADE_NONE)
-	{
-		return;
-	}
-
-	switch (s_fade)
-	{
-	case FADE_IN:	// フェードイン状態
-		s_colorFade.a -= 0.01f;	// ポリゴンを透明にしていく
-
-		if (s_colorFade.a <= 0.0f)
+	if (s_fade != FADE_NONE)
+	{// フェード中
+		switch (s_fade)
 		{
-			s_colorFade.a = 0.0f;
-			s_fade = FADE_NONE;	// 何もしていない状態に
-		}
-		break;
-	case FADE_OUT:	// フェードアウト状態
-		s_colorFade.a += 0.01f;
+		case FADE_OUT:		// フェードアウト状態
 
-		if (s_colorFade.a >= 1.0f)
+			s_colorFade.a += FADE_CHANGE;		// ポリゴンを不透明にしていく
+
+			if (s_colorFade.a >= 1.0f)
+			{// 不透明になった
+				s_colorFade.a = 1.0f;
+				s_fade = FADE_IN;		// フェードイン状態に
+										// プレイヤー情報の取得
+				Player* pPlayer = GetPlayer();
+				if (pPlayer->damage)
+				{//ダメージを受けたときはモード移行しない
+					pPlayer->damage = false;				// モードの設定
+					
+				}
+				else
+				{
+					SetMode(s_modeNext);
+				}
+			}
+
+			break;
+
+		case FADE_SKIP:		// フェードスキップ
+
+			s_colorFade.a -= FADE_CHANGE;		// ポリゴンを透明にしていく
+
+												// breakなし
+
+		case FADE_IN:		// フェードイン状態
+
+			s_colorFade.a -= FADE_CHANGE;		// ポリゴンを透明にしていく
+
+			if (s_colorFade.a <= 0.0f)
+			{// 透明になった
+				s_colorFade.a = 0.0f;
+				s_fade = FADE_NONE;		// 何もしていない状態に
+			}
+
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
+
+		switch (s_fade)
 		{
-			s_colorFade.a = 1.0f;
-			s_fade = FADE_IN;	// フェードイン常置に
+		case FADE_OUT:		// フェードアウト状態
 
-								// モード設定(次の画面に移行)
-			SetMode(s_modeNext);
+			if (s_nCntOut < 1)
+			{// １より下ならbreak
+				s_nCntOut++;
+				break;
+			}
+
+			// １以上ならbreakなし
+
+		case FADE_IN:		// フェードイン状態
+
+			if (GetKeyboardTrigger(DIK_RETURN) || GetKeyboardTrigger(DIK_SPACE) ||
+				GetJoypadTrigger(JOYKEY_B, 0) || GetJoypadTrigger(JOYKEY_A, 0) ||
+				GetJoypadTrigger(JOYKEY_START, 0))
+			{// 決定キー(ENTERキー)が押されたかどうか
+
+				if (s_fade == FADE_OUT)
+				{
+					// 黒いポリゴン(不透明)にしておく
+					s_colorFade = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+
+					// モードの設定
+					SetMode(s_modeNext);
+				}
+
+				s_fade = FADE_SKIP;		// フェードスキップ
+			}
+
+			break;
+
+		case FADE_NONE:		// 何もしていない状態
+		case FADE_SKIP:		// フェードスキップ
+
+			break;
+
+		default:
+			assert(false);
+			break;
 		}
-		break;
-	default:
-		break;
+
+		VERTEX_2D *pVtx;		// 頂点情報へのポインタ
+
+								// 頂点情報をロックし、頂点情報へのポインタを取得
+		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+
+		// 頂点カラーの設定処理
+		Setcol(pVtx, s_colorFade);
+
+		// 頂点バッファをアンロックする
+		s_pVtxBuff->Unlock();
 	}
-
-	VERTEX_2D *pVtx;		// 頂点情報へのポインタ
-
-	// 頂点バッファをロックし、頂点情報へのポインタを取得
-	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-
-	// 頂点カラーの設定
-	pVtx[0].col = s_colorFade;
-	pVtx[1].col = s_colorFade;
-	pVtx[2].col = s_colorFade;
-	pVtx[3].col = s_colorFade;
-
-	// 頂点バッファをアンロックする
-	s_pVtxBuff->Unlock();
 }
 
-//====================================
-// 画面遷移の描画処理
-//====================================
+//--------------------------------------------------
+// 描画
+//--------------------------------------------------
 void DrawFade(void)
 {
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();	//デバイスの取得
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
@@ -157,35 +215,35 @@ void DrawFade(void)
 	pDevice->SetTexture(0, NULL);
 
 	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+		0,							// 描画する最初の頂点インデックス
+		2);							// プリミティブ(ポリゴン)数
 }
 
-//====================================
-// 画面遷移の設定処理
-//====================================
+//--------------------------------------------------
+// 設定
+//--------------------------------------------------
 void SetFade(MODE modeNext)
 {
-	if (s_modeNext != modeNext)
-	{
-		s_fade = FADE_OUT;		// フェードアウト状態に
-		s_modeNext = modeNext;	// 次の画面(モード)を設定
-		s_colorFade = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);	// 黒いポリゴン(透明)にしておく
+	if (s_fade == FADE_NONE)
+	{// 何もしていない状態なら
+		s_fade = FADE_OUT;			// フェードアウト状態に
+
+		s_modeNext = modeNext;		// 次の画面(モード)を設定
+
+
+
+			// 黒いポリゴン(透明)にしておく
+		s_colorFade = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+
+		s_nCntOut = 0;
 	}
 }
 
-//====================================
-// 画面遷移の強制設定処理
-//====================================
-void ResetFade(MODE modeNext)
-{
-	s_fade = FADE_OUT;		// フェードアウト状態に
-	s_modeNext = modeNext;	// 次の画面(モード)を設定
-	s_colorFade = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);	// 黒いポリゴン(透明)にしておく
-}
-
-//====================================
-// 画面遷移の取得処理
-//====================================
+//--------------------------------------------------
+// 取得
+//--------------------------------------------------
 FADE GetFade(void)
 {
 	return s_fade;

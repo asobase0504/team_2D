@@ -1,30 +1,34 @@
-//====================================
-// 
-// 画面遷移のヘッダーファイル
-// Author Yuda Kaito
-// 
-//====================================
-#ifndef _FADE_H_
-#define _FADE_H_
+//==================================================
+//
+// 3Dゲーム制作 ( fade.h )
+// Author  : katsuki mizuki
+//
+//==================================================
+#ifndef _FADE_H_		//このマクロ定義がされてなかったら
+#define _FADE_H_		//２重インクルード防止のマクロ定義
 
 #include "main.h"
 
-// フェードの状態
+//--------------------------------------------------
+// 列挙型
+//--------------------------------------------------
 typedef enum
 {
-	FADE_NONE = 0,	// 何もしていない状態
-	FADE_IN,		// フェイドイン状態
-	FADE_OUT,		// フェードアウト状態
+	FADE_NONE = 0,		// 何もしていない状態
+	FADE_OUT,			// フェードアウト(見えない)
+	FADE_IN,			// フェードイン(見える)
+	FADE_SKIP,			// フェードスキップ
 	FADE_MAX
 }FADE;
 
+//--------------------------------------------------
+// プロトタイプ宣言
+//--------------------------------------------------
 void InitFade(MODE modeNext);
 void UninitFade(void);
 void UpdateFade(void);
 void DrawFade(void);
 void SetFade(MODE modeNext);
-void ResetFade(MODE modeNext);
 FADE GetFade(void);
-
 
 #endif // !_FADE_H_
