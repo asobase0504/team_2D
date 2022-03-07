@@ -22,7 +22,8 @@ void InitLife(void);
 void UninitLife(void);
 void UpdateLife(void);
 void DrawLife(void);
-void SetLife(D3DXVECTOR3 pos);
-void HitLife(int nRemainlife);
+void SetLife(void);
+//void AddLife(int nAddlife,D3DXVECTOR3 pos);
+void HitLife(void);
 
 #endif // !_LIFE_H_

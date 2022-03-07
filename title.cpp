@@ -73,7 +73,7 @@ static Light						s_light[MAX_LIGHT];				// 後光の情報
 static int							s_nTime;						// 時間
 static int							s_nSelectMenu;					// 選ばれているメニュー
 static int							s_nIdxMenu;						// 使っているメニューの番号
-
+static int							count;
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
@@ -255,8 +255,7 @@ void InitTitle(void)
 	InitMenu();		// メニュー
 
 	// マップの設定。
-	InitMapSet(MAP_FILE0);
-
+	ConteSet(0);
 	MenuArgument menu;
 	menu.nNumUse = MENU_MAX;
 	menu.fLeft = 0.0f;
@@ -327,6 +326,13 @@ void UpdateTitle(void)
 	UpdateMap();	// マップデータ
 	UpdateEnemy();	// エネミー
 	UpdateMenu();	// メニュー
+	count++;
+	if (count == 2560)
+	{
+		count = 0;
+		// マップの設定。
+		ConteSet(0);
+	}
 
 	// 後光
 	UpdateLight();

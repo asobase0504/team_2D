@@ -28,6 +28,7 @@
 #include "sound.h"
 #include "fade.h"
 #include <stdio.h>
+#include "particle.h"
 
 //------------------------------------
 // マクロ定義
@@ -37,14 +38,14 @@
 // スタティック変数
 //------------------------------------
 static bool s_bPause;	// ポーズ中かどうか
-
+static int s_nMap = 0;
 //=========================================
 // 初期化
 //=========================================
 void InitGame(void)
 {
+	s_nMap = 0;
 	s_bPause = false;
-
 	InitMap();			// マップ
 	InitBoss();			// ボス
 	InitEnemy();		// 敵
@@ -55,13 +56,13 @@ void InitGame(void)
 	InitScore();		// スコア
 	InitBestScore();	// ベストスコア
 	InitScoreUp();		// スコアアップ
-	InitFlag();			// フラグ
+//	InitFlag();			// フラグ
 	InitCrater();		// クレーター
 	InitMenu();			// メニュー
 	InitPause();		// ポーズ
-
+	InitParticle();
 	// マップの設定。
-	InitMapSet(MAP_FILE0);
+	ConteSet(s_nMap);
 
 	PlaySound(SOUND_LABEL_BGM_GAME1);
 }
@@ -71,6 +72,7 @@ void InitGame(void)
 //=========================================
 void UninitGame(void)
 {
+
 	UninitMap();		// マップ
 	UninitBoss();		// ボス
 	UninitEnemy();		// 敵	
@@ -81,10 +83,11 @@ void UninitGame(void)
 	UninitScore();		// スコア
 	UninitBestScore();	// ベストスコア
 	UninitScoreUp();	// スコアアップ
-	UninitFlag();		// フラグ
+//	UninitFlag();		// フラグ
 	UninitCrater();		// クレーター
 	UninitMenu();		// メニュー
 	UninitPause();		// ポーズ
+	UninitParticle();	// パーティクル
 }
 
 //=========================================
@@ -169,14 +172,14 @@ void UpdateGame(void)
 	UpdateBoss();		// ボス
 	UpdateEnemy();		// 敵
 	UpdateBullet();		// 弾
+	UpdateParticle();	// パーティクル
 	UpdatePlayer();		// プレイヤー
 	UpdateScore();		// スコア
 	UpdateTarget();		// ターゲット
 	UpdateLife();		// ライフ
 	UpdateBestScore();	// ベストスコア
 	UpdateScoreUp();	// スコアアップ
-	UpdateFlag();		// フラグ
-
+	//UpdateFlag();		// フラグ
 	if (GetPlayer()->nLife <= 0)
 	{	// リザルトに移行
 		SetFade(MODE_RESULT);
@@ -193,13 +196,14 @@ void DrawGame()
 	DrawBoss();			// ボス
 	DrawEnemy();		// 敵
 	DrawBullet();		// 弾
+	DrawParticle();		// パーティクル
 	DrawPlayer();		// プレイヤー
 	DrawScore();		// スコア
 	DrawTarget();		// ターゲット
 	DrawLife();			// ライフ
 	DrawBestScore();	// ベストスコア
 	DrawScoreUp();		// スコアアップ
-	DrawFlag();			// フラグ
+	//DrawFlag();			// フラグ
 	if (s_bPause)
 	{
 		DrawPause();		// ポーズ

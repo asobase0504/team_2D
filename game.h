@@ -16,5 +16,5 @@ void UpdateGame(void);	// 更新処理
 void DrawGame();	// 描画処理
 void SetEnablePause(bool bUse);	// ポーズの状態を設定する
 bool GetPause(void);			// ポーズの状態取得
-
+void Allfalse(void);
 #endif // !_COMMON_H_

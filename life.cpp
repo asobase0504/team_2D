@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //ライフ
-//Author;Takano Minto
+//Author;takano
 //
 //------------------------------------------------------------------------------
 #include"life.h"
@@ -9,14 +9,15 @@
 //---------------
 //マクロ定義
 //---------------
-#define MAX_LIFE			(256)							//最大ライフ
+#define MAX_LIFE			(256)								//最大ライフ
 
 //---------------------
 //スタティック変数
 //---------------------
-static LPDIRECT3DTEXTURE9 s_pTexture = NULL;				//テクスチャのポインタ
-static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;			//頂点バッファへのポインタ
-static bool s_bUse[MAX_LIFE];
+static LPDIRECT3DTEXTURE9 s_pTexture = NULL;					//テクスチャのポインタ
+static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;				//頂点バッファへのポインタ
+static bool bUseLife[MAX_LIFE];
+static int nCountNumber;
 
 //-------------------------
 //ライフ画面の初期化処理
@@ -36,25 +37,30 @@ void InitLife(void)
 		D3DPOOL_MANAGED,
 		&s_pVtxBuff, NULL);
 
-	D3DXCreateTextureFromFile(pDevice, "data/TEXTURE/open_my_hart.png", &s_pTexture);
+	D3DXCreateTextureFromFile(pDevice, "Data//TEXTURE//Life.png", &s_pTexture);
 
 	for (int nCnt = 0; nCnt < MAX_LIFE; nCnt++)
 	{//初期化
-		s_bUse[nCnt] = false;
+		bUseLife[nCnt] = false;
 	}
 
-	VERTEX_2D*pVtx;			//頂点情報へのポインタ
+	nCountNumber = 0;
+
+	VERTEX_2D*pVtx;						//頂点情報へのポインタ
 
 	//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	for (int nCnt = 0; nCnt < MAX_LIFE; nCnt++)
 	{
+		//ライフの位置の計算
+		D3DXVECTOR3 pos = D3DXVECTOR3(20.0f + (40.0f * nCnt), 690.0f, 0.0f);
+
 		//頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		pVtx[0].pos = D3DXVECTOR3(pos.x - LIFE_SIZE, pos.y - LIFE_SIZE, 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(pos.x + LIFE_SIZE, pos.y - LIFE_SIZE, 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(pos.x - LIFE_SIZE, pos.y + LIFE_SIZE, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(pos.x + LIFE_SIZE, pos.y + LIFE_SIZE, 0.0f);
 
 		//rhwの設定
 		pVtx[0].rhw = 1.0f;
@@ -130,7 +136,7 @@ void DrawLife(void)
 
 	for (int i = 0; i < MAX_LIFE; i++)
 	{
-		if (s_bUse[i])
+		if (bUseLife[i])
 		{//使用されている時
 
 			//ポリゴンの描画
@@ -145,48 +151,19 @@ void DrawLife(void)
 //-----------------------------------
 //ライフの配置
 //-----------------------------------
-void SetLife(D3DXVECTOR3 pos)
+void SetLife(void)
 {
-	for (int nCnt = 0; nCnt < MAX_LIFE; nCnt++)
-	{
-		if (!s_bUse[nCnt])
-		{//使用されてない時
-			s_bUse[nCnt] = true;		//使用する
-			
-			VERTEX_2D *pVtx;
+	bUseLife[nCountNumber] = true;		//使用する
 
-			//頂点バッファをロックし、頂点情報へのポインタを取得
-			s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-			pVtx += nCnt * 4;						//データに合わせた数値分進む
-
-			//頂点座標の設定
-			pVtx[0].pos = D3DXVECTOR3(pos.x - LIFE_SIZE, pos.y - LIFE_SIZE, 0.0f);
-			pVtx[1].pos = D3DXVECTOR3(pos.x + LIFE_SIZE, pos.y - LIFE_SIZE, 0.0f);
-			pVtx[2].pos = D3DXVECTOR3(pos.x - LIFE_SIZE, pos.y + LIFE_SIZE, 0.0f);
-			pVtx[3].pos = D3DXVECTOR3(pos.x + LIFE_SIZE, pos.y + LIFE_SIZE, 0.0f);
-
-			//頂点バッファをアンロックする
-			s_pVtxBuff->Unlock();
-			break;
-		}
-	}
+	nCountNumber++;
 }
 
 //-----------------------------------
 //ライフのヒット処理
 //-----------------------------------
-void HitLife(int nRemainlife)
+void HitLife(void)
 {
+	nCountNumber--;
 
-	VERTEX_2D*pVtx;			//頂点情報へのポインタ
-
-	//頂点バッファをコック＆ロックし、頂点情報へのポインタを取得
-	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-
-	pVtx += nRemainlife * 4;						//データに合わせた数値分進む
-
-	s_bUse[nRemainlife] = false;
-
-	//頂点バッファをアンロックする
-	s_pVtxBuff->Unlock();
+	bUseLife[nCountNumber] = false;
 }
