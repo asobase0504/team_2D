@@ -160,6 +160,7 @@ void UpdatePlayer(void)
 				{	// ƒŠƒUƒ‹ƒg‚ÉˆÚs
 					ChangeMode(MODE_RESULT);
 				}
+				break;
 			}
 		}
 	}
