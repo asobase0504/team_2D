@@ -19,7 +19,7 @@ typedef enum
 	ENEMYTYPE_SKY_1,		// 空の敵1
 	ENEMYTYPE_SKY_2,		// 空の敵2
 	ENEMYTYPE_SKY_3,		// 引き換える敵
-	ENEMYTYPE_SHEONITE,		// 空の敵
+	ENEMYTYPE_SHEONITE,		// しおないと		
 	ENEMYTYPE_BAKYURA,		// 無敵壁
 	ENEMYTYPE_GROUND_1,		// 地上の敵1
 	ENEMYTYPE_GROUND_2,		// 地上の敵2
@@ -27,11 +27,13 @@ typedef enum
 	ENEMYTYPE_WARP_2,		// ワープする敵2	(挙動不審)
 	ENEMYTYPE_WARP_3,		// ワープする敵3	(挙動不審)
 	ENEMYTYPE_WARP_4,		// ワープする敵4	(挙動不審)
+	ENEMYTYPE_BOSS,			// ボス
 	BOSS_PARTS_1,			// BOSS_PARTS1
 	BOSS_PARTS_2,			// BOSS_PARTS2
 	BOSS_PARTS_3,			// BOSS_PARTS3
 	BOSS_PARTS_4,			// BOSS_PARTS4
 	BOSS_PARTS_5,			// BOSS_PARTS5
+	FLAG_STATE,				// 旗
 	ENEMYTYPE_MAX
 } ENEMYTYPE;
 
@@ -49,15 +51,15 @@ typedef struct
 	int nLife;				// 体力
 	int nCntState;			// 状態管理カウント
 	int nCntBullet;			// 弾の出る時間
-	// 挙動管理
+							// 挙動管理
 	bool bBack;				// 戻るシステム
 	bool bTracking;			// 追尾使用
 	bool bTP;
-	bool bReflect;			// 反射
-
 	// シオナイト用
 	float fSheoRot;			// シオナイト専用角度
 	int nSheoCnt;			// シオナイトカウント
+	bool bReflect;			// 反射
+	bool FlagOn;			//フラグ用
 }Enemy;
 
 // プロトタイプ宣言
@@ -71,5 +73,7 @@ void LoadSetFile(char *Filename);
 void EnemyLynk(char *Filename);		// 
 void SetEnemyLynk(int number);		// 
 Enemy* GetEnemy(void);
+void falseSetEnemy(void);
 
 #endif
+
