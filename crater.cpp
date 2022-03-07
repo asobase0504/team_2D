@@ -129,7 +129,7 @@ void UpdateCrater(void)
 
 		/*↓ 使用されている ↓*/
 
-		s_Crater[i].pos.y += MAP_SPEAD;		// Mapから速度をGetして欲しいです。よろしく！
+		s_Crater[i].pos.y += MAPMOVE;		// Mapから速度をGetして欲しいです。よろしく！
 
 		if (s_Crater[i].pos.y >= (SCREEN_HEIGHT + CRATER_SIZE))
 		{// 画面外に出た
