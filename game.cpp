@@ -23,7 +23,6 @@
 #include "pause.h"
 #include "target.h"
 #include "scoreup.h"
-#include "flag.h"
 #include "crater.h"
 #include "sound.h"
 #include "fade.h"

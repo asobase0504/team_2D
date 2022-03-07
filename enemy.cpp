@@ -973,9 +973,9 @@ void LoadSetFile(char *Filename)
 				}
 			}
 		}
+		//ファイルを閉じる
+		fclose(pFile);
 	}
-	//ファイルを閉じる
-	fclose(pFile);
 }
 
 //--------------------
