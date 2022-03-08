@@ -382,12 +382,12 @@ void ShotPlayer()
 	{
 		BulletData* pBulletData = &s_Player.BulletData[BULLETTYPE_PLAYER_SKY];
 
-		if (GetKeyboardPress(DIK_SPACE) || GetDirectJoypadPress(JOYKEY_DIRECT_2_BUTTON))
+		if (GetKeyboardPress(DIK_SPACE) || GetDirectJoypadPress(JOYKEY_DIRECT_1_BUTTON))
 		{
 			pBulletData->nCntShot++;
 		}
 
-		if ((GetKeyboardTrigger(DIK_SPACE) ||  GetDirectJoypadTrigger(JOYKEY_DIRECT_2_BUTTON))
+		if ((GetKeyboardTrigger(DIK_SPACE) ||  GetDirectJoypadTrigger(JOYKEY_DIRECT_1_BUTTON))
 			&& !pBulletData->bTriggerShot
 			&& !pBulletData->bPressShot)
 		{
@@ -399,7 +399,7 @@ void ShotPlayer()
 			pBulletData->nCntShot = MAX_CNT_SKY_SHOT;
 		}
 
-		if ((GetKeyboardRelease(DIK_SPACE) || GetDirectJoypadRelease(JOYKEY_DIRECT_2_BUTTON))
+		if ((GetKeyboardRelease(DIK_SPACE) || GetDirectJoypadRelease(JOYKEY_DIRECT_1_BUTTON))
 			&& pBulletData->bPressShot
 			&& pBulletData->bTriggerShot)
 		{// ƒL[‚ª—£‚³‚ê‚½‚ç
