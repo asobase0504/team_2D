@@ -308,7 +308,7 @@ void LockOnTarget(int nIdxShadow)
 	if (pTarget->TargetType == TARGETSTATE_LOCK_OFF)
 	{// ロックオフの時
 		pTarget->TargetType = TARGETSTATE_LOCK_ON;
-		pTarget->nIdxBullet = SetBullet(D3DXVECTOR3(pPlayer->pos.x, pPlayer->pos.y - pPlayer->size.y, 0.0f), pPlayer->rot, pPlayer->BulletType, nIdxShadow, pTarget->bLockOnEnemy);
+		pTarget->nIdxBullet = SetBullet(D3DXVECTOR3(pPlayer->pos.x, pPlayer->pos.y - pPlayer->size.y, 0.0f), pPlayer->rot, BULLETTYPE_PLAYER_GROUND, nIdxShadow, pTarget->bLockOnEnemy);
 	}
 }
 

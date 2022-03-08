@@ -119,7 +119,7 @@ void UpdatePlayer(void)
 	switch (s_Player.state)
 	{
 	case PLAYER_STATE_NORMAL:
-
+	{
 		// 移動ベクトルの更新
 		s_Player.move = MovePlayer();
 
@@ -173,7 +173,7 @@ void UpdatePlayer(void)
 		// 色を決定する
 		s_Player.col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 		break;
-
+	}
 	case PLAYER_STATE_DAMAGE:
 		s_Player.col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
 		s_Player.nCntState--;
@@ -228,10 +228,7 @@ void UpdatePlayer(void)
 void DrawPlayer(void)
 {
 	//デバイスへのポインタ
-	LPDIRECT3DDEVICE9 pDevice;
-
-	//デバイスの取得
-	pDevice = GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	//頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
@@ -265,19 +262,23 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 		// プレイヤー情報の設定
 		s_Player.pos = pos;													// 中心点
 		s_Player.rot = rot;													// 向き
-		s_Player.size = D3DXVECTOR3(PLAYER_RADIUS, PLAYER_RADIUS,0.0f);		// サイズ
-		s_Player.col = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);						// カラー
+		s_Player.size = D3DXVECTOR3(PLAYER_RADIUS, PLAYER_RADIUS, 0.0f);		// サイズ
+		s_Player.col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);						// カラー
 		s_Player.BulletType = (BulletType)(0);								// 弾の種類
 		s_Player.state = PLAYER_STATE_START;								// 通常状態
 		s_Player.nLife = START_LIFE;										// 体力
-		s_Player.nCntShot = 1;												// 弾発射までのカウント
 		s_Player.fSpeed = MOVE_SPEED;										// 速度
 		s_Player.nIdxTarge = -1;											// ターゲット
-		s_Player.nCntShotUse = 0;											// 弾の発射ができるまでのカウント
 		s_Player.nCntState = 0;												// 状態変更までのカウント
-		s_Player.bTriggerShot = false;										// トリガー弾発射の可不可
-		s_Player.bPressShot = false;										// プレス弾発射の可不可
 		s_Player.bUse = true;												// 使用してる
+
+		for (int i = 0; i < 2; i++)
+		{
+			s_Player.BulletData[i].nCntShot = 1;			// 弾発射までのカウント
+			s_Player.BulletData[i].nCntShotUse = 0;			// 弾の発射ができるまでのカウント
+			s_Player.BulletData[i].bTriggerShot = false;	// トリガー弾発射の可不可
+			s_Player.BulletData[i].bPressShot = false;		// プレス弾発射の可不可
+		}
 
 		//対角線の長さを算出する
 		s_Player.fLength = sqrtf((s_Player.size.x * s_Player.size.x) + (s_Player.size.y * s_Player.size.y))* 0.5f;
@@ -377,95 +378,109 @@ static D3DXVECTOR3 MovePlayer(void)
 //---------------------------------------------------------------------------
 void ShotPlayer()
 {
-	// 変数宣言
-	int nCntMaxShot;
-
-	if (GetKeyboardTrigger(DIK_RIGHT))
-	{// 右ボタンが押された
-		s_Player.BulletType = (BulletType)((int)(s_Player.BulletType) + 1);
-
-		if (s_Player.BulletType >= MAX_BULLETTYPE - 1)
-		{// タイプ数を超えたとき
-			s_Player.BulletType = (BulletType)(0);
-		}
-	}
-	else if (GetKeyboardTrigger(DIK_LEFT))
-	{// 左ボタンが押された
-		s_Player.BulletType = (BulletType)((int)(s_Player.BulletType) - 1);
-
-		if (s_Player.BulletType <= -1)
-		{// タイプ数を超えたとき
-			s_Player.BulletType = (BulletType)((int)(MAX_BULLETTYPE)-2);
-		}
-	}
-
-	switch (s_Player.BulletType)
+	// 空中弾
 	{
-	case BULLETTYPE_PLAYER_SKY:
-		nCntMaxShot = (int)(MAX_CNT_SKY_SHOT);
-		break;
+		BulletData* pBulletData = &s_Player.BulletData[BULLETTYPE_PLAYER_SKY];
 
-	case BULLETTYPE_PLAYER_GROUND:
-		nCntMaxShot = (int)(MAX_CNT_GRAND_SHOT);
-		break;
-	}
-
-	if (GetKeyboardTrigger(DIK_SPACE)
-		&& !s_Player.bTriggerShot
-		&& !s_Player.bPressShot)
-	{
-		// トリガー弾とプレス弾を使用している
-		s_Player.bTriggerShot = true;
-		s_Player.bPressShot = true;
-
-		// カウントを最大値にする
-		s_Player.nCntShot = nCntMaxShot;
-	}
-
-	if (GetKeyboardPress(DIK_SPACE))
-	{// SPACEが押された
-		s_Player.nCntShot++;
-	}
-	if (GetKeyboardRelease(DIK_SPACE)
-		&& s_Player.bPressShot
-		&& s_Player.bTriggerShot)
-	{// キーが離されたら
-		s_Player.nCntShotUse = s_Player.nCntShot;
-		s_Player.nCntShot = 0;
-		s_Player.bPressShot = false;
-	}
-
-	if (s_Player.bTriggerShot
-		&& !s_Player.bPressShot)
-	{
-		// カウントインクリメント
-		s_Player.nCntShotUse++;
-
-		if (s_Player.nCntShotUse >= nCntMaxShot)
+		if (GetKeyboardPress(DIK_SPACE) || GetDirectJoypadPress(JOYKEY_DIRECT_2_BUTTON))
 		{
-			// カウントを初期化
-			s_Player.nCntShotUse = 0;
-			s_Player.bTriggerShot = false;
+			pBulletData->nCntShot++;
+		}
+
+		if ((GetKeyboardTrigger(DIK_SPACE) ||  GetDirectJoypadTrigger(JOYKEY_DIRECT_2_BUTTON))
+			&& !pBulletData->bTriggerShot
+			&& !pBulletData->bPressShot)
+		{
+			// トリガー弾とプレス弾を使用している
+			pBulletData->bTriggerShot = true;
+			pBulletData->bPressShot = true;
+
+			// カウントを最大値にする
+			pBulletData->nCntShot = MAX_CNT_SKY_SHOT;
+		}
+
+		if ((GetKeyboardRelease(DIK_SPACE) || GetDirectJoypadRelease(JOYKEY_DIRECT_2_BUTTON))
+			&& pBulletData->bPressShot
+			&& pBulletData->bTriggerShot)
+		{// キーが離されたら
+			pBulletData->nCntShotUse = pBulletData->nCntShot;
+			pBulletData->nCntShot = 0;
+			pBulletData->bPressShot = false;
+		}
+
+		if (pBulletData->bTriggerShot
+			&& !pBulletData->bPressShot)
+		{
+			// カウントインクリメント
+			pBulletData->nCntShotUse++;
+
+			if (pBulletData->nCntShotUse >= MAX_CNT_SKY_SHOT)
+			{
+				// カウントを初期化
+				pBulletData->nCntShotUse = 0;
+				pBulletData->bTriggerShot = false;
+			}
+		}
+
+		if (pBulletData->nCntShot >= MAX_CNT_SKY_SHOT)
+		{// 弾の発射
+			SetBullet(D3DXVECTOR3(s_Player.pos.x - (s_Player.size.x / 2.0f), s_Player.pos.y - s_Player.size.y, 0.0f), s_Player.rot, BULLETTYPE_PLAYER_SKY, -1, true);
+			SetBullet(D3DXVECTOR3(s_Player.pos.x + (s_Player.size.x / 2.0f), s_Player.pos.y - s_Player.size.y, 0.0f), s_Player.rot, BULLETTYPE_PLAYER_SKY, -1, true);
+			pBulletData->nCntShot = 0;
 		}
 	}
 
-	if (s_Player.nCntShot >= nCntMaxShot)
-	{// 弾の発射
-		switch (s_Player.BulletType)
-		{
-		case BULLETTYPE_PLAYER_SKY:
-			SetBullet(D3DXVECTOR3(s_Player.pos.x - (s_Player.size.x / 2.0f), s_Player.pos.y - s_Player.size.y, 0.0f), s_Player.rot, s_Player.BulletType, -1, true);
-			SetBullet(D3DXVECTOR3(s_Player.pos.x + (s_Player.size.x / 2.0f), s_Player.pos.y - s_Player.size.y, 0.0f), s_Player.rot, s_Player.BulletType, -1, true);
-			break;
+	// 地上弾
+	{
+		BulletData* pBulletData = &s_Player.BulletData[BULLETTYPE_PLAYER_GROUND];
 
-		case BULLETTYPE_PLAYER_GROUND:
+		if (GetKeyboardPress(DIK_RETURN) || GetDirectJoypadPress(JOYKEY_DIRECT_0_BUTTON))
+		{
+			pBulletData->nCntShot++;
+		}
+
+		if ((GetKeyboardTrigger(DIK_RETURN) || GetDirectJoypadTrigger(JOYKEY_DIRECT_0_BUTTON))
+			&& !pBulletData->bTriggerShot
+			&& !pBulletData->bPressShot)
+		{
+			// トリガー弾とプレス弾を使用している
+			pBulletData->bTriggerShot = true;
+			pBulletData->bPressShot = true;
+
+			// カウントを最大値にする
+			pBulletData->nCntShot = MAX_CNT_GRAND_SHOT;
+		}
+
+		if ((GetKeyboardRelease(DIK_RETURN) || GetDirectJoypadRelease(JOYKEY_DIRECT_0_BUTTON))
+			&& pBulletData->bPressShot
+			&& pBulletData->bTriggerShot)
+		{// キーが離されたら
+			pBulletData->nCntShotUse = pBulletData->nCntShot;
+			pBulletData->nCntShot = 0;
+			pBulletData->bPressShot = false;
+		}
+
+		if (pBulletData->bTriggerShot
+			&& !pBulletData->bPressShot)
+		{
+			// カウントインクリメント
+			pBulletData->nCntShotUse++;
+
+			if (pBulletData->nCntShotUse >= MAX_CNT_GRAND_SHOT)
+			{
+				// カウントを初期化
+				pBulletData->nCntShotUse = 0;
+				pBulletData->bTriggerShot = false;
+			}
+		}
+
+		if (pBulletData->nCntShot >= MAX_CNT_GRAND_SHOT)
+		{// 弾の発射
 			LockOnTarget(s_Player.nIdxTarge);
 			// ターゲット
 			s_Player.nIdxTarge = SetTarget(D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y - TARGET_DISTANCE, 0.0f), s_Player.rot);
-			break;
+			pBulletData->nCntShot = 0;
 		}
-		
-		s_Player.nCntShot = 0;
 	}
 }
 

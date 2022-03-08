@@ -11,7 +11,7 @@
 #include"bullet.h"
 
 //************************************************************
-// プレイヤーの構造体を定義
+// プレイヤーの状態を列挙型で定義
 //************************************************************
 typedef enum
 {
@@ -20,6 +20,17 @@ typedef enum
 	PLAYER_STATE_START,				// スタート状
 	MAX_PLAYER_STATE,				// 状態の最大数
 }PLAYER_STATE;
+
+//************************************************************
+// プレイヤーの状態を列挙型で定義
+//************************************************************
+typedef struct
+{
+	bool	bTriggerShot;		// トリガー弾発射の可不可
+	bool	bPressShot;			// プレス弾発射の可不可
+	int		nCntShot;			// 弾の発射までのカウント
+	int		nCntShotUse;		// 弾の発射ができるまでのカウント
+}BulletData;
 
 //************************************************************
 // プレイヤーの構造体を定義
@@ -32,17 +43,14 @@ typedef struct
 	D3DXVECTOR3			size;				// 大きさ
 	D3DXCOLOR			col;				// カラー
 	BulletType			BulletType;			// 弾の種類
+	BulletData			BulletData[2];		// 弾発射に必要な情報
 	PLAYER_STATE		state;				// 状態
 	float				fLength;			// 対角線の長さ
 	float				fAngele;			// 対角線の角度
 	float				fSpeed;				// 速度
 	int					nLife;				// 体力
-	int					nCntShot;			// 弾の発射までのカウント
 	int					nIdxTarge;			// ターゲットナンバー
-	int					nCntShotUse;		// 弾の発射ができるまでのカウント
 	int					nCntState;			// 状態変更までのカウント
-	bool				bTriggerShot;		// トリガー弾発射の可不可
-	bool				bPressShot;			// プレス弾発射の可不可
 	bool				bUse;				// 使用してるかどうか
 }Player;
 
