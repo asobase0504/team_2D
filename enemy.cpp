@@ -23,16 +23,13 @@
 //----------------------------
 // マクロ
 //----------------------------
-#define MOVE_SPEED   (2.5f)
-#define COLLISION	(25)
-#define RADIUS		(5.0f)
-#define SPEED		(2.0f)
-#define JUDGEMENT	(100)	// 避ける敵の判定サイズ
-#define UP_ESCAPE	(200)	// 上に逃げる敵の判定サイズ
-#define ABILTIY		(0.005f)
-#define MAXSTAGE	(5)
-#define JUGE		(80)
-#define BULLET_INTERVAL		(180)
+#define MOVE_SPEED			(2.5f)
+#define COLLISION			(25)
+#define JUDGEMENT			(100)		// 避ける敵の判定サイズ
+#define UP_ESCAPE			(200)		// 上に逃げる敵の判定サイズ
+#define ABILTIY				(0.005f)
+#define MAXSTAGE			(5)			// ステージ数
+#define BULLET_INTERVAL		(180)		// 攻撃間隔
 
 //シオナイト
 #define SHEO_DIST_START_ROTATION	(200.0f)							// 回り始める距離
@@ -49,12 +46,13 @@ static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;		//頂点バッファへのポインタ
 static Enemy s_aEnemy[MAX_ENEMY];					// 敵の情報
 static Enemy s_aTypeEnemy[ENEMYTYPE_MAX];
 static char EnemyLink[MAXSTAGE][256];
-static int count = 0;
+static int count;
 
 //**************************************************
 // プロトタイプ宣言
 //**************************************************
 static void TrackingMove(Enemy* pEnemy);	// 追尾処理
+static void ReflectMove(Enemy* pEnemy);
 static void UpdateSky1(Enemy* pEnemy);		// 空の敵1の更新
 static void UpdateSky2(Enemy* pEnemy);		// 空の敵2の更新
 static void UpdateBuckSky(Enemy* pEnemy);	// 帰る空の敵の更新
@@ -64,41 +62,36 @@ static void UpdateZakato1(Enemy* pEnemy);	// TOGETOGE
 static void UpdateZakato2(Enemy* pEnemy);	// ザカートの処理2(追尾ナシ、一定の間隔で弾を発射して消滅)
 static void UpdateZakato3(Enemy* pEnemy);	// ザカートの処理3(追尾アリ、時間経過で弾を発射して消滅)
 static void UpdateZakato4(Enemy* pEnemy);	// ザカートの処理4(追尾ナシ、時間経過で弾を発射して消滅)
-static void ZakatoFinish(Enemy* pEnemy);	// ザカートが終了する際の処理
-static void ReflectMove(Enemy* pEnemy);
 static void Updateflag(Enemy* pEnemy);		// フラックの処理
+static void ZakatoFinish(Enemy* pEnemy);	// ザカートが終了する際の処理
+static void ShotBullet(Enemy* pEnemy, int Interval);		// 弾を撃ちだす処理
 
-//**************************************************
-// グローバル関数
-//**************************************************
 //--------------------------------------------------
 // 初期化
 // Auther：Isoe Jukia
 //--------------------------------------------------
 void InitEnemy(void)
 {
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();		//デバイスのポインタ
-
+	// 初期化
 	ZeroMemory(s_aEnemy, sizeof(s_aEnemy[0]));
+	count = 0;
 
 	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_ENEMY,
+	GetDevice()->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_ENEMY,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_2D,
 		D3DPOOL_MANAGED,
 		&s_pVtxBuff,
 		NULL);
 
-	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
-	count = 0;
+	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
+	Enemy* pEnemy = s_aEnemy;	// エネミーをポインタ化
 
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
+	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++, pVtx += 4)
 	{
-		Enemy* pEnemy = &s_aEnemy[nCntEnemy];
-
 		// 頂点座標の設定
 		pVtx[0].pos = D3DXVECTOR3(pEnemy->pos.x - pEnemy->fSize, pEnemy->pos.y - pEnemy->fSize, 0.0f);
 		pVtx[1].pos = D3DXVECTOR3(pEnemy->pos.x + pEnemy->fSize, pEnemy->pos.y - pEnemy->fSize, 0.0f);
@@ -119,18 +112,10 @@ void InitEnemy(void)
 		pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
 		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 		pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
-
-		pVtx += 4;		// 頂点データのポインタを4つ分進める
 	}
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
-
-	// あとでファイルで入力できるようにしたいなーーーー
-	for (int nCnt = 0; nCnt < ENEMYTYPE_MAX; nCnt++)
-	{
-		s_aTypeEnemy[nCnt].nLife = 1;
-	}
 
 	//テクスチャデータ読み込み
 	LoadSetFile("data\\txt\\enemy.txt");
@@ -172,9 +157,8 @@ void UninitEnemy(void)
 void UpdateEnemy(void)
 {
 	VERTEX_2D *pVtx;			//頂点情報へのポインタ
-
 	Enemy* pEnemy = s_aEnemy;
-	Player* pPlayer = GetPlayer();
+
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
@@ -213,19 +197,7 @@ void UpdateEnemy(void)
 			case ENEMYTYPE_GROUND_1:	// 直進敵
 				pEnemy->nCntBullet++;
 
-				if (pEnemy->nCntBullet >= BULLET_INTERVAL)
-				{
-					// エネミーからプレイヤーまでの距離の算出
-					D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
-
-					//対角線の角度を算出
-					Direction.z = atan2f(Direction.x, Direction.y);
-					Direction.x = 0.0f;		// 使わない情報なので初期化
-					Direction.y = 0.0f;		// 使わない情報なので初期化
-
-					SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
-					pEnemy->nCntBullet = 0;
-				}
+				ShotBullet(pEnemy, BULLET_INTERVAL);
 				break;
 			case ENEMYTYPE_GROUND_2:	// 動かない敵
 
@@ -267,17 +239,10 @@ void UpdateEnemy(void)
 				{
 					continue;
 				}
-				if (pBullet->BulletType == BULLETTYPE_PLAYER_GROUND && pEnemy->nType >= 5 && pEnemy->nType <= 6 || pBullet->BulletType == BULLETTYPE_PLAYER_GROUND && pEnemy->nType >= 11)
-				{
-					if (CollisionCircle(pEnemy->pos, COLLISION, pBullet->pos, pBullet->size.x))
-					{
-						AddScore(255);
-						HitEnemy(pEnemy, 1);
-						pBullet->bUse = false;
-					}
-				}
-				else if (pBullet->BulletType == BULLETTYPE_PLAYER_SKY && pEnemy->nType <= 4 || pBullet->BulletType == BULLETTYPE_PLAYER_SKY && pEnemy->nType >= 7 && pEnemy->nType <= 10)
-				{
+
+				if ((pBullet->BulletType == BULLETTYPE_PLAYER_GROUND && !pEnemy->bIsSkyType)
+					|| (pBullet->BulletType == BULLETTYPE_PLAYER_SKY && pEnemy->bIsSkyType))
+				{// 弾の種類と敵の種類が一致している時
 					if (CollisionCircle(pEnemy->pos, COLLISION, pBullet->pos, pBullet->size.x))
 					{
 						AddScore(255);
@@ -287,20 +252,25 @@ void UpdateEnemy(void)
 				}
 			}
 
-			if (pEnemy->pos.y > 720.0f + pEnemy ->fSize+200.0f)
+			// ある程度進めば自動で追尾処理を切る
+			if (pEnemy->pos.y > 720.0f + pEnemy->fSize + 200.0f)
 			{
 				pEnemy->bTracking = false;
 			}
-			if (pEnemy->pos.y < 0.0f&&pEnemy->bBack)
+
+			// 上部に帰る敵を消す処理
+			if (pEnemy->pos.y < 0.0f - pEnemy->fSize && pEnemy->bBack)
 			{
 				pEnemy->bUse = false;
 			}
+
 			// エネミーのライフが0になったとき
 			if (pEnemy->nLife <= 0)
 			{
 				pEnemy->bUse = false;
 			}
 		}
+
 		// 頂点座標の設定
 		SetVtxPos(pVtx, &pEnemy->pos, pEnemy->fSize, pEnemy->fSize);
 
@@ -322,32 +292,14 @@ void UpdateEnemy(void)
 //--------------------------------------------------
 void UpdateSky1(Enemy* pEnemy)
 {
-	// プレイヤー情報の取得
-	Player* pPlayer = GetPlayer();
 	// 追尾の処理
 	TrackingMove(pEnemy);
 
-	//pEnemy->move.y = pEnemy->fSpeed;
+	// 反射の処理
 	ReflectMove(pEnemy);
 
 	// 弾を出す処理
-	if (pEnemy->pos.y > 0.0f)
-	{	// 画面内に収まっている場合
-		pEnemy->nCntBullet++;
-		if (pEnemy->nCntBullet >= 60)
-		{
-			// エネミーからプレイヤーまでの距離の算出
-			D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
-
-			//対角線の角度を算出
-			Direction.z = atan2f(Direction.x, Direction.y);
-			Direction.x = 0.0f;		// 使わない情報なので初期化
-			Direction.y = 0.0f;		// 使わない情報なので初期化
-
-			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
-			pEnemy->nCntBullet = 0;
-		}
-	}
+	ShotBullet(pEnemy, 120);
 }
 
 //--------------------------------------------------
@@ -357,12 +309,10 @@ void UpdateSky1(Enemy* pEnemy)
 //--------------------------------------------------
 void UpdateSky2(Enemy* pEnemy)
 {
-	// プレイヤー情報の取得
-	Player* pPlayer = GetPlayer();
 	// 追尾の処理
 	TrackingMove(pEnemy);
 
-	if (CollisionCircle(pEnemy->pos, JUDGEMENT, pPlayer->pos, JUDGEMENT))
+	if (CollisionCircle(pEnemy->pos, JUDGEMENT, GetPlayer()->pos, JUDGEMENT))
 	{// 敵が逃げる処理
 		pEnemy->bTracking = false;
 		pEnemy->move.y = 0;		// コメントアウトを消すと直角に曲がる
@@ -370,23 +320,7 @@ void UpdateSky2(Enemy* pEnemy)
 	}
 
 	// 弾を出す処理
-	if (pEnemy->pos.y > 0.0f)
-	{	// 画面内に収まっている場合
-		pEnemy->nCntBullet++;
-		if (pEnemy->nCntBullet >= 60)
-		{
-			// エネミーからプレイヤーまでの距離の算出
-			D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
-
-			//対角線の角度を算出
-			Direction.z = atan2f(Direction.x, Direction.y);
-			Direction.x = 0.0f;		// 使わない情報なので初期化
-			Direction.y = 0.0f;		// 使わない情報なので初期化
-
-			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
-			pEnemy->nCntBullet = 0;
-		}
-	}
+	ShotBullet(pEnemy, 120);
 }
 
 //--------------------------------------------------
@@ -414,23 +348,7 @@ void UpdateBuckSky(Enemy* pEnemy)
 	}
 
 	// 弾を出す処理
-	if (pEnemy->pos.y > 0.0f)
-	{	// 画面内に収まっている場合
-		pEnemy->nCntBullet++;
-		if (pEnemy->nCntBullet >= 60)
-		{
-			// エネミーからプレイヤーまでの距離の算出
-			D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
-
-			//対角線の角度を算出
-			Direction.z = atan2f(Direction.x, Direction.y);
-			Direction.x = 0.0f;		// 使わない情報なので初期化
-			Direction.y = 0.0f;		// 使わない情報なので初期化
-
-			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
-			pEnemy->nCntBullet = 0;
-		}
-	}
+	ShotBullet(pEnemy, 120);
 }
 
 //--------------------------------------------------
@@ -439,18 +357,7 @@ void UpdateBuckSky(Enemy* pEnemy)
 //--------------------------------------------------
 void MoveBakyura(Enemy* pEnemy)
 {
-	for (int nCnt = 0; nCnt < MAX_ENEMY; nCnt++)
-	{
-		if (!s_aEnemy[nCnt].bUse)
-		{
-			continue;
-		}
-
-		if (s_aEnemy[nCnt].pos.y > SCREEN_HEIGHT)
-		{
-			//s_aEnemy[nCnt].bUse = false;
-		}
-	}
+	// 何か処理を書くならこちらに
 }
 
 //--------------------------------------------------
@@ -538,25 +445,7 @@ void UpdateZakato1(Enemy* pEnemy)
 	pEnemy->bTracking = false;
 
 	// 弾を出す処理
-	if (pEnemy->pos.y > 0.0f)
-	{	// 画面内に収まっている場合
-
-		pEnemy->nCntBullet++;
-
-		if (pEnemy->nCntBullet >= 120)
-		{
-			// エネミーからプレイヤーまでの距離の算出
-			D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
-
-			//対角線の角度を算出
-			Direction.z = atan2f(Direction.x, Direction.y);
-			Direction.x = 0.0f;		// 使わない情報なので初期化
-			Direction.y = 0.0f;		// 使わない情報なので初期化
-
-			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
-			pEnemy->nCntBullet = 0;
-		}
-	}
+	ShotBullet(pEnemy, 120);
 }
 
 //-------------------------------------------------
@@ -630,10 +519,8 @@ void UpdateZakato4(Enemy* pEnemy)
 //=============================================
 void ZakatoFinish(Enemy* pEnemy)
 {
-	Player* pPlayer = GetPlayer();
-
 	// エネミーからプレイヤーまでの距離の算出
-	D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
+	D3DXVECTOR3 Direction = pEnemy->pos - GetPlayer()->pos;
 
 	//対角線の角度を算出
 	Direction.z = atan2f(Direction.x, Direction.y);
@@ -645,7 +532,38 @@ void ZakatoFinish(Enemy* pEnemy)
 	pEnemy->nCntBullet = 0;
 	pEnemy->bTracking = false;		//追尾
 	pEnemy->bTP = false;
-	pEnemy->bUse = false;		//エネミーを無効化する
+	pEnemy->bUse = false;			//エネミーを無効化する
+}
+
+//--------------------------------------------------
+// 弾を撃ちだす処理
+// Author：Yuda Kaito
+//
+// 引数
+// Enemy* pEnemy	値を変更するエネミー
+// int Interval		攻撃の間隔
+//--------------------------------------------------
+void ShotBullet(Enemy* pEnemy , int Interval)
+{
+	if (pEnemy->pos.y < SCREEN_HEIGHT || pEnemy->pos.x < 0.0f || pEnemy->pos.x > SCREEN_WIDTH)
+	{	// 画面内に収まっている場合
+
+		pEnemy->nCntBullet++;
+
+		if (pEnemy->nCntBullet >= Interval)
+		{
+			// エネミーからプレイヤーまでの距離の算出
+			D3DXVECTOR3 Direction = pEnemy->pos - GetPlayer()->pos;
+
+			//対角線の角度を算出
+			Direction.z = atan2f(Direction.x, Direction.y);
+			Direction.x = 0.0f;		// 使わない情報なので初期化
+			Direction.y = 0.0f;		// 使わない情報なので初期化
+
+			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
+			pEnemy->nCntBullet = 0;
+		}
+	}
 }
 
 //--------------------------------------------------
@@ -683,8 +601,8 @@ void DrawEnemy(void)
 //--------------------------------------------------
 Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 {
-	Enemy* pEnemy = s_aEnemy;
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
+	Enemy* pEnemy = s_aEnemy;
 
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
@@ -710,6 +628,7 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 		pEnemy->fSpeed = s_aTypeEnemy[nType].fSpeed;
 		//pEnemy->move.y = saTypeEnemy[nType].fSpeed;
 		pEnemy->FlagOn = true;
+
 		switch (pEnemy->nType)
 		{
 		case ENEMYTYPE_SHEONITE:
@@ -722,6 +641,29 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 			break;
 		case FLAG_STATE:
 			pEnemy->FlagOn = false;
+		default:
+			break;
+		}
+
+		switch (pEnemy->nType)
+		{
+		case ENEMYTYPE_SKY_1:
+		case ENEMYTYPE_SKY_2:
+		case ENEMYTYPE_SKY_3:
+		case ENEMYTYPE_SHEONITE:
+		case ENEMYTYPE_BAKYURA:
+		case ENEMYTYPE_WARP_1:
+		case ENEMYTYPE_WARP_2:
+		case ENEMYTYPE_WARP_3:
+		case ENEMYTYPE_WARP_4:
+		case ENEMYTYPE_BOSS:
+			pEnemy->bIsSkyType = true;
+			break;
+		case ENEMYTYPE_GROUND_1:
+		case ENEMYTYPE_GROUND_2:
+		case FLAG_STATE:
+			pEnemy->bIsSkyType = false;
+			break;
 		default:
 			break;
 		}
@@ -1047,6 +989,7 @@ void falseSetEnemy(void)
 		s_aEnemy[nCntEnemy].bUse = false;
 	}
 }
+
 //--------------------
 //旗
 // Author : 髙野馨將

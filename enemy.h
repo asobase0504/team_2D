@@ -48,6 +48,7 @@ typedef struct
 	float fSpeed;			// 移動量
 	float fSize;			// 大きさ		
 	bool bUse;				// 使用してるかどうか	
+	bool bIsSkyType;			// これは空にいる敵か
 	int nLife;				// 体力
 	int nCntState;			// 状態管理カウント
 	int nCntBullet;			// 弾の出る時間
