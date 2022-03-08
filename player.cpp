@@ -17,9 +17,9 @@
 //*******************************************************************************
 // 定数
 //*******************************************************************************
-#define MAX_SPEED				(10.0f)																		// 移動速度の最大値
+#define MAX_SPEED				(20.0f)																		// 移動速度の最大値
 #define MIN_SPEED				(0.0f)																		// 移動速度の最小値
-#define MOVE_SPEED				(50.0f)																		// 設定時の移動量
+#define MOVE_SPEED				(MAX_SPEED)																		// 設定時の移動量
 #define MOVE_FRICTION			(0.5f)																		// 動摩擦係数
 #define MAX_CNT_SKY_SHOT		(0.25f * 60)																// 空中弾発射間隔(秒数 * フレーム数)
 #define MAX_CNT_GRAND_SHOT		(0.7f * 60)																	// 地上弾発射間隔(秒数 * フレーム数)
@@ -29,7 +29,6 @@
 #define RESPAWN_PLAYER			(60)																		// リスポーン待機時間
 #define START_POS_Y				(SCREEN_HEIGHT * 0.8f)														// スタート時の位置(Y)
 #define SPAWN_POS				(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT + PLAYER_RADIUS, 0.0f))		// スポーン時の位置
-
 
 //******************************************************************************
 // グローバル変数
@@ -377,7 +376,6 @@ D3DXVECTOR3 MovePlayer(void)
 			move = move / speed * MAX_SPEED;
 		}
 	}
-
 
 	// 動摩擦係数を加える
 	move *= (1.0f - MOVE_FRICTION);
