@@ -29,6 +29,7 @@ typedef struct
 	LPDIRECTINPUTDEVICE8 pDevJoyKey = NULL;			//入力デバイス（キーボード（コントローラー用は別に作る））へのポインタ
 	DIJOYSTATE2 JoyKeyStateDirect;					//ジョイパット（プレス処理）
 	DIJOYSTATE2 JoyKeyStateDirectTrigger;			//ジョイパット（トリガー処理）
+	DIJOYSTATE2 JoyKeyStateDirectRelease;			//ジョイパット（リリース処理）
 	DWORD OldJoyKeyDirect = 0xffffffff;				//前回の十字キーの値
 	JOYKEY_CROSS OldJoyKeyStickDirect;				//前回のスティックの位置
 	bool bJoyKey = false;							//使っていつかどうか
@@ -39,20 +40,20 @@ typedef struct
 //-----------------------------------------------------------------------------
 
 //キーボード
-static LPDIRECTINPUT8 g_pInput = NULL;					//DirectInputオブジェクトへのポインタ
-static LPDIRECTINPUTDEVICE8 g_pDevKeyboard = NULL;		//入力デバイス（キーボード（コントローラー用は別に作る））へのポインタ
-static BYTE g_aKeyState[NUM_KEY_MAX];					//キーボードのプレス情報
-static BYTE g_aKeyStateTrigger[NUM_KEY_MAX];			//キーボードのトリガー情報
-static BYTE g_aKeyStateRelease[NUM_KEY_MAX];			//キーボードのリリース情報
+static LPDIRECTINPUT8 g_pInput = NULL;						//DirectInputオブジェクトへのポインタ
+static LPDIRECTINPUTDEVICE8 g_pDevKeyboard = NULL;			//入力デバイス（キーボード（コントローラー用は別に作る））へのポインタ
+static BYTE g_aKeyState[NUM_KEY_MAX];						//キーボードのプレス情報
+static BYTE g_aKeyStateTrigger[NUM_KEY_MAX];				//キーボードのトリガー情報
+static BYTE g_aKeyStateRelease[NUM_KEY_MAX];				//キーボードのリリース情報
 
 //ジョイパッド(DirectInput)
-static JoyKeyDirect g_aJoyKeyDirectState;				//ジョイパッド(DirectInput)の構造体変数
+static JoyKeyDirect g_aJoyKeyDirectState;					//ジョイパッド(DirectInput)の構造体変数
 
 //ジョイパッド
-static XINPUT_STATE g_JoyKeyState[PLAYER_MAX];			//ジョイパットのプレス情報
-static XINPUT_STATE g_JoyKeyStateTrigger[PLAYER_MAX];	//ジョイパットのトリガー情報
-static D3DXVECTOR3 g_JoyStickPos[PLAYER_MAX];			//ジョイスティックの傾き
-static JOYKEY_CROSS g_OldJoyKeyStick;					//前回のスティックの位置
+static XINPUT_STATE g_JoyKeyState[PLAYER_MAX];				//ジョイパットのプレス情報
+static XINPUT_STATE g_JoyKeyStateTrigger[PLAYER_MAX];		//ジョイパットのトリガー情報
+static D3DXVECTOR3 g_JoyStickPos[PLAYER_MAX];				//ジョイスティックの傾き
+static JOYKEY_CROSS g_OldJoyKeyStick;						//前回のスティックの位置
 
 //-----------------------------------------------------------------------------
 //プロトタイプ宣言
@@ -318,7 +319,6 @@ void UpdateJoypadDirect(void)
 {
 	DIJOYSTATE2 aKeyState;		//ジョイパッド(DirectInput)の入力情報
 
-
 	if (g_aJoyKeyDirectState.bJoyKey)
 	{
 		//入力デバイスからデータを取得
@@ -326,7 +326,8 @@ void UpdateJoypadDirect(void)
 		{
 			for (int nCnt = 0; nCnt < 32; nCnt++)
 			{
-				g_aJoyKeyDirectState.JoyKeyStateDirectTrigger.rgbButtons[nCnt] = (g_aJoyKeyDirectState.JoyKeyStateDirect.rgbButtons[nCnt] ^ aKeyState.rgbButtons[nCnt]) & aKeyState.rgbButtons[nCnt]; //キーボードのトリガー情報を保存
+				g_aJoyKeyDirectState.JoyKeyStateDirectTrigger.rgbButtons[nCnt] = (g_aJoyKeyDirectState.JoyKeyStateDirect.rgbButtons[nCnt] ^ aKeyState.rgbButtons[nCnt]) & aKeyState.rgbButtons[nCnt];									//キーボードのトリガー情報を保存
+				g_aJoyKeyDirectState.JoyKeyStateDirectRelease.rgbButtons[nCnt] = (g_aJoyKeyDirectState.JoyKeyStateDirect.rgbButtons[nCnt] ^ aKeyState.rgbButtons[nCnt]) & g_aJoyKeyDirectState.JoyKeyStateDirect.rgbButtons[nCnt];		//キーボードのリリース情報を保存
 			}
 			g_aJoyKeyDirectState.JoyKeyStateDirect = aKeyState;		//プレス処理
 		}
@@ -390,6 +391,12 @@ bool GetDirectJoypadTrigger(JOYKEY_CROSS Key)
 bool GetDirectJoypadTrigger(JOYKEY_DIRECT Key)
 {
 	return (g_aJoyKeyDirectState.JoyKeyStateDirectTrigger.rgbButtons[Key] & 0x80) ? true : false;
+}
+
+//ジョイパッド(DirectInput)リリース処理
+bool GetDirectJoypadRelease(JOYKEY_DIRECT Key)
+{
+	return (g_aJoyKeyDirectState.JoyKeyStateDirectRelease.rgbButtons[Key] & 0x80) ? true : false;
 }
 
 //ジョイパッド(DirectInput)スティック処理

@@ -110,26 +110,26 @@ void UpdateInput(void);									//入力処理全部の更新処理
 //プロトタイプ宣言キーボード
 bool GetKeyboardPress(int nKey);						//キーボードプレス処理
 bool GetKeyboardTrigger(int nKey);						//キーボードトリガー処理
-bool GetKeyboardRelease(int nKey);			//キーボードリリース処理
+bool GetKeyboardRelease(int nKey);						//キーボードリリース処理
 bool GetKeyboardAllPress(void);							//キーボード全キープレス処理
 bool GetKeyboardAllTrigger(void);						//キーボード全キートリガー処理
 
-														//プロトタイプ宣言ジョイパット(DirectInput)
-bool GetDirectJoypadPress(JOYKEY_DIRECT Key);						//ジョイパッドプレス処理
-bool GetDirectJoypadPress(JOYKEY_CROSS Key);					//ジョイパッドプレス処理
-bool GetDirectJoypadTrigger(JOYKEY_DIRECT Key);						//ジョイパッドトリガー処理
-bool GetDirectJoypadTrigger(JOYKEY_CROSS Key);				//ジョイパッドトリガー処理
-bool GetDirectJoypadAllPress(void);									//ジョイパッド全キープレス処理
-D3DXVECTOR3 GetDirectJoypadStick(JOYKEY_RIGHT_LEFT Key);		//ジョイパッドスティック処理
-bool GetDirectJoypadStickPress(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key);			//ジョイパッドスティック8方向プレス処理
+//プロトタイプ宣言ジョイパット(DirectInput)
+bool GetDirectJoypadPress(JOYKEY_DIRECT Key);												//ジョイパッドプレス処理
+bool GetDirectJoypadPress(JOYKEY_CROSS Key);												//ジョイパッドプレス処理
+bool GetDirectJoypadTrigger(JOYKEY_DIRECT Key);												//ジョイパッドトリガー処理
+bool GetDirectJoypadTrigger(JOYKEY_CROSS Key);												//ジョイパッドトリガー処理
+bool GetDirectJoypadRelease(JOYKEY_DIRECT Key);												//ジョイパッドリリース処理
+bool GetDirectJoypadAllPress(void);															//ジョイパッド全キープレス処理
+D3DXVECTOR3 GetDirectJoypadStick(JOYKEY_RIGHT_LEFT Key);									//ジョイパッドスティック処理
+bool GetDirectJoypadStickPress(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key);				//ジョイパッドスティック8方向プレス処理
 bool GetDirectJoypadStickTrigger(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key);			//ジョイパッドスティック8方向トリガー処理
 
-																							//プロトタイプ宣言ジョイパット
-bool GetJoypadPress(JOYKEY Key, int nPlayer);					//ジョイパッドプレス処理
-bool GetJoypadTrigger(JOYKEY Key, int nPlayer);					//ジョイパッドトリガー処理
-D3DXVECTOR3 GetJoypadStick(JOYKEY_RIGHT_LEFT RightLeft, int nPlayer);			//ジョイパッドスティック処理
-int GetJoypadTriggerPedal(JOYKEY Key, int nPlayer);				//ジョイパッドトリガーペダル処理
-bool GetJoypadStickPress(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key, int nPlayer);				//ジョイパッドスティックプレス８方向
-bool GetJoypadStickTrigger(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key, int nPlayer);			//ジョイパッドスティックトリガー８方向
-
+//プロトタイプ宣言ジョイパット
+bool GetJoypadPress(JOYKEY Key, int nPlayer);															//ジョイパッドプレス処理
+bool GetJoypadTrigger(JOYKEY Key, int nPlayer);															//ジョイパッドトリガー処理
+D3DXVECTOR3 GetJoypadStick(JOYKEY_RIGHT_LEFT RightLeft, int nPlayer);									//ジョイパッドスティック処理
+int GetJoypadTriggerPedal(JOYKEY Key, int nPlayer);														//ジョイパッドトリガーペダル処理
+bool GetJoypadStickPress(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key, int nPlayer);					//ジョイパッドスティックプレス８方向
+bool GetJoypadStickTrigger(JOYKEY_RIGHT_LEFT RightLeft, JOYKEY_CROSS Key, int nPlayer);					//ジョイパッドスティックトリガー８方向
 #endif
