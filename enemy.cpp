@@ -67,7 +67,7 @@ static void UpdateZakato3(Enemy* pEnemy);	// ƒUƒJ[ƒg‚Ìˆ—3(’Ç”öƒAƒŠAŽžŠÔŒo‰ß‚
 static void UpdateZakato4(Enemy* pEnemy);	// ƒUƒJ[ƒg‚Ìˆ—4(’Ç”öƒiƒVAŽžŠÔŒo‰ß‚Å’e‚ð”­ŽË‚µ‚ÄÁ–Å)
 static void Updateflag(Enemy* pEnemy);		// ƒtƒ‰ƒbƒN‚Ìˆ—
 static void ZakatoFinish(Enemy* pEnemy);	// ƒUƒJ[ƒg‚ªI—¹‚·‚éÛ‚Ìˆ—
-static void ShotBullet(Enemy* pEnemy);		// ’e‚ðŒ‚‚¿‚¾‚·ˆ—
+static void ShotBullet(Enemy* pEnemy, int Interval);		// ’e‚ðŒ‚‚¿‚¾‚·ˆ—
 
 //--------------------------------------------------
 // ‰Šú‰»
@@ -169,10 +169,10 @@ void UninitEnemy(void)
 //--------------------------------------------------
 void UpdateEnemy(void)
 {
+	Enemy* pEnemy = s_aEnemy;
+
 	VERTEX_2D *pVtx;			//’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
 
-	Enemy* pEnemy = s_aEnemy;
-	Player* pPlayer = GetPlayer();
 	// ’¸“_ƒoƒbƒtƒ@‚ðƒƒbƒN‚µA’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ðŽæ“¾
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
@@ -211,19 +211,7 @@ void UpdateEnemy(void)
 			case ENEMYTYPE_GROUND_1:	// ’¼i“G
 				pEnemy->nCntBullet++;
 
-				if (pEnemy->nCntBullet >= BULLET_INTERVAL)
-				{
-					// ƒGƒlƒ~[‚©‚çƒvƒŒƒCƒ„[‚Ü‚Å‚Ì‹——£‚ÌŽZo
-					D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
-
-					//‘ÎŠpü‚ÌŠp“x‚ðŽZo
-					Direction.z = atan2f(Direction.x, Direction.y);
-					Direction.x = 0.0f;		// Žg‚í‚È‚¢î•ñ‚È‚Ì‚Å‰Šú‰»
-					Direction.y = 0.0f;		// Žg‚í‚È‚¢î•ñ‚È‚Ì‚Å‰Šú‰»
-
-					SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
-					pEnemy->nCntBullet = 0;
-				}
+				ShotBullet(pEnemy, BULLET_INTERVAL);
 				break;
 			case ENEMYTYPE_GROUND_2:	// “®‚©‚È‚¢“G
 
@@ -265,17 +253,10 @@ void UpdateEnemy(void)
 				{
 					continue;
 				}
-				if (pBullet->BulletType == BULLETTYPE_PLAYER_GROUND && pEnemy->nType >= 5 && pEnemy->nType <= 6 || pBullet->BulletType == BULLETTYPE_PLAYER_GROUND && pEnemy->nType >= 11)
-				{
-					if (CollisionCircle(pEnemy->pos, COLLISION, pBullet->pos, pBullet->size.x))
-					{
-						AddScore(255);
-						HitEnemy(pEnemy, 1);
-						pBullet->bUse = false;
-					}
-				}
-				else if (pBullet->BulletType == BULLETTYPE_PLAYER_SKY && pEnemy->nType <= 4 || pBullet->BulletType == BULLETTYPE_PLAYER_SKY && pEnemy->nType >= 7 && pEnemy->nType <= 10)
-				{
+
+				if ((pBullet->BulletType == BULLETTYPE_PLAYER_GROUND && !pEnemy->bIsSkyType)
+					|| (pBullet->BulletType == BULLETTYPE_PLAYER_SKY && pEnemy->bIsSkyType))
+				{// ’e‚ÌŽí—Þ‚Æ“G‚ÌŽí—Þ‚ªˆê’v‚µ‚Ä‚¢‚éŽž
 					if (CollisionCircle(pEnemy->pos, COLLISION, pBullet->pos, pBullet->size.x))
 					{
 						AddScore(255);
@@ -285,14 +266,18 @@ void UpdateEnemy(void)
 				}
 			}
 
-			if (pEnemy->pos.y > 720.0f + pEnemy ->fSize+200.0f)
+			// ‚ ‚é’ö“xi‚ß‚ÎŽ©“®‚Å’Ç”öˆ—‚ðØ‚é
+			if (pEnemy->pos.y > 720.0f + pEnemy->fSize + 200.0f)
 			{
 				pEnemy->bTracking = false;
 			}
-			if (pEnemy->pos.y < 0.0f&&pEnemy->bBack)
+
+			// ã•”‚É‹A‚é“G‚ðÁ‚·ˆ—
+			if (pEnemy->pos.y < 0.0f - pEnemy->fSize && pEnemy->bBack)
 			{
 				pEnemy->bUse = false;
 			}
+
 			// ƒGƒlƒ~[‚Ìƒ‰ƒCƒt‚ª0‚É‚È‚Á‚½‚Æ‚«
 			if (pEnemy->nLife <= 0)
 			{
@@ -327,7 +312,7 @@ void UpdateSky1(Enemy* pEnemy)
 	ReflectMove(pEnemy);
 
 	// ’e‚ðo‚·ˆ—
-	ShotBullet(pEnemy);
+	ShotBullet(pEnemy, 120);
 }
 
 //--------------------------------------------------
@@ -348,7 +333,7 @@ void UpdateSky2(Enemy* pEnemy)
 	}
 
 	// ’e‚ðo‚·ˆ—
-	ShotBullet(pEnemy);
+	ShotBullet(pEnemy, 120);
 }
 
 //--------------------------------------------------
@@ -376,7 +361,7 @@ void UpdateBuckSky(Enemy* pEnemy)
 	}
 
 	// ’e‚ðo‚·ˆ—
-	ShotBullet(pEnemy);
+	ShotBullet(pEnemy, 120);
 }
 
 //--------------------------------------------------
@@ -484,7 +469,7 @@ void UpdateZakato1(Enemy* pEnemy)
 	pEnemy->bTracking = false;
 
 	// ’e‚ðo‚·ˆ—
-	ShotBullet(pEnemy);
+	ShotBullet(pEnemy, 120);
 }
 
 //-------------------------------------------------
@@ -573,21 +558,25 @@ void ZakatoFinish(Enemy* pEnemy)
 	pEnemy->nCntBullet = 0;
 	pEnemy->bTracking = false;		//’Ç”ö
 	pEnemy->bTP = false;
-	pEnemy->bUse = false;		//ƒGƒlƒ~[‚ð–³Œø‰»‚·‚é
+	pEnemy->bUse = false;			//ƒGƒlƒ~[‚ð–³Œø‰»‚·‚é
 }
 
 //--------------------------------------------------
 // ’e‚ðŒ‚‚¿‚¾‚·ˆ—
-// AuthorFIsoe Jukia
+// AuthorFYuda Kaito
+//
+// ˆø”
+// Enemy* pEnemy	’l‚ð•ÏX‚·‚éƒGƒlƒ~[
+// int Interval		UŒ‚‚ÌŠÔŠu
 //--------------------------------------------------
-void ShotBullet(Enemy* pEnemy)
+void ShotBullet(Enemy* pEnemy , int Interval)
 {
 	if (pEnemy->pos.y < SCREEN_HEIGHT || pEnemy->pos.x < 0.0f || pEnemy->pos.x > SCREEN_WIDTH)
 	{	// ‰æ–Ê“à‚ÉŽû‚Ü‚Á‚Ä‚¢‚éê‡
 
 		pEnemy->nCntBullet++;
 
-		if (pEnemy->nCntBullet >= 120)
+		if (pEnemy->nCntBullet >= Interval)
 		{
 			// ƒGƒlƒ~[‚©‚çƒvƒŒƒCƒ„[‚Ü‚Å‚Ì‹——£‚ÌŽZo
 			D3DXVECTOR3 Direction = pEnemy->pos - GetPlayer()->pos;
@@ -665,6 +654,7 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 		pEnemy->fSpeed = s_aTypeEnemy[nType].fSpeed;
 		//pEnemy->move.y = saTypeEnemy[nType].fSpeed;
 		pEnemy->FlagOn = true;
+
 		switch (pEnemy->nType)
 		{
 		case ENEMYTYPE_SHEONITE:
@@ -677,6 +667,29 @@ Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 			break;
 		case FLAG_STATE:
 			pEnemy->FlagOn = false;
+		default:
+			break;
+		}
+
+		switch (pEnemy->nType)
+		{
+		case ENEMYTYPE_SKY_1:
+		case ENEMYTYPE_SKY_2:
+		case ENEMYTYPE_SKY_3:
+		case ENEMYTYPE_SHEONITE:
+		case ENEMYTYPE_BAKYURA:
+		case ENEMYTYPE_WARP_1:
+		case ENEMYTYPE_WARP_2:
+		case ENEMYTYPE_WARP_3:
+		case ENEMYTYPE_WARP_4:
+		case ENEMYTYPE_BOSS:
+			pEnemy->bIsSkyType = true;
+			break;
+		case ENEMYTYPE_GROUND_1:
+		case ENEMYTYPE_GROUND_2:
+		case FLAG_STATE:
+			pEnemy->bIsSkyType = false;
+			break;
 		default:
 			break;
 		}
