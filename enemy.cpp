@@ -266,11 +266,23 @@ void UpdateEnemy(void)
 				{
 					continue;
 				}
-				if (CollisionCircle(pEnemy->pos, COLLISION, pBullet->pos, pBullet->size.x))
+				if (pBullet->BulletType == BULLETTYPE_PLAYER_GROUND && pEnemy->nType >= 5 && pEnemy->nType <= 6 || pBullet->BulletType == BULLETTYPE_PLAYER_GROUND && pEnemy->nType >= 11)
 				{
-					AddScore(255);
-					HitEnemy(pEnemy, 1);
-					pBullet->bUse = false;
+					if (CollisionCircle(pEnemy->pos, COLLISION, pBullet->pos, pBullet->size.x))
+					{
+						AddScore(255);
+						HitEnemy(pEnemy, 1);
+						pBullet->bUse = false;
+					}
+				}
+				else if (pBullet->BulletType == BULLETTYPE_PLAYER_SKY && pEnemy->nType <= 4 || pBullet->BulletType == BULLETTYPE_PLAYER_SKY && pEnemy->nType >= 7 && pEnemy->nType <= 10)
+				{
+					if (CollisionCircle(pEnemy->pos, COLLISION, pBullet->pos, pBullet->size.x))
+					{
+						AddScore(255);
+						HitEnemy(pEnemy, 1);
+						pBullet->bUse = false;
+					}
 				}
 			}
 
