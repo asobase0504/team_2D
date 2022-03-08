@@ -84,15 +84,15 @@ void InitStaffroll(void)
 	//	構造体の設定
 	//------------------------------
 	//位置の設定
-	StaffPos[0] = D3DXVECTOR3(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.0f);
-	StaffPos[1] = D3DXVECTOR3(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100.0f, 0.0f);
+	StaffPos[0] = D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f, 0.0f);
+	StaffPos[1] = D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT + 100.0f, 0.0f);
 
 	//幅の設定
-	StaffWidth[0] = SCREEN_WIDTH / 2;
+	StaffWidth[0] = SCREEN_WIDTH * 0.5f;
 	StaffWidth[1] = 450.0f;
 
 	//高さの設定
-	StaffHeight[0] = SCREEN_HEIGHT / 2;
+	StaffHeight[0] = SCREEN_HEIGHT * 0.5f;
 	StaffHeight[1] = 100.0f;
 
 	for (int nCnt = 0; nCnt < NUM_STAFFROLL; nCnt++)
@@ -107,8 +107,6 @@ void InitStaffroll(void)
 	RollNumber = 0;
 	MODE_ROLL = false;
 	TYFP = false;
-
-	VERTEX_2D*pVtx;		//頂点情報へのポインタこれ使ってる？？使ってないなら消すよby浜田
 
 	SetStaffroll(StaffPos[0], StaffWidth[0], StaffHeight[0], 0);
 }
@@ -143,102 +141,79 @@ void UpdateStaffroll(void)
 {
 	VERTEX_2D*pVtx;		//頂点情報へのポインタ
 
-						//頂点バッファをロックし、頂点情報へのポインタを取得
+	//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	STAFFROLL *staff = s_Staffroll;
 
-	for (int nCnt = 0; nCnt < NUM_STAFFROLL; nCnt++, staff++)
+	for (int nCnt = 0; nCnt < NUM_STAFFROLL; nCnt++, staff++, pVtx += 4)
 	{
-		if (staff->bUse)
+		if (!staff->bUse)
 		{
-			if (TYFP == false)
+			continue;
+		}
+
+		if (TYFP)
+		{
+			FinishRoll++;
+
+			if (FinishRoll == 180 * MAX_MEMBER)
 			{
-				staff->nCntStaff++;
+				ChangeMode(MODE_TITLE);
+			}
+		}
+		else
+		{
+			staff->nCntStaff++;
 
-				if (MODE_ROLL)
-				{//頂点座標の設定
+			if (MODE_ROLL)
+			{//頂点座標の設定
 
-					staff->pos.y -= 2.0f;
+				staff->pos.y -= 2.0f;
 
-					//頂点座標の設定
-					pVtx[0].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
-					pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
-					pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
-					pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
+				//頂点座標の設定
+				pVtx[0].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
+				pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
+				pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
+				pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
 
-					//rhwの設定
-					pVtx[0].rhw = 1.0f;
-					pVtx[1].rhw = 1.0f;
-					pVtx[2].rhw = 1.0f;
-					pVtx[3].rhw = 1.0f;
-
-					//頂点カラーの設定
-					pVtx[0].col = staff->col;
-					pVtx[1].col = staff->col;
-					pVtx[2].col = staff->col;
-					pVtx[3].col = staff->col;
-
-					if (RollNumber < MAX_MEMBER - 1)
+				if (RollNumber < MAX_MEMBER - 1)
+				{
+					if (staff->nCntStaff == 240)
 					{
-						if (staff->nCntStaff == 240)
-						{
-							RollNumber++;
+						RollNumber++;
 
-							SetStaffroll(StaffPos[1], StaffWidth[1], StaffHeight[1], 1 + RollNumber);
-						}
-					}
-					if (RollNumber == MAX_MEMBER - 1)
-					{
-						FinishRoll++;
-
-						if (FinishRoll == 250 * MAX_MEMBER)
-						{
-							TYFP = true;
-							FinishRoll = 0;
-						}
+						SetStaffroll(StaffPos[1], StaffWidth[1], StaffHeight[1], 1 + RollNumber);
 					}
 				}
-				else if (!MODE_ROLL)
+				if (RollNumber == MAX_MEMBER - 1)
 				{
-					//頂点座標の設定
-					pVtx[0].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth + staff->nCntStaff * 3, staff->pos.y - staff->fHeight + staff->nCntStaff * 2, 0.0f);
-					pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth - staff->nCntStaff * 3, staff->pos.y - staff->fHeight + staff->nCntStaff * 2, 0.0f);
-					pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth + staff->nCntStaff * 3, staff->pos.y + staff->fHeight - staff->nCntStaff * 2, 0.0f);
-					pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth - staff->nCntStaff * 3, staff->pos.y + staff->fHeight - staff->nCntStaff * 2, 0.0f);
+					FinishRoll++;
 
-					//rhwの設定
-					pVtx[0].rhw = 1.0f;
-					pVtx[1].rhw = 1.0f;
-					pVtx[2].rhw = 1.0f;
-					pVtx[3].rhw = 1.0f;
-
-					//頂点カラーの設定
-					pVtx[0].col = staff->col;
-					pVtx[1].col = staff->col;
-					pVtx[2].col = staff->col;
-					pVtx[3].col = staff->col;
-
-					if (staff->nCntStaff == 180)
+					if (FinishRoll == 250 * MAX_MEMBER)
 					{
-						staff->nCntStaff = 0;
-						staff->bUse = false;
-						MODE_ROLL = true;
-						SetStaffroll(StaffPos[1], StaffWidth[1], StaffHeight[1], 1);
+						TYFP = true;
+						FinishRoll = 0;
 					}
 				}
 			}
 			else
 			{
-				FinishRoll++;
+				//頂点座標の設定
+				pVtx[0].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth + staff->nCntStaff * 3, staff->pos.y - staff->fHeight + staff->nCntStaff * 2, 0.0f);
+				pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth - staff->nCntStaff * 3, staff->pos.y - staff->fHeight + staff->nCntStaff * 2, 0.0f);
+				pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth + staff->nCntStaff * 3, staff->pos.y + staff->fHeight - staff->nCntStaff * 2, 0.0f);
+				pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth - staff->nCntStaff * 3, staff->pos.y + staff->fHeight - staff->nCntStaff * 2, 0.0f);
 
-				if (FinishRoll == 180 * MAX_MEMBER)
+				if (staff->nCntStaff == 180)
 				{
-					ChangeMode(MODE_TITLE);
+					staff->nCntStaff = 0;
+					staff->bUse = false;
+					MODE_ROLL = true;
+					SetStaffroll(StaffPos[1], StaffWidth[1], StaffHeight[1], 1);
 				}
 			}
 		}
-		pVtx += 4;
 	}
 
 	//頂点バッファをアンロックする
@@ -261,7 +236,7 @@ void DrawStaffroll(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();	//デバイスの取得
 
-												//頂点バッファをデータストリームに設定
+	//頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
 
 	//頂点フォーマットの設定
@@ -291,49 +266,49 @@ void SetStaffroll(D3DXVECTOR3 pos, float fWidth, float fHeight, int nType)
 {
 	VERTEX_2D*pVtx;		//頂点情報へのポインタ
 
-						//頂点バッファをロックし、頂点情報へのポインタを取得
+	//頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int nCnt = 0; nCnt < NUM_STAFFROLL; nCnt++)
+	for (int nCnt = 0; nCnt < NUM_STAFFROLL; nCnt++, pVtx += 4)
 	{
 		STAFFROLL *staff = s_Staffroll + nCnt;
 
-		if (!staff->bUse)
+		if (staff->bUse)
 		{
-			staff->pos = pos;
-			staff->nType = nType;
-			staff->bUse = true;
-			staff->fWidth = fWidth;
-			staff->fHeight = fHeight;
-			staff->nCntStaff = 0;
-
-			//頂点座標の設定
-			pVtx[0].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
-			pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
-			pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
-			pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
-
-			//rhwの設定
-			pVtx[0].rhw = 1.0f;
-			pVtx[1].rhw = 1.0f;
-			pVtx[2].rhw = 1.0f;
-			pVtx[3].rhw = 1.0f;
-
-			//頂点カラーの設定
-			pVtx[0].col = staff->col;
-			pVtx[1].col = staff->col;
-			pVtx[2].col = staff->col;
-			pVtx[3].col = staff->col;
-
-			//テクスチャの設定
-			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-			pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
-
-			break;
+			continue;
 		}
-		pVtx += 4;
+		staff->pos = pos;
+		staff->nType = nType;
+		staff->bUse = true;
+		staff->fWidth = fWidth;
+		staff->fHeight = fHeight;
+		staff->nCntStaff = 0;
+
+		//頂点座標の設定
+		pVtx[0].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y - staff->fHeight, 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(staff->pos.x - staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(staff->pos.x + staff->fWidth, staff->pos.y + staff->fHeight, 0.0f);
+
+		//rhwの設定
+		pVtx[0].rhw = 1.0f;
+		pVtx[1].rhw = 1.0f;
+		pVtx[2].rhw = 1.0f;
+		pVtx[3].rhw = 1.0f;
+
+		//頂点カラーの設定
+		pVtx[0].col = staff->col;
+		pVtx[1].col = staff->col;
+		pVtx[2].col = staff->col;
+		pVtx[3].col = staff->col;
+
+		//テクスチャの設定
+		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
+		break;
 	}
 	//頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
