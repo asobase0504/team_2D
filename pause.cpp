@@ -276,17 +276,17 @@ static void Input(void)
 		return;
 	}
 
-	if (GetKeyboardTrigger(DIK_W) || GetJoypadTrigger(JOYKEY_UP, 0))
+	if (GetKeyboardTrigger(DIK_W) || GetDirectJoypadTrigger(JOYKEY_CROSS_UP) /*|| GetDirectJoypadStickTrigger(JOYKEY_LEFT_STICK, JOYKEY_CROSS_UP)*/)
 	{// Wキーが押されたかどうか
 		s_nSelectMenu = ((s_nSelectMenu - 1) + MENU_MAX) % MENU_MAX;
 
 	}
-	else if (GetKeyboardTrigger(DIK_S) || GetJoypadTrigger(JOYKEY_DOWN, 0))
+	else if (GetKeyboardTrigger(DIK_S) || GetDirectJoypadTrigger(JOYKEY_CROSS_DOWN) /*|| GetDirectJoypadStickTrigger(JOYKEY_LEFT_STICK, JOYKEY_CROSS_DOWN)*/)
 	{// Sキーが押されたかどうか
 		s_nSelectMenu = ((s_nSelectMenu + 1) + MENU_MAX) % MENU_MAX;
 	}
 
-	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_START, 0))
+	if (GetKeyboardTrigger(DIK_RETURN) || GetDirectJoypadTrigger(JOYKEY_DIRECT_1_BUTTON))
 	{//決定キー(ENTERキー)が押されたかどうか
 		switch (s_nSelectMenu)
 		{

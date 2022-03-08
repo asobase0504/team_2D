@@ -94,7 +94,7 @@ void UninitGame(void)
 //=========================================
 void UpdateGame(void)
 {
-	if (GetJoypadTrigger(JOYKEY_START, 0) || GetKeyboardTrigger(DIK_P))
+	if (GetDirectJoypadTrigger(JOYKEY_DIRECT_7_BUTTON) || GetKeyboardTrigger(DIK_P))
 	{
 		s_bPause = !s_bPause;
 
@@ -112,6 +112,7 @@ void UpdateGame(void)
 		return;
 	}
 
+#ifdef _DEBUG
 	if (GetKeyboardTrigger(DIK_F1))
 	{
 		StopSound();
@@ -158,13 +159,14 @@ void UpdateGame(void)
 	}
 	else if (GetKeyboardTrigger(DIK_3))
 	{
-		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f),25.0f, ENEMYTYPE_WARP_3);
+		SetEnemy(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, 0.0f), 25.0f, ENEMYTYPE_WARP_3);
 	}
 
 	if (GetKeyboardTrigger(DIK_T))	// リザルトに移行デバッグ
 	{
 		ChangeMode(MODE_RESULT);
 	}
+#endif // !_DEBUG
 
 	UpdateMap();		// マップデータ
 	UpdateCrater();		// クレーター
@@ -179,7 +181,6 @@ void UpdateGame(void)
 	UpdateBestScore();	// ベストスコア
 	UpdateScoreUp();	// スコアアップ
 	//UpdateFlag();		// フラグ
-
 }
 
 //=========================================
