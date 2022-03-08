@@ -55,6 +55,7 @@ static int count = 0;
 // プロトタイプ宣言
 //**************************************************
 static void TrackingMove(Enemy* pEnemy);	// 追尾処理
+static void ReflectMove(Enemy* pEnemy);
 static void UpdateSky1(Enemy* pEnemy);		// 空の敵1の更新
 static void UpdateSky2(Enemy* pEnemy);		// 空の敵2の更新
 static void UpdateBuckSky(Enemy* pEnemy);	// 帰る空の敵の更新
@@ -64,13 +65,10 @@ static void UpdateZakato1(Enemy* pEnemy);	// TOGETOGE
 static void UpdateZakato2(Enemy* pEnemy);	// ザカートの処理2(追尾ナシ、一定の間隔で弾を発射して消滅)
 static void UpdateZakato3(Enemy* pEnemy);	// ザカートの処理3(追尾アリ、時間経過で弾を発射して消滅)
 static void UpdateZakato4(Enemy* pEnemy);	// ザカートの処理4(追尾ナシ、時間経過で弾を発射して消滅)
-static void ZakatoFinish(Enemy* pEnemy);	// ザカートが終了する際の処理
-static void ReflectMove(Enemy* pEnemy);
 static void Updateflag(Enemy* pEnemy);		// フラックの処理
+static void ZakatoFinish(Enemy* pEnemy);	// ザカートが終了する際の処理
+static void ShotBullet(Enemy* pEnemy);		// 弾を撃ちだす処理
 
-//**************************************************
-// グローバル関数
-//**************************************************
 //--------------------------------------------------
 // 初期化
 // Auther：Isoe Jukia
@@ -322,32 +320,14 @@ void UpdateEnemy(void)
 //--------------------------------------------------
 void UpdateSky1(Enemy* pEnemy)
 {
-	// プレイヤー情報の取得
-	Player* pPlayer = GetPlayer();
 	// 追尾の処理
 	TrackingMove(pEnemy);
 
-	//pEnemy->move.y = pEnemy->fSpeed;
+	// 反射の処理
 	ReflectMove(pEnemy);
 
 	// 弾を出す処理
-	if (pEnemy->pos.y > 0.0f)
-	{	// 画面内に収まっている場合
-		pEnemy->nCntBullet++;
-		if (pEnemy->nCntBullet >= 60)
-		{
-			// エネミーからプレイヤーまでの距離の算出
-			D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
-
-			//対角線の角度を算出
-			Direction.z = atan2f(Direction.x, Direction.y);
-			Direction.x = 0.0f;		// 使わない情報なので初期化
-			Direction.y = 0.0f;		// 使わない情報なので初期化
-
-			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
-			pEnemy->nCntBullet = 0;
-		}
-	}
+	ShotBullet(pEnemy);
 }
 
 //--------------------------------------------------
@@ -357,12 +337,10 @@ void UpdateSky1(Enemy* pEnemy)
 //--------------------------------------------------
 void UpdateSky2(Enemy* pEnemy)
 {
-	// プレイヤー情報の取得
-	Player* pPlayer = GetPlayer();
 	// 追尾の処理
 	TrackingMove(pEnemy);
 
-	if (CollisionCircle(pEnemy->pos, JUDGEMENT, pPlayer->pos, JUDGEMENT))
+	if (CollisionCircle(pEnemy->pos, JUDGEMENT, GetPlayer()->pos, JUDGEMENT))
 	{// 敵が逃げる処理
 		pEnemy->bTracking = false;
 		pEnemy->move.y = 0;		// コメントアウトを消すと直角に曲がる
@@ -370,23 +348,7 @@ void UpdateSky2(Enemy* pEnemy)
 	}
 
 	// 弾を出す処理
-	if (pEnemy->pos.y > 0.0f)
-	{	// 画面内に収まっている場合
-		pEnemy->nCntBullet++;
-		if (pEnemy->nCntBullet >= 60)
-		{
-			// エネミーからプレイヤーまでの距離の算出
-			D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
-
-			//対角線の角度を算出
-			Direction.z = atan2f(Direction.x, Direction.y);
-			Direction.x = 0.0f;		// 使わない情報なので初期化
-			Direction.y = 0.0f;		// 使わない情報なので初期化
-
-			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
-			pEnemy->nCntBullet = 0;
-		}
-	}
+	ShotBullet(pEnemy);
 }
 
 //--------------------------------------------------
@@ -414,23 +376,7 @@ void UpdateBuckSky(Enemy* pEnemy)
 	}
 
 	// 弾を出す処理
-	if (pEnemy->pos.y > 0.0f)
-	{	// 画面内に収まっている場合
-		pEnemy->nCntBullet++;
-		if (pEnemy->nCntBullet >= 60)
-		{
-			// エネミーからプレイヤーまでの距離の算出
-			D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
-
-			//対角線の角度を算出
-			Direction.z = atan2f(Direction.x, Direction.y);
-			Direction.x = 0.0f;		// 使わない情報なので初期化
-			Direction.y = 0.0f;		// 使わない情報なので初期化
-
-			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
-			pEnemy->nCntBullet = 0;
-		}
-	}
+	ShotBullet(pEnemy);
 }
 
 //--------------------------------------------------
@@ -538,25 +484,7 @@ void UpdateZakato1(Enemy* pEnemy)
 	pEnemy->bTracking = false;
 
 	// 弾を出す処理
-	if (pEnemy->pos.y > 0.0f)
-	{	// 画面内に収まっている場合
-
-		pEnemy->nCntBullet++;
-
-		if (pEnemy->nCntBullet >= 120)
-		{
-			// エネミーからプレイヤーまでの距離の算出
-			D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
-
-			//対角線の角度を算出
-			Direction.z = atan2f(Direction.x, Direction.y);
-			Direction.x = 0.0f;		// 使わない情報なので初期化
-			Direction.y = 0.0f;		// 使わない情報なので初期化
-
-			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
-			pEnemy->nCntBullet = 0;
-		}
-	}
+	ShotBullet(pEnemy);
 }
 
 //-------------------------------------------------
@@ -646,6 +574,33 @@ void ZakatoFinish(Enemy* pEnemy)
 	pEnemy->bTracking = false;		//追尾
 	pEnemy->bTP = false;
 	pEnemy->bUse = false;		//エネミーを無効化する
+}
+
+//--------------------------------------------------
+// 弾を撃ちだす処理
+// Author：Isoe Jukia
+//--------------------------------------------------
+void ShotBullet(Enemy* pEnemy)
+{
+	if (pEnemy->pos.y < SCREEN_HEIGHT || pEnemy->pos.x < 0.0f || pEnemy->pos.x > SCREEN_WIDTH)
+	{	// 画面内に収まっている場合
+
+		pEnemy->nCntBullet++;
+
+		if (pEnemy->nCntBullet >= 120)
+		{
+			// エネミーからプレイヤーまでの距離の算出
+			D3DXVECTOR3 Direction = pEnemy->pos - GetPlayer()->pos;
+
+			//対角線の角度を算出
+			Direction.z = atan2f(Direction.x, Direction.y);
+			Direction.x = 0.0f;		// 使わない情報なので初期化
+			Direction.y = 0.0f;		// 使わない情報なので初期化
+
+			SetBullet(D3DXVECTOR3(pEnemy->pos.x, pEnemy->pos.y - pEnemy->fSize, 0.0f), Direction, BULLETTYPE_ENEMY, -1, true);
+			pEnemy->nCntBullet = 0;
+		}
+	}
 }
 
 //--------------------------------------------------
@@ -1047,6 +1002,7 @@ void falseSetEnemy(void)
 		s_aEnemy[nCntEnemy].bUse = false;
 	}
 }
+
 //--------------------
 //旗
 // Author : 髙野馨將
