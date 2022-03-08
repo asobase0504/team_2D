@@ -23,16 +23,13 @@
 //----------------------------
 // マクロ
 //----------------------------
-#define MOVE_SPEED   (2.5f)
-#define COLLISION	(25)
-#define RADIUS		(5.0f)
-#define SPEED		(2.0f)
-#define JUDGEMENT	(100)	// 避ける敵の判定サイズ
-#define UP_ESCAPE	(200)	// 上に逃げる敵の判定サイズ
-#define ABILTIY		(0.005f)
-#define MAXSTAGE	(5)
-#define JUGE		(80)
-#define BULLET_INTERVAL		(180)
+#define MOVE_SPEED			(2.5f)
+#define COLLISION			(25)
+#define JUDGEMENT			(100)		// 避ける敵の判定サイズ
+#define UP_ESCAPE			(200)		// 上に逃げる敵の判定サイズ
+#define ABILTIY				(0.005f)
+#define MAXSTAGE			(5)			// ステージ数
+#define BULLET_INTERVAL		(180)		// 攻撃間隔
 
 //シオナイト
 #define SHEO_DIST_START_ROTATION	(200.0f)							// 回り始める距離
@@ -49,7 +46,7 @@ static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;		//頂点バッファへのポインタ
 static Enemy s_aEnemy[MAX_ENEMY];					// 敵の情報
 static Enemy s_aTypeEnemy[ENEMYTYPE_MAX];
 static char EnemyLink[MAXSTAGE][256];
-static int count = 0;
+static int count;
 
 //**************************************************
 // プロトタイプ宣言
@@ -75,28 +72,26 @@ static void ShotBullet(Enemy* pEnemy, int Interval);		// 弾を撃ちだす処理
 //--------------------------------------------------
 void InitEnemy(void)
 {
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();		//デバイスのポインタ
-
+	// 初期化
 	ZeroMemory(s_aEnemy, sizeof(s_aEnemy[0]));
+	count = 0;
 
 	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_ENEMY,
+	GetDevice()->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_ENEMY,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_2D,
 		D3DPOOL_MANAGED,
 		&s_pVtxBuff,
 		NULL);
 
-	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
-	count = 0;
+	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
+	Enemy* pEnemy = s_aEnemy;	// エネミーをポインタ化
 
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
+	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++, pVtx += 4)
 	{
-		Enemy* pEnemy = &s_aEnemy[nCntEnemy];
-
 		// 頂点座標の設定
 		pVtx[0].pos = D3DXVECTOR3(pEnemy->pos.x - pEnemy->fSize, pEnemy->pos.y - pEnemy->fSize, 0.0f);
 		pVtx[1].pos = D3DXVECTOR3(pEnemy->pos.x + pEnemy->fSize, pEnemy->pos.y - pEnemy->fSize, 0.0f);
@@ -117,18 +112,10 @@ void InitEnemy(void)
 		pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
 		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 		pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
-
-		pVtx += 4;		// 頂点データのポインタを4つ分進める
 	}
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
-
-	// あとでファイルで入力できるようにしたいなーーーー
-	for (int nCnt = 0; nCnt < ENEMYTYPE_MAX; nCnt++)
-	{
-		s_aTypeEnemy[nCnt].nLife = 1;
-	}
 
 	//テクスチャデータ読み込み
 	LoadSetFile("data\\txt\\enemy.txt");
@@ -169,9 +156,8 @@ void UninitEnemy(void)
 //--------------------------------------------------
 void UpdateEnemy(void)
 {
-	Enemy* pEnemy = s_aEnemy;
-
 	VERTEX_2D *pVtx;			//頂点情報へのポインタ
+	Enemy* pEnemy = s_aEnemy;
 
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
@@ -284,6 +270,7 @@ void UpdateEnemy(void)
 				pEnemy->bUse = false;
 			}
 		}
+
 		// 頂点座標の設定
 		SetVtxPos(pVtx, &pEnemy->pos, pEnemy->fSize, pEnemy->fSize);
 
@@ -370,18 +357,7 @@ void UpdateBuckSky(Enemy* pEnemy)
 //--------------------------------------------------
 void MoveBakyura(Enemy* pEnemy)
 {
-	for (int nCnt = 0; nCnt < MAX_ENEMY; nCnt++)
-	{
-		if (!s_aEnemy[nCnt].bUse)
-		{
-			continue;
-		}
-
-		if (s_aEnemy[nCnt].pos.y > SCREEN_HEIGHT)
-		{
-			//s_aEnemy[nCnt].bUse = false;
-		}
-	}
+	// 何か処理を書くならこちらに
 }
 
 //--------------------------------------------------
@@ -543,10 +519,8 @@ void UpdateZakato4(Enemy* pEnemy)
 //=============================================
 void ZakatoFinish(Enemy* pEnemy)
 {
-	Player* pPlayer = GetPlayer();
-
 	// エネミーからプレイヤーまでの距離の算出
-	D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;
+	D3DXVECTOR3 Direction = pEnemy->pos - GetPlayer()->pos;
 
 	//対角線の角度を算出
 	Direction.z = atan2f(Direction.x, Direction.y);
@@ -627,8 +601,8 @@ void DrawEnemy(void)
 //--------------------------------------------------
 Enemy* SetEnemy(D3DXVECTOR3 pos, float fSize, ENEMYTYPE nType)
 {
-	Enemy* pEnemy = s_aEnemy;
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
+	Enemy* pEnemy = s_aEnemy;
 
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
