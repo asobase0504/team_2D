@@ -32,6 +32,7 @@
 #define ABILTIY		(0.005f)
 #define MAXSTAGE	(5)
 #define JUGE		(80)
+#define BULLET_INTERVAL		(180)
 
 //シオナイト
 #define SHEO_DIST_START_ROTATION	(200.0f)							// 回り始める距離
@@ -212,7 +213,7 @@ void UpdateEnemy(void)
 			case ENEMYTYPE_GROUND_1:	// 直進敵
 				pEnemy->nCntBullet++;
 
-				if (pEnemy->nCntBullet >= 60)
+				if (pEnemy->nCntBullet >= BULLET_INTERVAL)
 				{
 					// エネミーからプレイヤーまでの距離の算出
 					D3DXVECTOR3 Direction = pEnemy->pos - pPlayer->pos;

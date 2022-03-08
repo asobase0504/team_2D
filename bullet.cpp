@@ -14,9 +14,9 @@
 //*******************************************************************************
 // マクロ定義
 //*******************************************************************************
-
 #define BULLET_SPEED_SKY	(15.0f)		// 空中の弾速度
 #define BULLET_SPEED_GROUND	(10.0f)		// 地上の弾速度
+#define BULLET_SPEED_ENEMY	(10.0f)		// エネミーの弾速度
 #define SIZE_BULLET			(15.0f)		// 弾の大きさ
 
 //*******************************************************************************
@@ -144,7 +144,7 @@ void UpdateBullet(void)
 
 			pTarget += pBullet->nIdxTarget;
 
-			if (pBullet->pos.y  - pBullet->size.y < pTarget->pos.y - pTarget->size.y)
+			if (pBullet->pos.y - pBullet->size.y < pTarget->pos.y - pTarget->size.y)
 			{
 				pBullet->bUse = false;
 			}
@@ -283,7 +283,7 @@ int SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, int nType, int nIdxTarget, bool 
 		case BULLETTYPE_ENEMY:
 			pBullet->size = D3DXVECTOR3(SIZE_BULLET, SIZE_BULLET, 0.0f);		// 大きさ
 			pBullet->col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);		// カラー
-			pBullet->fSpeed = 3.0f;									// 速度
+			pBullet->fSpeed = BULLET_SPEED_ENEMY;					// 速度
 			pBullet->bOnCollision = true;							// 当たり判定の有無
 			pBullet->nLife = 180;									// 寿命
 			break;
