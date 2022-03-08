@@ -164,6 +164,7 @@
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="key_config.cpp" />
     <ClCompile Include="life.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="fade.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="key_config.h" />
     <ClInclude Include="life.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="map.h" />

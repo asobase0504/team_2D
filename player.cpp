@@ -11,6 +11,7 @@
 #include "player.h"
 #include "collision.h"
 #include "target.h"
+#include "key_config.h"
 #include "map.h"
 #include "fade.h"
 
@@ -31,11 +32,17 @@
 #define SPAWN_POS				(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT + PLAYER_RADIUS, 0.0f))		// スポーン時の位置
 
 //******************************************************************************
-// グローバル変数
+// 静的変数
 //*******************************************************************************
 static LPDIRECT3DTEXTURE9 s_pTexture = NULL;				// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9 s_pVtxBuff = NULL;			// 頂点バッファへのポインタ
 static Player s_Player;										// プレイヤー数
+
+//******************************************************************************
+// プロトタイプ宣言
+//*******************************************************************************
+static D3DXVECTOR3 MovePlayer(void);	// 移動
+static void LockMovePlayer(D3DXVECTOR3 *pos, D3DXVECTOR3 size);	// 移動制限
 
 //---------------------------------------------------------------------------
 // プレイヤー初期化
@@ -108,8 +115,11 @@ void UninitPlayer(void)
 //---------------------------------------------------------------------------
 void UpdatePlayer(void)
 {
-	if (s_Player.state == PLAYER_STATE_NORMAL)
-	{// 通常状態の時
+	// プレイヤーの状態
+	switch (s_Player.state)
+	{
+	case PLAYER_STATE_NORMAL:
+
 		// 移動ベクトルの更新
 		s_Player.move = MovePlayer();
 
@@ -121,25 +131,22 @@ void UpdatePlayer(void)
 
 		// プレイヤーの移動制限
 		LockMovePlayer(&s_Player.pos, s_Player.size);
-	}	
 
-	if (s_Player.nIdxTarge != -1)
-	{
-		// ターゲットの移動
-		SetPositionTarget(s_Player.nIdxTarge, D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y - TARGET_DISTANCE, 0.0f));
-	}
+		if (s_Player.nIdxTarge != -1)
+		{
+			// ターゲットの移動
+			SetPositionTarget(s_Player.nIdxTarge, D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y - TARGET_DISTANCE, 0.0f));
+		}
 
-	if (s_Player.state == PLAYER_STATE_NORMAL)
-	{// 通常状態の時
 		// 弾が当たった時
 		Bullet* pBullet = GetBullet();
 		for (int i = 0; i < MAX_BULLET; i++, pBullet++)
 		{
-			if (!pBullet->bUse
-				|| pBullet->BulletType != BULLETTYPE_ENEMY)
+			if (!pBullet->bUse || pBullet->BulletType != BULLETTYPE_ENEMY)
 			{// 弾が使用されていないか、敵の弾以外の時
 				continue;
 			}
+
 			if (CollisionCircle(s_Player.pos, s_Player.size.x, pBullet->pos, pBullet->size.x))
 			{// 弾に当たった//玉が同時に二発あたった時１だけ減るようにしてby浜田琉雅
 				Target *pTarget = GetTarget();
@@ -162,12 +169,8 @@ void UpdatePlayer(void)
 				break;
 			}
 		}
-	}
 
-	// プレイヤーの状態
-	switch (s_Player.state)
-	{
-	case PLAYER_STATE_NORMAL:
+		// 色を決定する
 		s_Player.col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 		break;
 
@@ -336,36 +339,16 @@ void SetPlayerVtx(VERTEX_2D *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR c
 //---------------------------------------------------------------------------
 // プレイヤー移動
 //---------------------------------------------------------------------------
-D3DXVECTOR3 MovePlayer(void)
+static D3DXVECTOR3 MovePlayer(void)
 {
 	// 変数宣言
 	D3DXVECTOR3 move = s_Player.move;
 
 	// 変数宣言
-	D3DXVECTOR3 moveDir = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 移動方向
-
-	if (GetKeyboardPress(DIK_W))
-	{// [W]キーが押された時
-		moveDir.y += -1.0f;
-	}
-	if (GetKeyboardPress(DIK_A))
-	{// [A]キーが押された時
-		moveDir.x += -1.0f;
-	}
-	if (GetKeyboardPress(DIK_D))
-	{// [D]キーが押された時
-		moveDir.x += 1.0f;
-	}
-	if (GetKeyboardPress(DIK_S))
-	{// [S]キーが押された時
-		moveDir.y += 1.0f;
-	}
+	D3DXVECTOR3 moveDir = MoveKey();		// 移動方向
 
 	if (moveDir.x != 0.0f || moveDir.y != 0.0f)
 	{
-		// 移動方向ベクトルの大きさを1.0fにする
-		D3DXVec3Normalize(&moveDir, &moveDir);
-
 		// 速度の算出
 		move += moveDir * s_Player.fSpeed;
 
@@ -489,7 +472,7 @@ void ShotPlayer()
 //---------------------------------------------------------------------------
 // プレイヤーの移動制限
 //---------------------------------------------------------------------------
-void LockMovePlayer(D3DXVECTOR3 *pos, D3DXVECTOR3 size)
+static void LockMovePlayer(D3DXVECTOR3 *pos, D3DXVECTOR3 size)
 {
 	if (0.0f + (size.x / 2.0f) >= pos->x)
 	{
@@ -509,6 +492,9 @@ void LockMovePlayer(D3DXVECTOR3 *pos, D3DXVECTOR3 size)
 	}
 }
 
+//---------------------------------------------------------------------------
+// プレイヤーの取得
+//---------------------------------------------------------------------------
 Player *GetPlayer(void)
 {
 	return &s_Player;

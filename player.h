@@ -56,9 +56,7 @@ void DrawPlayer(void);
 void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot);
 void SetPlayerVtx(VERTEX_2D *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXCOLOR col, float fLength, float fAngele);
 
-D3DXVECTOR3 MovePlayer(void);
 void ShotPlayer();
-void LockMovePlayer(D3DXVECTOR3 *pos, D3DXVECTOR3 size);
 Player *GetPlayer(void);
 
 #endif
