@@ -5,6 +5,7 @@
 //
 //============================================================================================================
 #include "score.h"
+#include "scoreup.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -332,6 +333,9 @@ void AddScore(int nValue)
 	//スコアの値に任意の値を加算する
 	s_nNowScore += nValue;
 
+	// スコアアップ
+	SetScoreUp(nValue);
+
 	//スコアの値に合わせてテクスチャを変更
 	aPosTexU[0]	= s_nNowScore % 100000000 / 10000000;
 	aPosTexU[1] = s_nNowScore % 10000000 / 1000000;
@@ -404,6 +408,9 @@ void SubScore(int nValue)
 	
 	//スコアの値から任意の値を減算する
 	s_nNowScore -= nValue;
+
+	// スコアアップ
+	SetScoreUp(-nValue);
 
 	if (s_nNowScore <= 0)
 	{//0以下だったら
