@@ -43,7 +43,6 @@ typedef enum
 // スタティック変数
 //--------------------------------------------------
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffBG = NULL;			// 背景の頂点バッファへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;				// 頂点バッファへのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureMenu[MENU_MAX];		// メニューのテクスチャへのポインタ
 static int							s_nSelectMenu;					// 選ばれているメニュー
 static int							s_nIdxMenu;						// 使っているメニューの番号
@@ -90,15 +89,6 @@ void InitPause(void)
 		&s_pVtxBuffBG,
 		NULL);
 
-	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(
-		sizeof(VERTEX_2D) * 4,
-		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_2D,
-		D3DPOOL_MANAGED,
-		&s_pVtxBuff,
-		NULL);
-
 	VERTEX_2D *pVtx = NULL;		// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
@@ -135,41 +125,6 @@ void InitPause(void)
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuffBG->Unlock();
-
-	// 頂点バッファをロックし、頂点情報へのポインタを取得
-	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-
-	fWidth = (MENU_RIGHT - MENU_LEFT) * 0.5f;
-	fHeight = (MENU_BOTTOM - MENU_TOP) * 0.5f;
-
-	pos = D3DXVECTOR3(MENU_LEFT + fWidth, MENU_TOP + fHeight, 0.0f);
-
-	// 頂点座標の設定
-	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight, 0.0f);
-	pVtx[1].pos = pos + D3DXVECTOR3( fWidth, -fHeight, 0.0f);
-	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth,  fHeight, 0.0f);
-	pVtx[3].pos = pos + D3DXVECTOR3( fWidth,  fHeight, 0.0f);
-
-	// rhwの設定
-	pVtx[0].rhw = 1.0f;
-	pVtx[1].rhw = 1.0f;
-	pVtx[2].rhw = 1.0f;
-	pVtx[3].rhw = 1.0f;
-
-	// 頂点カラーの設定
-	pVtx[0].col = FRAME_COLOR;
-	pVtx[1].col = FRAME_COLOR;
-	pVtx[2].col = FRAME_COLOR;
-	pVtx[3].col = FRAME_COLOR;
-
-	// テクスチャ座標の設定
-	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
-
-	// 頂点バッファをアンロックする
-	s_pVtxBuff->Unlock();
 }
 
 //--------------------------------------------------
@@ -177,12 +132,6 @@ void InitPause(void)
 //--------------------------------------------------
 void UninitPause(void)
 {
-	if (s_pVtxBuff != NULL)
-	{// 頂点バッファの解放
-		s_pVtxBuff->Release();
-		s_pVtxBuff = NULL;
-	}
-
 	for (int i = 0; i < MENU_MAX; i++)
 	{
 		if (s_pTextureMenu[i] != NULL)
@@ -224,21 +173,6 @@ void DrawPause(void)
 		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
 		0,							// 描画する最初の頂点インデックス
 		2);							// 描画するプリミティブ数
-
-	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
-
-	// 頂点フォーマットの設定
-	pDevice->SetFVF(FVF_VERTEX_2D);
-
-	//テクスチャの設定
-	pDevice->SetTexture(0, NULL);
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(
-		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
-		0,							// 描画する最初の頂点インデックス
-		2);							// 描画するプリミティブ数
 }
 
 //--------------------------------------------------
@@ -256,14 +190,20 @@ void SetPause(void)
 	menu.fBottom = MENU_BOTTOM;
 	menu.fWidth = MENU_WIDTH;
 	menu.fHeight = MENU_HEIGHT;
+	menu.bSort = true;
 
 	for (int i = 0; i < MENU_MAX; i++)
 	{
 		menu.pTexture[i] = &s_pTextureMenu[i];
 	}
+	
+	FrameArgument Frame;
+	Frame.bUse = true;
+	Frame.col = D3DXCOLOR(0.0f, 1.0f, 1.0f, 1.0f);
+	Frame.pTexture = NULL;
 
 	// メニューの設定
-	s_nIdxMenu = SetMenu(menu);
+	s_nIdxMenu = SetMenu(menu, Frame);
 }
 
 //--------------------------------------------------
@@ -278,12 +218,24 @@ static void Input(void)
 
 	if (GetKeyboardTrigger(DIK_W) || GetDirectJoypadTrigger(JOYKEY_CROSS_UP) /*|| GetDirectJoypadStickTrigger(JOYKEY_LEFT_STICK, JOYKEY_CROSS_UP)*/)
 	{// Wキーが押されたかどうか
+		// 選択肢の色の初期化
+		InitColorOption();
+
 		s_nSelectMenu = ((s_nSelectMenu - 1) + MENU_MAX) % MENU_MAX;
+
+		// 選択肢の変更
+		ChangeOption(s_nSelectMenu);
 
 	}
 	else if (GetKeyboardTrigger(DIK_S) || GetDirectJoypadTrigger(JOYKEY_CROSS_DOWN) /*|| GetDirectJoypadStickTrigger(JOYKEY_LEFT_STICK, JOYKEY_CROSS_DOWN)*/)
 	{// Sキーが押されたかどうか
+		// 選択肢の色の初期化
+		InitColorOption();
+
 		s_nSelectMenu = ((s_nSelectMenu + 1) + MENU_MAX) % MENU_MAX;
+
+		// 選択肢の変更
+		ChangeOption(s_nSelectMenu);
 	}
 
 	if (GetKeyboardTrigger(DIK_RETURN) || GetDirectJoypadTrigger(JOYKEY_DIRECT_1_BUTTON))
@@ -307,5 +259,8 @@ static void Input(void)
 			assert(false);
 			break;
 		}
+
+		// 選択肢の決定
+		DecisionOption();
 	}
 }

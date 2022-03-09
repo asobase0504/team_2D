@@ -104,25 +104,25 @@ void InitTitle(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data/TEXTURE/GAMESTART.png",
+		"data/TEXTURE/New_GAMESTART.png",
 		&s_pTextureMenu[MENU_GAME]);
 
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data/TEXTURE/RANKING.png",
+		"data/TEXTURE/New_RANKING.png",
 		&s_pTextureMenu[MENU_RANKING]);
 
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data/TEXTURE/STAFFROLL.png",
+		"data/TEXTURE/New_STAFFROLL.png",
 		&s_pTextureMenu[MENU_STAFFROLL]);
 
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data/TEXTURE/EXIT.png",
+		"data/TEXTURE/New_EXIT.png",
 		&s_pTextureMenu[MENU_EXIT]);
 
 	// 頂点バッファの生成
@@ -264,14 +264,20 @@ void InitTitle(void)
 	menu.fBottom = SCREEN_HEIGHT;
 	menu.fWidth = MENU_WIDTH;
 	menu.fHeight = MENU_HEIGHT;
+	menu.bSort = true;
 
 	for (int i = 0; i < MENU_MAX; i++)
 	{
 		menu.pTexture[i] = &s_pTextureMenu[i];
 	}
 	
+	FrameArgument Frame;
+	Frame.bUse = false;
+	Frame.col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	Frame.pTexture = NULL;
+
 	// メニューの設定
-	s_nIdxMenu = SetMenu(menu);
+	s_nIdxMenu = SetMenu(menu, Frame);
 }
 
 //--------------------------------------------------
@@ -453,13 +459,26 @@ static void Input(void)
 		return;
 	}
 
-	if (GetKeyboardTrigger(DIK_W) || GetDirectJoypadTrigger(JOYKEY_CROSS_UP) /*|| GetDirectJoypadStickTrigger(JOYKEY_LEFT_STICK, JOYKEY_CROSS_UP)*/)
+	if (GetKeyboardTrigger(DIK_W) || GetDirectJoypadTrigger(JOYKEY_CROSS_UP)) /*|| GetDirectJoypadStickTrigger(JOYKEY_LEFT_STICK, JOYKEY_CROSS_UP)*/
 	{// Wキーが押されたかどうか
+		// 選択肢の色の初期化
+		InitColorOption();
+
 		s_nSelectMenu = ((s_nSelectMenu - 1) + MENU_MAX) % MENU_MAX;
+
+		// 選択肢の変更
+		ChangeOption(s_nSelectMenu);
+
 	}
-	else if (GetKeyboardTrigger(DIK_S) || GetDirectJoypadTrigger(JOYKEY_CROSS_DOWN) /*|| GetDirectJoypadStickTrigger(JOYKEY_LEFT_STICK, JOYKEY_CROSS_DOWN)*/)
+	else if (GetKeyboardTrigger(DIK_S) || GetDirectJoypadTrigger(JOYKEY_CROSS_DOWN)) /*|| GetDirectJoypadStickTrigger(JOYKEY_LEFT_STICK, JOYKEY_CROSS_DOWN)*/
 	{// Sキーが押されたかどうか
+		// 選択肢の色の初期化
+		InitColorOption();
+
 		s_nSelectMenu = ((s_nSelectMenu + 1) + MENU_MAX) % MENU_MAX;
+
+		// 選択肢の変更
+		ChangeOption(s_nSelectMenu);
 	}
 
 	if (GetKeyboardTrigger(DIK_RETURN) || GetDirectJoypadTrigger(JOYKEY_DIRECT_1_BUTTON))
@@ -486,5 +505,8 @@ static void Input(void)
 			assert(false);
 			break;
 		}
+
+		// 選択肢の決定
+		DecisionOption();
 	}
 }

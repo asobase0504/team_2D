@@ -1,6 +1,6 @@
 //==================================================
 //
-// ゲーム制作 ( menu.h )
+// FPD制作 ( menu.h )
 // Author  : katsuki mizuki
 //
 //==================================================
@@ -15,8 +15,12 @@
 //--------------------------------------------------
 // 構造体
 //--------------------------------------------------
+
+/*↓ メニューの引数 ↓*/
+
 typedef struct
 {
+	LPDIRECT3DTEXTURE9		*pTexture[MAX_OPTION];		// テクスチャ
 	int						nNumUse;					// 使用数
 	float					fLeft;						// 左端
 	float					fRight;						// 右端
@@ -24,8 +28,17 @@ typedef struct
 	float					fBottom;					// 下端
 	float					fWidth;						// 選択肢の幅
 	float					fHeight;					// 選択肢の高さ
-	LPDIRECT3DTEXTURE9		*pTexture[MAX_OPTION];		// テクスチャ
+	bool					bSort;						// 並べ方 [ true : 縦 false : 横 ]
 }MenuArgument;
+
+/*↓ 枠の引数 ↓*/
+
+typedef struct
+{
+	LPDIRECT3DTEXTURE9		*pTexture;		// テクスチャ
+	D3DXCOLOR				col;			// 色
+	bool					bUse;			// 枠がいるかどうか [ true : いる false : いらない ]
+}FrameArgument;
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -34,7 +47,10 @@ void InitMenu(void);
 void UninitMenu(void);
 void UpdateMenu(void);
 void DrawMenu(void);
-int SetMenu(const MenuArgument &menu);
+int SetMenu(const MenuArgument &menu, const FrameArgument &Frame);
+void InitColorOption(void);
+void ChangeOption(int Idx);
+void DecisionOption(void);
 void ResetMenu(int nIdx);
 
 #endif // !_MENU_H_
