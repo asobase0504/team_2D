@@ -18,13 +18,13 @@
 #define MAP_FILE6	"Data/txt/map6.txt"
 // マクロ定義
 #define NUM_MAP	    (2048)		//背景枚数
-#define X_MAP		(22)		//マップチップサイズX
-#define Y_MAP		(2)			//マップチップサイズY
+#define X_MAP		(8)			//マップチップサイズX
+#define Y_MAP		(8)			//マップチップサイズY
 #define MAP_SIZEX	(20)		//マップサイズX
 #define MAP_SIZEY	(100)		//マップサイズY
 #define MAPYLENGTH	(10)		//マップの長さ
 #define BLOCKSIZEX	(((float)SCREEN_WIDTH /MAP_SIZEX))
-#define BLOCKSIZEY	(((float)SCREEN_HEIGHT*MAPYLENGTH / MAP_SIZEY))
+#define BLOCKSIZEY	(BLOCKSIZEX)//(((float)SCREEN_HEIGHT*MAPYLENGTH / MAP_SIZEY))
 #define MAPMOVE (2.5f)
 
 //-------------

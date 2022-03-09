@@ -31,7 +31,7 @@ void InitMap(void)
 
 	//テクスチャの読み込み
 	D3DXCreateTextureFromFile(pDevice,
-		"Data/TEXTURE/mapchip_field3.png",
+		"Data/TEXTURE/mapchip_field2.png",
 		&s_pTextureMap);
 
 	//頂点バッファ
@@ -169,11 +169,17 @@ void DrawMap(void)
 		pDevice->SetFVF(FVF_VERTEX_2D);
 		//テクスチャの設定
 		pDevice->SetTexture(0, s_pTextureMap);
-
+	
+		pDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);//小さいの拡大
+		pDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);//大きいの縮小
+		
 		pDevice->DrawPrimitive(
 			D3DPT_TRIANGLESTRIP,
 			4 * i,
 			2);
+		pDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);//小さいの拡大
+		pDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);//大きいの縮小
+
 	}
 }
 
@@ -199,18 +205,7 @@ void SetMap(D3DXVECTOR3 pos, int nType, int tex)
 		pMap->pos = pos;
 		pMap->nType = nType;
 		pMap->tex = tex;
-		if (pMap->tex == 2)
-		{
-			pMap->tex = 19;
-		}
-		if (pMap->tex == 24)
-		{
-			pMap->tex = 21;
-		}
-		if (pMap->tex == 26)
-		{
-			pMap->tex = 17;
-		}
+
 		int X = (pMap->tex % X_MAP);
 		int Y = (pMap->tex / X_MAP);
 		//テクスチャの座標設定
@@ -257,7 +252,7 @@ void InitMapSet(char *Filename)
 	//ブロック設定
 	for (int nCntY = 0; nCntY < MAP_SIZEY; nCntY++)
 	{
-		float a = BLOCKSIZEY * 9.0f;
+		float a = BLOCKSIZEY * 10.3f;
 		for (int nCntX = 0; nCntX < MAP_SIZEX; nCntX++)
 		{//Mapの書き込み
 			SetMap(D3DXVECTOR3(BLOCKSIZEX*nCntX, (-(BLOCKSIZEY*nCntY) + a), 0.0f), 1, aMap[nCntY][nCntX]);
