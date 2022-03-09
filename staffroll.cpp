@@ -13,7 +13,7 @@
 //マクロ定義
 #define NUM_STAFFROLL	(100)					//テクスチャの最大数
 #define MAP_SPEED	(0.0005f)					//画面スクロールの速さ
-#define MAX_MEMBER	(14)						//エンドロールにのせる最大数
+#define MAX_MEMBER	(16)						//エンドロールにのせる最大数
 
 //スタティック変数
 static LPDIRECT3DTEXTURE9			s_pTexture[NUM_STAFFROLL] = {};		//テクスチャへのポインタ
@@ -39,37 +39,37 @@ void InitStaffroll(void)
 	//------------------------------
 	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\jobilogo.png", &s_pTexture[0]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\buriya.png", &s_pTexture[1]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\YudaKaitoEnd.png", &s_pTexture[1]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\kitune.png", &s_pTexture[2]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\Map.png", &s_pTexture[2]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\koduna.png", &s_pTexture[3]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\kitune.png", &s_pTexture[3]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\YudaKaitoEnd.png", &s_pTexture[4]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\mizuki000.png", &s_pTexture[4]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\keisuke.png", &s_pTexture[5]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\Sato Teruto.png", &s_pTexture[5]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\generalsupport.png", &s_pTexture[6]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\mizuki001.png", &s_pTexture[6]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\mizuki002.png", &s_pTexture[7]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\buriNameEnemy.png", &s_pTexture[7]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\mizuki001.png", &s_pTexture[8]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\keisuke.png", &s_pTexture[8]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\mizuki000.png", &s_pTexture[9]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\hamada.png", &s_pTexture[9]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\Sato Teruto.png", &s_pTexture[10]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\buriNameLevel.png", &s_pTexture[10]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\StaffRoll_MyName.png", &s_pTexture[11]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\mizuki002.png", &s_pTexture[11]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\buriNameEnemy.png", &s_pTexture[12]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\StaffRoll_MyName.png", &s_pTexture[12]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\buriNameLevel.png", &s_pTexture[13]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\generalsupport.png", &s_pTexture[13]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\ThankyouforPlaying.png", &s_pTexture[14]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\koduna.png", &s_pTexture[14]);
 
-	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\.png", &s_pTexture[15]);
+	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\buriya.png", &s_pTexture[15]);
 
-	//これを最後にしてください
+	//これの画像を最後にしてください
 	D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\ThankyouforPlaying.png", &s_pTexture[16]);
 
 	//頂点バッファの生成
