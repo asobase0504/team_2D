@@ -30,7 +30,7 @@ typedef struct
 	DIJOYSTATE2 JoyKeyStateDirect;					//ジョイパット（プレス処理）
 	DIJOYSTATE2 JoyKeyStateDirectTrigger;			//ジョイパット（トリガー処理）
 	DIJOYSTATE2 JoyKeyStateDirectRelease;			//ジョイパット（リリース処理）
-	DWORD OldJoyKeyDirect = 0xffffffff;				//前回の十字キーの値
+	DWORD OldJoyKeyDirect = 0;						//前回の十字キーの値
 	JOYKEY_CROSS OldJoyKeyStickDirect;				//前回のスティックの位置
 	bool bJoyKey = false;							//使っていつかどうか
 }JoyKeyDirect;
@@ -89,17 +89,17 @@ HRESULT InitInput(HINSTANCE hInstance, HWND hWnd)
 
 	//ジョイパッド(DirectInput)の初期化処理
 
-	if (FAILED(InitJoypadDirect(hInstance, hWnd)))
+	/*if (FAILED(InitJoypadDirect(hInstance, hWnd)))
 	{
 		g_aJoyKeyDirectState.bJoyKey = false;
 	}
 	else
 	{
 		g_aJoyKeyDirectState.bJoyKey = true;
-	}
+	}*/
 
 	//ジョイパッド初期化
-	InitJoypad();
+	//InitJoypad();
 
 	return S_OK;
 }
@@ -124,10 +124,10 @@ void UpdateInput(void)
 	UpdateKeyboard();
 
 	//ジョイパッド(DirectInput)更新処理
-	UpdateJoypadDirect();
+	//UpdateJoypadDirect();
 
 	//ジョイパッド更新処理
-	UpdateJoypad();
+	//UpdateJoypad();
 }
 
 
@@ -402,16 +402,19 @@ bool GetDirectJoypadRelease(JOYKEY_DIRECT Key)
 //ジョイパッド(DirectInput)スティック処理
 D3DXVECTOR3 GetDirectJoypadStick(JOYKEY_RIGHT_LEFT Key)
 {
-	switch (Key)
-	{
-	case JOYKEY_RIGHT_STICK:
-		return D3DXVECTOR3(float(g_aJoyKeyDirectState.JoyKeyStateDirect.lZ) / 32767.0f - 1.0f, -float(g_aJoyKeyDirectState.JoyKeyStateDirect.lRz) / 32767.0f + 1.0f, 0.0f);
-		break;
-	case JOYKEY_LEFT_STICK:
-		return D3DXVECTOR3(float(g_aJoyKeyDirectState.JoyKeyStateDirect.lX) / 32767.0f - 1.0f, -float(g_aJoyKeyDirectState.JoyKeyStateDirect.lY) / 32767.0f + 1.0f, 0.0f);
-		break;
-	}
 
+	if (g_aJoyKeyDirectState.bJoyKey)
+	{//使用していたら
+		switch (Key)
+		{
+		case JOYKEY_RIGHT_STICK:
+			return D3DXVECTOR3(float(g_aJoyKeyDirectState.JoyKeyStateDirect.lZ) / 32767.0f - 1.0f, -float(g_aJoyKeyDirectState.JoyKeyStateDirect.lRz) / 32767.0f + 1.0f, 0.0f);
+			break;
+		case JOYKEY_LEFT_STICK:
+			return D3DXVECTOR3(float(g_aJoyKeyDirectState.JoyKeyStateDirect.lX) / 32767.0f - 1.0f, -float(g_aJoyKeyDirectState.JoyKeyStateDirect.lY) / 32767.0f + 1.0f, 0.0f);
+			break;
+		}
+	}
 	//メモ、Xは右が１、左が-１、Yは上が１、下が-１
 
 	return D3DXVECTOR3(0.0f, 0.0f, 0.0f);
