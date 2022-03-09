@@ -18,7 +18,7 @@ LIFE = 1
 END_TEX
 
 SCRIPT_TEX
-TEXTURE_FILENAME = data/TEXTURE/sky_enemy_001.png		# [1]敵テクスチャ
+TEXTURE_FILENAME = data/TEXTURE/sky_enemy_003.png		# [1]敵テクスチャ
 DIVISION = 1 1 #分割数 X Y
 ANIMESPEED = 5
 MOVESPEED = 3.0
