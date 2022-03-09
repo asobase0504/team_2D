@@ -14,6 +14,7 @@
 #include "key_config.h"
 #include "map.h"
 #include "fade.h"
+#include "particle.h"
 
 //*******************************************************************************
 // íËêî
@@ -115,6 +116,7 @@ void UninitPlayer(void)
 //---------------------------------------------------------------------------
 void UpdatePlayer(void)
 {
+	SetParticle(D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y+20.0f, s_Player.pos.z), D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f), 10, 20, 0);
 	// ÉvÉåÉCÉÑÅ[ÇÃèÛë‘
 	switch (s_Player.state)
 	{

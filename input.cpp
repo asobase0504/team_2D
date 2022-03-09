@@ -89,14 +89,14 @@ HRESULT InitInput(HINSTANCE hInstance, HWND hWnd)
 
 	//ジョイパッド(DirectInput)の初期化処理
 
-	/*if (FAILED(InitJoypadDirect(hInstance, hWnd)))
+	if (FAILED(InitJoypadDirect(hInstance, hWnd)))
 	{
 		g_aJoyKeyDirectState.bJoyKey = false;
 	}
 	else
 	{
 		g_aJoyKeyDirectState.bJoyKey = true;
-	}*/
+	}
 
 	//ジョイパッド初期化
 	//InitJoypad();
@@ -124,10 +124,10 @@ void UpdateInput(void)
 	UpdateKeyboard();
 
 	//ジョイパッド(DirectInput)更新処理
-	//UpdateJoypadDirect();
+	UpdateJoypadDirect();
 
 	//ジョイパッド更新処理
-	//UpdateJoypad();
+	UpdateJoypad();
 }
 
 
