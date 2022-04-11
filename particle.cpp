@@ -187,7 +187,7 @@ void DrawParticle(void)
 	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 }
-void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadeius, int nLife , int nType)
+void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadeius, int nLife, int nType)
 {
 	int nCntParticle;
 	VERTEX_2D*pVtx; //頂点へのポインタ
